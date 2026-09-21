@@ -30,7 +30,7 @@
 - Consumes: 设计文档中的文字、素材和可访问性要求。
 - Produces: 针对 `index.html` 的结构契约；项目内透明小提琴图片路径 `assets/violin.png`。
 
-- [ ] **Step 1: 写出失败的结构测试**
+- [x] **Step 1: 写出失败的结构测试**
 
 ```js
 import assert from 'node:assert/strict';
@@ -55,12 +55,12 @@ test('homepage supports reduced motion and keyboard activation', async () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试并确认因页面不存在而失败**
+- [x] **Step 2: 运行测试并确认因页面不存在而失败**
 
 Run: `node --test tests/homepage.test.mjs`
 Expected: FAIL with `ENOENT` for `index.html`.
 
-- [ ] **Step 3: 获取并保存项目内小提琴素材**
+- [x] **Step 3: 获取并保存项目内小提琴素材**
 
 选择来源许可清晰、主体完整的透明背景小提琴图片，保存为 `assets/violin.png`，并用 `file assets/violin.png` 确认是有效 PNG。
 
@@ -74,7 +74,7 @@ Expected: FAIL with `ENOENT` for `index.html`.
 - Consumes: `assets/violin.png` 与 Task 1 的 HTML 契约。
 - Produces: `triggerResonance(origin)` 音浪触发函数；指针视差 CSS 变量 `--pointer-x`、`--pointer-y`；完整静态主页。
 
-- [ ] **Step 1: 扩充失败测试以覆盖页面层次和交互钩子**
+- [x] **Step 1: 扩充失败测试以覆盖页面层次和交互钩子**
 
 ```js
 test('homepage includes stage layers and interaction hooks', async () => {
@@ -88,12 +88,12 @@ test('homepage includes stage layers and interaction hooks', async () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试并确认因实现缺失而失败**
+- [x] **Step 2: 运行测试并确认因实现缺失而失败**
 
 Run: `node --test tests/homepage.test.mjs`
 Expected: FAIL because stage and interaction tokens are absent.
 
-- [ ] **Step 3: 实现最小完整页面**
+- [x] **Step 3: 实现最小完整页面**
 
 在 `index.html` 中加入语义化舞台结构、内联样式、素材引用和原生交互：
 
@@ -112,7 +112,7 @@ Expected: FAIL because stage and interaction tokens are absent.
 
 JavaScript 中定义 `triggerResonance(origin)`，为指针、Enter 和 Space 统一触发 `.sound-wave` 元素；指针移动仅更新 CSS 变量，不改变布局。
 
-- [ ] **Step 4: 运行测试并确认通过**
+- [x] **Step 4: 运行测试并确认通过**
 
 Run: `node --test tests/homepage.test.mjs`
 Expected: 3 tests PASS, 0 failures.
@@ -127,24 +127,24 @@ Expected: 3 tests PASS, 0 failures.
 - Consumes: Task 2 的静态页面。
 - Produces: 在桌面和手机视口均无溢出、遮挡或素材失败的最终页面。
 
-- [ ] **Step 1: 启动静态服务器**
+- [x] **Step 1: 启动静态服务器**
 
 Run: `python3 -m http.server 8000`
 Expected: server listens on `http://localhost:8000`.
 
-- [ ] **Step 2: 在桌面视口检查页面**
+- [x] **Step 2: 在桌面视口检查页面**
 
 检查 1440x900 视口：姓名和完整小提琴首屏可见；幕布不遮挡主内容；控制台无错误；点击小提琴后出现音浪。
 
-- [ ] **Step 3: 在手机视口检查页面**
+- [x] **Step 3: 在手机视口检查页面**
 
 检查 390x844 视口：无横向滚动；姓名不溢出；小提琴完整可见；轻触交互有效。
 
-- [ ] **Step 4: 根据截图做最小响应式修正并重测**
+- [x] **Step 4: 根据截图做最小响应式修正并重测**
 
 只调整导致溢出、遮挡、裁切或视觉焦点不清的 CSS，然后重新运行桌面和手机验收。
 
-- [ ] **Step 5: 运行最终自动验证**
+- [x] **Step 5: 运行最终自动验证**
 
 Run: `node --test tests/homepage.test.mjs && git diff --check`
 Expected: all tests PASS; `git diff --check` exits 0 with no output.
