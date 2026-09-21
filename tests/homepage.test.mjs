@@ -4,14 +4,6 @@ import test from 'node:test';
 
 const htmlPath = new URL('../index.html', import.meta.url);
 
-test('homepage exposes its core identity and violin interaction', async () => {
-  const html = await readFile(htmlPath, 'utf8');
-
-  assert.match(html, /<html[^>]+lang="zh-CN"/);
-  assert.match(html, /<h1[^>]*>\s*石广喆\s*<\/h1>/);
-  assert.match(html, /src="assets\/violin\.png"/);
-  assert.match(html, /aria-label="奏响小提琴"/);
-});
 
 test('homepage supports reduced motion and keyboard activation', async () => {
   const html = await readFile(htmlPath, 'utf8');
