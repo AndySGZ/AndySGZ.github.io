@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img"
+     aria-label="北欧风格浅色竖向风景占位图：远山、薄雾与低垂的太阳">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#f3ede6"/>
+      <stop offset="50%"  stop-color="#efe8e0"/>
+      <stop offset="100%" stop-color="#e7dfd5"/>
+    </linearGradient>
+    <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#e6ded4" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#e6ded4" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="900" height="1200" fill="url(#sky)"/>
+
+  <!-- 低垂的太阳 -->
+  <circle cx="590" cy="392" r="104" fill="#e9d9bf" opacity="0.72"/>
+
+  <!-- 顶部薄雾过渡 -->
+  <rect x="0" y="300" width="900" height="260" fill="url(#haze)" opacity="0.55"/>
+
+  <!-- 远山 -->
+  <path d="M0 800 L170 690 L330 772 L520 646 L700 760 L820 700 L900 742 L900 1200 L0 1200 Z"
+        fill="#ded5ca" opacity="0.85"/>
+
+  <!-- 山间薄雾 -->
+  <rect x="0" y="770" width="900" height="150" fill="url(#haze)"/>
+
+  <!-- 近丘 -->
+  <path d="M0 940 L200 862 L400 946 L610 856 L790 950 L900 902 L900 1200 L0 1200 Z"
+        fill="#d2c8bc" opacity="0.92"/>
+
+  <!-- 松林剪影 -->
+  <g fill="#b9c3b7" opacity="0.5">
+    <path d="M120 1032 L162 916 L204 1032 Z"/>
+    <path d="M196 1040 L246 900 L296 1040 Z"/>
+    <path d="M640 1036 L682 918 L724 1036 Z"/>
+    <path d="M716 1044 L768 898 L820 1044 Z"/>
+  </g>
+
+  <!-- 前景地面 -->
+  <path d="M0 1200 L0 1074 L900 1040 L900 1200 Z" fill="#c8bdb0" opacity="0.55"/>
+</svg>

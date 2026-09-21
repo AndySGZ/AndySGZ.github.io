@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f0eb">
+    <meta name="description" content="石广喆的作品：JBR 行为研究、个人主页，以及还在筹备中的东西。">
+    <title>作品 | 石广喆</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="scripts/site-data.js" defer></script>
+    <script src="scripts/render-sections.js" defer></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <header class="site-nav">
+      <div class="site-nav__inner">
+        <a class="wordmark" href="index.html">石广喆</a>
+        <nav class="site-nav__links" aria-label="主导航">
+          <a href="index.html"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
+          <a href="about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
+          <a href="essays.html"><span class="nav-zh">杂谈</span><span class="nav-en">Essays</span></a>
+          <a href="works.html" aria-current="page"><span class="nav-zh">作品</span><span class="nav-en">Works</span></a>
+          <a href="Jary/index.html"><span class="nav-zh">《Jary行为研究》</span><span class="nav-en">JARY Behavior Research</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="page-header">
+        <div class="container">
+          <h1 class="page-header__title">作品</h1>
+          <p class="page-header__lead">
+            做出来的东西，以及还在筹备中的。筹备中的会标明，点不开是有意的。
+          </p>
+        </div>
+      </div>
+
+      <section class="section" aria-labelledby="all-works-heading">
+        <div class="container">
+          <h2 class="sr-only" id="all-works-heading">全部作品</h2>
+          <!-- 不加 data-limit：显示全部。内容来自 scripts/site-data.js -->
+          <div class="card-grid" data-works-grid></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <span>© 2026 石广喆</span>
+        <span>
+          <a href="essays.html">杂谈</a>
+          <span aria-hidden="true"> · </span>
+          <a href="Jary/index.html">JBR 行为研究</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

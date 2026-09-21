@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f0eb">
+    <meta name="description" content="石广喆的个人主页：小提琴、代码，以及两者之间那段安静的距离。">
+    <title>石广喆</title>
+    <link rel="stylesheet" href="assets/style.css">
+
+    <!-- 留言墙后端配置：接入 Supabase 后把 provider 改成 'supabase' 并填入两个值。
+         详细步骤见 docs/留言墙接入指南.md；不填则运行在本机演示模式。 -->
+    <script>
+      window.GUESTBOOK_CONFIG = {
+        provider: 'local',
+        supabaseUrl: '',
+        supabaseAnonKey: '',
+        table: 'messages'
+      };
+    </script>
+    <script src="scripts/site-data.js" defer></script>
+    <script src="scripts/quote-rotator.js" defer></script>
+    <script src="scripts/guestbook.js" defer></script>
+    <script src="scripts/render-sections.js" defer></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <header class="site-nav">
+      <div class="site-nav__inner">
+        <a class="wordmark" href="index.html">石广喆</a>
+        <nav class="site-nav__links" aria-label="主导航">
+          <a href="index.html" aria-current="page"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
+          <a href="about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
+          <a href="essays.html"><span class="nav-zh">杂谈</span><span class="nav-en">Essays</span></a>
+          <a href="works.html"><span class="nav-zh">作品</span><span class="nav-en">Works</span></a>
+          <a href="Jary/index.html"><span class="nav-zh">《Jary行为研究》</span><span class="nav-en">JARY Behavior Research</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ——— 首屏：左侧竖向图 + 右侧较宽的感触句区 ———
+           换图：把 assets/banner.svg 换成你自己的照片即可，不用改 CSS。
+           竖向图固定 3:4，由 .hero__figure 的 aspect-ratio + object-fit: cover 控制，
+           照片始终铺满且绝不拉伸变形。 -->
+      <section class="hero" aria-labelledby="hero-heading">
+        <h2 class="sr-only" id="hero-heading">题图与最近很有感触的句子</h2>
+
+        <div class="hero__inner">
+          <figure class="hero__figure">
+            <img src="assets/banner.svg" alt="北欧风格的浅色风景：远山、薄雾与低垂的太阳"
+                 width="900" height="1200">
+          </figure>
+
+          <div class="hero__quotes">
+            <!-- JS 会清空这里再生成轮播句；无脚本时下面这句兜底 -->
+            <div class="quote-rotator" data-quote-rotator>
+              <blockquote class="quote-rotator__item is-visible">
+                <p class="quote-rotator__text">记录本身就是一种缓慢的理解。</p>
+              </blockquote>
+            </div>
+            <p class="hero__hint">悬停可暂停轮播</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ——— 我是谁 ——— -->
+      <section class="section" id="who" aria-labelledby="who-heading">
+        <div class="container">
+          <h2 class="section-title" id="who-heading">我是谁</h2>
+          <p class="intro__sentence">我是石广喆，一个在小提琴和代码之间寻找安静节奏的人。</p>
+          <a class="link-arrow" href="about.html">关于我 →</a>
+        </div>
+      </section>
+
+      <!-- ——— 最近发布（取前 3 条，全部在 essays.html） ——— -->
+      <section class="section" id="essays" aria-labelledby="essays-heading">
+        <div class="container">
+          <h2 class="section-title" id="essays-heading">最近发布</h2>
+          <p class="section-lead">以后写的东西都会先出现在这里。</p>
+          <ul class="entry-list" data-essays-list data-limit="3"></ul>
+          <p class="section-more"><a class="link-arrow" href="essays.html">全部杂谈 →</a></p>
+        </div>
+      </section>
+
+      <!-- ——— 精选作品（取前 3 个，全部在 works.html） ——— -->
+      <section class="section" id="works" aria-labelledby="works-heading">
+        <div class="container">
+          <h2 class="section-title" id="works-heading">精选作品</h2>
+          <p class="section-lead">挑出来的几件，从这里开始看比较合适。</p>
+          <div class="card-grid" data-works-grid data-limit="3"></div>
+          <p class="section-more"><a class="link-arrow" href="works.html">全部作品 →</a></p>
+        </div>
+      </section>
+
+      <!-- ——— 留言墙 ——— -->
+      <section class="section" id="guestbook" aria-labelledby="guestbook-heading">
+        <div class="container">
+          <h2 class="section-title" id="guestbook-heading">留言墙</h2>
+          <p class="section-lead">写下昵称和一句话。所有留言经我确认后才会公开显示。</p>
+
+          <div class="guestbook">
+            <form class="guestbook__form" data-guestbook-form novalidate>
+              <div class="field">
+                <label class="field__label" for="gb-name">昵称</label>
+                <input class="field__input" id="gb-name" name="name" type="text"
+                       maxlength="20" autocomplete="nickname" required
+                       placeholder="怎么称呼你">
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="gb-body">留言</label>
+                <textarea class="field__input" id="gb-body" name="body"
+                          maxlength="200" required
+                          placeholder="想说的话，200 字以内"></textarea>
+                <span class="field__counter" data-guestbook-counter>0 / 200</span>
+              </div>
+
+              <!-- 机器人陷阱：真人看不到也不会填 -->
+              <div class="field field--trap" aria-hidden="true">
+                <label for="gb-website">网址</label>
+                <input id="gb-website" name="website" type="text" tabindex="-1" autocomplete="off">
+              </div>
+
+              <button class="btn" type="submit">提交留言</button>
+              <p class="form-status" data-guestbook-status role="status" aria-live="polite"></p>
+
+              <p class="wall__notice" data-guestbook-notice hidden>
+                当前运行在<strong>本机演示模式</strong>：留言只保存在你自己的浏览器里，别人看不到。
+                接入真实后端只需改 <code>index.html</code> 顶部的
+                <code>window.GUESTBOOK_CONFIG</code>，步骤见
+                <code>docs/留言墙接入指南.md</code>。
+              </p>
+            </form>
+
+            <div class="wall">
+              <ul class="wall__list" data-guestbook-list></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ——— 联系方式（留位） ——— -->
+      <section class="section" id="contact" aria-labelledby="contact-heading">
+        <div class="container">
+          <h2 class="section-title" id="contact-heading">联系方式</h2>
+          <p class="section-lead">位置先留着，等信息确定了我再填上。</p>
+          <div class="contact-list" data-contact-list></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <span>© 2026 石广喆</span>
+        <span>
+          <a href="essays.html">杂谈</a>
+          <span aria-hidden="true"> · </span>
+          <a href="works.html">作品</a>
+          <span aria-hidden="true"> · </span>
+          <a href="Jary/index.html">JBR 行为研究</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>
