@@ -65,7 +65,7 @@ test('journal styles preserve keyboard focus and reduced-motion preferences', as
   assert.match(css, /@media\s*\(max-width:\s*640px\)/);
 });
 
-test('journal homepage provides a cover-led current-issue reading flow', async () => {
+test('journal homepage provides an editorial current-issue reading flow', async () => {
   const html = await readFile(new URL('Jary/index.html', projectRoot), 'utf8');
 
   assert.match(html, /class="journal-cover"/);

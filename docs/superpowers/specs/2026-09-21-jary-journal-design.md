@@ -7,16 +7,16 @@ Create an independent bilingual journal homepage at `/Jary/` for JARY Behavior R
 ## Visual Direction
 
 - Follow the information density and restraint of established scientific-journal portals: white background, black and grey typography, and one deep-red publication accent.
-- Use a compact institutional header, serif journal masthead, horizontal section navigation, visible volume and issue metadata, and rule-based editorial layout.
-- Present the current issue through a conventional journal cover. Its static Canvas observation plate must not invent Jary's appearance.
+- Use a compact serif journal masthead, single-row section navigation, visible volume and issue metadata, and rule-based editorial layout.
+- Lead with the founding editorial and treat the compact journal cover as supporting issue artwork. Its static Canvas observation plate must not invent Jary's appearance or imply measured data.
 - Keep corners square and avoid oversized manifesto typography, decorative motion, generic dashboard cards, gradients, and marketing-style feature copy.
 
 ## Information Architecture
 
-1. Institutional utility bar and compact journal masthead.
+1. Compact journal masthead without an invented institutional utility bar.
 2. Primary navigation and current-volume metadata strip.
-3. Cover-led current issue with founding editorial and publication metadata.
-4. Four numbered research programmes presented as formal contents rows, not completed papers.
+3. Editorial-led current issue with a supplementary cover and publication metadata.
+4. Four research programmes presented as a two-column editorial index, not completed papers.
 5. Journal-information sidebar with the complete bilingual introduction, publication facts, editorial principles, and citation format.
 6. Compact publisher-style footer.
 
@@ -49,5 +49,6 @@ Create an independent bilingual journal homepage at `/Jary/` for JARY Behavior R
 - All four supplied research scopes and both complete journal introductions are present.
 - Chinese and English modes update the visible language and persist the selection.
 - Desktop and mobile views have no horizontal overflow, overlapping text, or clipped primary content.
+- On mobile, the editorial precedes a horizontal thumbnail version of the cover in reading order.
 - The Canvas is visible and nonblank, while the page remains meaningful when scripts do not run.
 - Keyboard focus and reduced-motion behavior are present.
