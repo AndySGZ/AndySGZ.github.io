@@ -39,3 +39,14 @@ test('homepage includes stage layers and interaction hooks', async () => {
   assert.match(html, /--pointer-x/);
   assert.match(html, /--pointer-y/);
 });
+
+test('homepage exposes an accessible newspaper link to the JARY journal', async () => {
+  const html = await readFile(htmlPath, 'utf8');
+
+  assert.match(html, /class="newspaper-drawer"/);
+  assert.match(html, /href="\/Jary\/index\.html"/);
+  assert.match(html, /aria-label="打开 JARY 行为研究"/);
+  assert.match(html, /\.newspaper-drawer:hover/);
+  assert.match(html, /\.newspaper-drawer:focus-visible/);
+  assert.match(html, /\.newspaper-drawer:active/);
+});

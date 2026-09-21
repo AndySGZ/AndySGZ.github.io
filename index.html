@@ -407,6 +407,162 @@
         animation-delay: 180ms;
       }
 
+      .newspaper-drawer {
+        position: fixed;
+        z-index: 12;
+        right: -10px;
+        bottom: -12px;
+        display: block;
+        width: 166px;
+        height: 214px;
+        color: #201819;
+        text-decoration: none;
+        transform: translate(66%, 61%) rotate(-7deg);
+        transform-origin: right bottom;
+        transition:
+          transform 620ms cubic-bezier(0.16, 1, 0.3, 1),
+          filter 300ms ease;
+        filter: drop-shadow(-7px -8px 15px rgba(30, 0, 10, 0.36));
+        will-change: transform;
+      }
+
+      .newspaper-drawer:hover,
+      .newspaper-drawer:focus-visible {
+        transform: translate(-12px, -13px) rotate(-2.5deg);
+        filter: drop-shadow(-18px -20px 28px rgba(30, 0, 10, 0.5));
+      }
+
+      .newspaper-drawer:focus-visible {
+        outline: 2px solid #ffe29d;
+        outline-offset: 5px;
+      }
+
+      .newspaper-drawer:active {
+        transform: translate(-9px, -10px) rotate(-2.5deg) scale(0.98);
+        transition-duration: 90ms;
+      }
+
+      .newspaper {
+        position: relative;
+        display: grid;
+        grid-template-rows: auto auto auto 1fr;
+        width: 100%;
+        height: 100%;
+        padding: 11px 12px 13px;
+        overflow: hidden;
+        border: 1px solid rgba(52, 35, 30, 0.72);
+        background:
+          linear-gradient(105deg, transparent 0 58%, rgba(80, 50, 41, 0.08) 58.5%, transparent 60%),
+          repeating-linear-gradient(0deg, rgba(66, 42, 35, 0.025) 0 1px, transparent 1px 4px),
+          #d8d0bc;
+        box-shadow:
+          inset 0 0 0 3px rgba(255, 255, 255, 0.2),
+          inset -18px -14px 34px rgba(58, 35, 28, 0.12);
+      }
+
+      .newspaper::after {
+        position: absolute;
+        right: -1px;
+        bottom: -1px;
+        width: 31px;
+        height: 31px;
+        background: linear-gradient(135deg, rgba(92, 63, 52, 0.16) 0 49%, #ece4cf 51% 100%);
+        border-top: 1px solid rgba(52, 35, 30, 0.34);
+        border-left: 1px solid rgba(52, 35, 30, 0.24);
+        content: "";
+        filter: drop-shadow(-2px -2px 2px rgba(52, 35, 30, 0.16));
+      }
+
+      .newspaper-kicker {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #5f1826;
+        color: #5f1826;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 6px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .newspaper-name {
+        margin: 5px 0 3px;
+        color: #67182a;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        line-height: 0.9;
+        text-align: center;
+      }
+
+      .newspaper-rule {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 5px;
+        align-items: center;
+        margin-bottom: 7px;
+        color: #352628;
+        font-size: 6px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        white-space: nowrap;
+      }
+
+      .newspaper-rule::before,
+      .newspaper-rule::after {
+        height: 1px;
+        background: #352628;
+        content: "";
+      }
+
+      .newspaper-story {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 8px;
+        min-height: 0;
+      }
+
+      .newspaper-headline {
+        grid-column: 1 / -1;
+        margin: 0;
+        font-family: "Songti SC", "STSong", Georgia, serif;
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+        line-height: 1.05;
+      }
+
+      .newspaper-column {
+        height: 73px;
+        background: repeating-linear-gradient(180deg, #3d3030 0 1px, transparent 1px 5px);
+        opacity: 0.72;
+      }
+
+      .newspaper-photo {
+        position: relative;
+        height: 70px;
+        border: 1px solid rgba(48, 34, 34, 0.62);
+        background:
+          radial-gradient(circle at 50% 26%, #c7bda8 0 9%, transparent 10%),
+          radial-gradient(ellipse at 50% 92%, #4e3135 0 37%, transparent 38%),
+          linear-gradient(145deg, #84616a, #c9bda7 46%, #71505a);
+        filter: grayscale(0.82) contrast(1.08);
+      }
+
+      .newspaper-photo::after {
+        position: absolute;
+        right: 4px;
+        bottom: 4px;
+        left: 4px;
+        height: 2px;
+        background: rgba(244, 235, 214, 0.76);
+        box-shadow: 0 -5px rgba(244, 235, 214, 0.48);
+        content: "";
+      }
+
       @keyframes curtainReveal {
         from {
           opacity: 0;
@@ -561,6 +717,25 @@
         .violin-zone::before {
           width: 240px;
         }
+
+        .newspaper-drawer {
+          right: -16px;
+          bottom: -16px;
+          width: 145px;
+          height: 187px;
+          transform: translate(58%, 56%) rotate(-6deg);
+        }
+
+        .newspaper-drawer:hover,
+        .newspaper-drawer:focus-visible {
+          transform: translate(-8px, -9px) rotate(-2deg);
+        }
+      }
+
+      @media (hover: none) {
+        .newspaper-drawer {
+          transform: translate(52%, 52%) rotate(-6deg);
+        }
       }
 
       @media (max-height: 700px) {
@@ -602,7 +777,8 @@
         .hero,
         .spotlight,
         .aurora,
-        .violin-stage {
+        .violin-stage,
+        .newspaper-drawer {
           transform: none !important;
         }
       }
@@ -627,6 +803,19 @@
           </button>
         </div>
       </section>
+
+      <a class="newspaper-drawer" href="/Jary/index.html" aria-label="打开 JARY 行为研究">
+        <span class="newspaper" aria-hidden="true">
+          <span class="newspaper-kicker"><span>Special edition</span><span>No. 01</span></span>
+          <span class="newspaper-name">JARY</span>
+          <span class="newspaper-rule">Behavior Research</span>
+          <span class="newspaper-story">
+            <strong class="newspaper-headline">行为观察与研究</strong>
+            <span class="newspaper-column"></span>
+            <span class="newspaper-photo"></span>
+          </span>
+        </span>
+      </a>
     </main>
 
     <script>
