@@ -28,7 +28,7 @@ window.SITE_DATA = {
     },
     {
       date: '2026-09-18',
-      title: 'JBR 创刊说明',
+      title: 'JBR 创刊',
       tag: '项目',
       excerpt: 'Jary真神了',
       url: 'Jary/index.html'
@@ -85,37 +85,41 @@ window.SITE_DATA = {
   /* —— 练琴 ——
      intro：页头右侧的方形图；留空则只显示一个空占位方块。
      stages：切换标签的顺序与标题都取自这里，加一项就多一个标签。
-       title 必填；composer / note / image 都可省略，省略了就不渲染那一部分。
+       title 必填；composer / note / image / alt 都可省略，省略了就不渲染那一部分。
        image 是每条曲目右侧的横向图；留空则只显示占位框。
-     图片统一放在 assets/practice/，路径从站点根目录写起，详见该目录的 README。
-     ⚠️ 下面几条是示例内容，请替换成你自己的曲目。 */
+       alt 是给读屏和「图挂了」时看的说明，不写就退回用 title 顶上。
+     图片统一放在 assets/practice/，路径从站点根目录写起，详见该目录的 README。 */
   practice: {
     intro: { image: '', alt: '练琴' },
     stages: [
       {
         stage: '在练',
         items: [
-          { title: '无伴奏小提琴奏鸣曲第一号 · 柔板', composer: 'J. S. 巴赫', note: '每天先过一遍音准，再谈表情。', image: '' },
-          { title: 'E 小调小提琴协奏曲 · 第一乐章', composer: '门德尔松', note: '第二主题的换把还是不稳。', image: '' }
+          { title: 'BWV1001·Adagio 柔板', composer: 'J.S.巴赫',
+            note: '对我而言问题首先在于节奏，然后是和弦，最后才是音乐性',
+            image: 'assets/practice/bwv1001adagio.webp',
+            alt: 'BWV1001 柔板开头的谱例：Adagio 速度标记与开头的和弦' },
         ]
       },
       {
         stage: '想练',
         items: [
-          { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '等第一号奏鸣曲站稳了再碰。', image: '' },
-          { title: '茨冈', composer: '拉威尔', note: '门槛太高，先当听力材料。', image: '' }
+          { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '或许等adagio练完了可以严肃的尝试下？', image: '' },
         ]
       },
       {
         stage: '已练',
         items: [
-          { title: 'G 大调小提琴协奏曲 · 第一乐章', composer: '莫扎特', note: '2026 年 6 月过完谱子，现在偶尔回来复习。', image: '' }
+          { title: 'E小调小提琴协奏曲·第一乐章', composer: '门德尔松',
+            note: '虽说已经练完，但是想要完整演奏可能并非短期可行',
+            image: 'assets/practice/mendelssohn_op64.webp',
+            alt: '协奏曲第一乐章开头独奏声部的谱例' }
         ]
       }
     ]
   },
 
-  /* —— 联系方式（留位，等真实信息） —— */
+  /* —— 联系方式 —— 首页和「关于」页都渲染这一份 */
   contact: [
     { label: '邮箱', value: '1434582884@qq.com' },
     { label: 'GitHub', value: 'AndySGZ', url: 'https://github.com/AndySGZ' },

@@ -50,6 +50,32 @@ test('every internal url in site-data.js resolves to a real file', async () => {
   }
 });
 
+test('every image path in site-data.js resolves to a real file', async () => {
+  const source = await readFile(new URL('scripts/site-data.js', root), 'utf8');
+  const images = [...source.matchAll(/image:\s*'([^']*)'/g)]
+    .map((match) => match[1].trim())
+    .filter(Boolean);
+
+  for (const href of images) {
+    assert.ok(!href.startsWith('/'), `图片路径不能以 / 开头，否则本地直接打开会失效：${href}`);
+    await assertResolves('index.html', filePart(href));
+  }
+});
+
+test('练琴配图带上 alt，读屏和「图挂了」时都有说明', async () => {
+  const source = await readFile(new URL('scripts/site-data.js', root), 'utf8');
+  const script = await readFile(new URL('scripts/render-sections.js', root), 'utf8');
+
+  // 渲染逻辑：没写 alt 就退回用曲名，不留下空 alt
+  assert.match(script, /img\.alt = piece\.alt \|\| piece\.title \|\| ''/);
+
+  for (const match of source.matchAll(/image:\s*'assets\/practice\/[^']+'/g)) {
+    const start = source.lastIndexOf('{', match.index);
+    const end = source.indexOf('}', match.index);
+    assert.match(source.slice(start, end), /alt:/, `${match[0]} 这一条没写 alt`);
+  }
+});
+
 test('cross-page anchors point at ids that actually exist', async () => {
   for (const page of [...PAGES, ...JARY_PAGES]) {
     const html = await readFile(new URL(page, root), 'utf8');

@@ -848,10 +848,13 @@ a.entry__body:hover { background: var(--pine); }
 }
 
 /* 图位：没放图时就是一个空框，方便先确认版式。
-   object-fit: contain —— 谱例截图不能被裁掉音符，比例不符时宁可留白。 */
+   object-fit: contain —— 谱例截图不能被裁掉音符，比例不符时宁可留白。
+   底色用页面底色而不是 --wool：谱例大多比 16:9 更扁，contain 之后上下会留出
+   两条垫色，用强调色（薄荷绿）会像没画完，用页面底色就看不见那些垫色了。
+   空框仍然有 4px 黑边和硬阴影框着，不会消失。 */
 .piece__figure {
   aspect-ratio: 16 / 9;
-  background: var(--wool);
+  background: var(--bg-raised);
   border: var(--border-w) solid var(--ink);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
