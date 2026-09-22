@@ -202,6 +202,11 @@ a.game-card:hover {
   color: #ffffff;
 }
 
+/* 静音的文案会在「静音 / 开启声音」之间变，固定宽度免得整排按钮跟着跳 */
+.game-button--mute {
+  min-width: 8rem;
+}
+
 /* 给触屏用的两个大按钮；鼠标点也一样好使 */
 .game-button--touch {
   min-width: 128px;
@@ -329,6 +334,13 @@ a.game-card:hover {
   background: var(--wash);
   color: var(--muted);
   font-size: 0.86rem;
+}
+
+.game-credit {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
 }
 
 .game-note code {

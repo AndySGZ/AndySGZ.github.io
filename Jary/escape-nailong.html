@@ -89,6 +89,9 @@
             <button type="button" class="game-button" data-game-restart>
               <span data-lang="zh">重新开始</span><span data-lang="en">Restart</span>
             </button>
+            <button type="button" class="game-button game-button--mute" data-game-mute aria-pressed="false">
+              <span data-lang="zh">静音</span><span data-lang="en">Mute</span>
+            </button>
             <button type="button" class="game-button game-button--touch" data-game-jump>
               <span data-lang="zh">跳</span><span data-lang="en">Jump</span>
             </button>
@@ -163,6 +166,11 @@
             <span data-lang="zh">场上这两位用的是真图：JARY 和他那辆共享单车，以及紧追不舍的奶龙。想换画风，把 <code>Jary/assets/game/</code> 下的 <code>jary.png</code>、<code>nailong.png</code> 换成同名文件即可（建议透明底 PNG、单张 200 KB 以内）；把 canvas 上那两个 <code>data-*-sprite</code> 属性删掉，就会退回模块里现画的卡通角色。</span>
             <span data-lang="en">Both characters use real artwork now: JARY and his shared bike, with Nailong in hot pursuit. To change the art, replace <code>jary.png</code> and <code>nailong.png</code> in <code>Jary/assets/game/</code> with files of the same name (transparent PNGs under 200 KB work best). Remove the two <code>data-*-sprite</code> attributes from the canvas and the hand-drawn cartoon pair takes over.</span>
           </p>
+
+          <p class="game-credit">
+            <span data-lang="zh">配乐《苦行东南山》 · 结束音效：奶龙的笑声 · 小红花的提示音由浏览器现场合成</span>
+            <span data-lang="en">Music: “苦行东南山” · Ending sound: Nailong's laugh · The pickup chime is synthesized in the browser</span>
+          </p>
         </div>
       </section>
     </main>
@@ -181,6 +189,7 @@
 
     <script type="module">
       import { createGame } from './escape-nailong.js';
+      import { createGameAudio } from './game-audio.js';
 
       const BEST_KEY = 'jary-nailong-best';
 
@@ -191,6 +200,7 @@
       const jumpButton = document.querySelector('[data-game-jump]');
       const slideButton = document.querySelector('[data-game-slide]');
       const status = document.querySelector('[data-game-status]');
+      const muteButton = document.querySelector('[data-game-mute]');
 
       /* 状态提示也跟着期刊的双语开关走，所以按当前语言现取 */
       const MESSAGES = {
@@ -234,6 +244,40 @@
         if (pauseButton) pauseButton.disabled = phase !== 'running';
       }
 
+      const audio = createGameAudio();
+
+      /* 按钮上写的是「按下去会发生什么」：有声时显示「静音」，静音后显示「开启声音」 */
+      const MUTE_LABELS = {
+        zh: { off: '静音', on: '开启声音' },
+        en: { off: 'Mute', on: 'Sound on' },
+      };
+
+      function syncMuteButton() {
+        if (!muteButton) return;
+
+        const muted = audio.isMuted();
+        muteButton.setAttribute('aria-pressed', String(muted));
+        muteButton.querySelectorAll('[data-lang]').forEach(function (span) {
+          const language = span.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+          span.textContent = MUTE_LABELS[language][muted ? 'on' : 'off'];
+        });
+      }
+
+      /* 声音跟着游戏状态走：开跑起配乐，暂停就停，捡到花响一声，被抓住换成奶龙的笑 */
+      function handleAudio(event) {
+        if (event.type === 'flower') {
+          audio.playPickup();
+        } else if (event.type === 'caught') {
+          audio.pauseTheme();
+          audio.playLaugh();
+        } else if (event.type === 'pause') {
+          audio.pauseTheme();
+        } else if (event.type === 'start' || event.type === 'resume' || event.type === 'restart') {
+          audio.stopLaugh();
+          audio.playTheme();
+        }
+      }
+
       const game = createGame(canvas, {
         best: readBest(),
         /* 页面没写立绘属性时留空，模块会退回内置卡通角色 */
@@ -243,6 +287,7 @@
         },
         onEvent(event) {
           const text = messages();
+          handleAudio(event);
 
           if (event.type === 'caught') {
             const previous = readBest();
@@ -264,7 +309,7 @@
 
       if (!game) {
         if (status) status.textContent = '这个浏览器没有可用的 Canvas 2D，游戏暂时跑不起来。';
-        [startButton, pauseButton, restartButton, jumpButton, slideButton].forEach(function (button) {
+        [startButton, pauseButton, restartButton, jumpButton, slideButton, muteButton].forEach(function (button) {
           if (button) button.disabled = true;
         });
       } else {
@@ -272,6 +317,16 @@
         pauseButton?.addEventListener('click', function () { game.pause(); });
         restartButton?.addEventListener('click', function () { game.restart(); });
         jumpButton?.addEventListener('click', function () { game.jump(); });
+
+        muteButton?.addEventListener('click', function () {
+          audio.toggle();
+          syncMuteButton();
+        });
+
+        /* 中英文切换后重画一次按钮文案，两种语言各自对得上 */
+        document.querySelectorAll('[data-language-option]').forEach(function (button) {
+          button.addEventListener('click', syncMuteButton);
+        });
 
         /* 滑铲要按住才持续：按下开始，抬手 / 移出 / 取消都结束 */
         slideButton?.addEventListener('pointerdown', function (event) {
@@ -283,6 +338,7 @@
         });
 
         syncButtons('ready');
+        syncMuteButton();
       }
     </script>
   </body>
