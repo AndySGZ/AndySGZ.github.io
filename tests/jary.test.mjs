@@ -77,6 +77,24 @@ test('journal homepage provides an editorial current-issue reading flow', async 
   assert.match(html, /Volume 1[\s\S]*Issue 1[\s\S]*21 September 2026/i);
 });
 
+test('封面是那张现成的图，带 alt 和宽高，加载前后不抖', async () => {
+  const html = await readFile(new URL('Jary/index.html', projectRoot), 'utf8');
+  const match = html.match(/<img class="cover-image"[\s\S]*?>/);
+
+  assert.ok(match, '首页封面应该是一张图（cover-image）');
+  assert.match(match[0], /src="assets\/cover\.webp"/, '封面应指向 assets/cover.webp');
+  assert.ok(!match[0].includes('src="/'), '图片路径不能用 / 开头，否则本地直接打开会失效');
+  assert.match(match[0], /alt="[^"]+"/, '封面要有 alt，读屏和「图挂了」时都有说明');
+  assert.match(match[0], /width="\d+"\s+height="\d+"/, '写死宽高，图没加载出来之前不抖一下');
+
+  // 图真的在仓库里，而且刊头已经印在图上了，HTML 不用再拼一次
+  await readFile(new URL('Jary/assets/cover.webp', projectRoot));
+  assert.doesNotMatch(html, /class="cover-title"/, '刊头在图里，HTML 不该再排一遍');
+
+  // 换图之后首页不再画概念轨迹，observation.js 也就不该被引入
+  assert.doesNotMatch(html, /src="observation\.js"/, '首页不该再加载 observation.js');
+});
+
 test('mobile reading order puts issue editorial before its supplementary cover', async () => {
   const html = await readFile(new URL('Jary/index.html', projectRoot), 'utf8');
   const issue = html.slice(html.indexOf('<section class="current-issue'), html.indexOf('</section>', html.indexOf('<section class="current-issue')));

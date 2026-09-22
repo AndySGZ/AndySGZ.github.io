@@ -236,40 +236,16 @@ html[data-language='en'] [data-lang='en'] {
   width: 100%;
 }
 
-.cover-title {
-  min-height: 88px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 15px 20px;
-  background: var(--red);
-  color: #ffffff;
-}
-
-.cover-title > span {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 2.7rem;
-  font-weight: 700;
-  line-height: 0.88;
-}
-
-.cover-title small {
-  margin-top: 5px;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 0.86rem;
-  font-style: italic;
-}
-
+/* 封面是现成的一张图（assets/cover.webp），刊头印在图里，
+   所以不写死高度：宽高完全跟着图片比例走，窄屏也不会被压扁。 */
 .cover-figure {
-  height: 260px;
-  border-inline: 1px solid var(--line-dark);
-  border-bottom: 1px solid var(--line-dark);
+  border: 1px solid var(--line-dark);
   background: var(--cover);
 }
 
-#behavior-canvas {
+.cover-image {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: block;
 }
 
@@ -548,10 +524,6 @@ html[data-language='en'] [data-lang='en'] {
     gap: 36px;
   }
 
-  .cover-figure {
-    height: 230px;
-  }
-
   .issue-overview > h1 {
     font-size: 3rem;
   }
@@ -621,18 +593,6 @@ html[data-language='en'] [data-lang='en'] {
     gap: 26px;
   }
 
-  .cover-title {
-    min-height: 76px;
-  }
-
-  .cover-title > span {
-    font-size: 2.25rem;
-  }
-
-  .cover-figure {
-    height: 210px;
-  }
-
   .content-grid {
     grid-template-columns: 1fr;
   }
@@ -690,35 +650,12 @@ html[data-language='en'] [data-lang='en'] {
     padding-block: 32px 44px;
   }
 
+  /* 窄屏上封面接在社论后面：竖构图整张排下来会占掉大半屏，
+     所以按 2:3 收窄并居中，像一本立着的刊物，而不是一面墙。 */
   .journal-cover {
     width: 100%;
-    display: grid;
-    grid-template-columns: 116px minmax(0, 1fr);
-    grid-template-rows: 148px auto;
-  }
-
-  .cover-title {
-    min-height: 0;
-    align-items: start;
-    padding: 18px 10px;
-  }
-
-  .cover-title > span {
-    font-size: 1.4rem;
-  }
-
-  .cover-title small {
-    font-size: 0.7rem;
-  }
-
-  .cover-figure {
-    height: 148px;
-    border: 1px solid var(--line-dark);
-    border-left: 0;
-  }
-
-  .journal-cover figcaption {
-    grid-column: 1 / -1;
+    max-width: 264px;
+    margin-inline: auto;
   }
 
   .issue-overview > h1 {

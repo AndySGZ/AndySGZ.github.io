@@ -80,15 +80,17 @@
         </div>
 
         <figure class="journal-cover" aria-labelledby="cover-caption">
-          <div class="cover-title">
-            <span>JARY</span>
-            <small>Behavior Research</small>
-          </div>
+          <!-- 封面是一张现成的图（Jary/assets/cover.webp，684×942），刊头也印在图里，
+               所以不再用 HTML 拼一次「JARY / Behavior Research」。
+               想换封面就替换那个文件；想退回模块现画的概念轨迹，把下面的 img
+               换回 <canvas id="behavior-canvas">，并重新引入 observation.js。 -->
           <div class="cover-figure">
-            <canvas id="behavior-canvas" width="560" height="660" aria-label="JARY behavioral observation trace"></canvas>
+            <img class="cover-image" src="assets/cover.webp" width="684" height="942"
+                 alt="创刊号封面：JARY 穿白色实验服站在两只猩猩之前，一道红色行为曲线横穿画面"
+                 decoding="async">
           </div>
           <figcaption id="cover-caption">
-            <span data-lang="zh">创刊号封面：JARY行为响应概念图</span>
+            <span data-lang="zh">创刊号封面：JARY 行为响应概念图</span>
             <span data-lang="en">Inaugural cover: conceptual trace of JARY's behavioral response</span>
           </figcaption>
         </figure>
@@ -184,6 +186,7 @@
       </div>
     </footer>
 
-    <script type="module" src="observation.js"></script>
+    <!-- 封面换成真图之后，首页不再需要 observation.js（概念轨迹那个模块还在，
+         想换回去再把它引回来就行）。这一页只有 language.js 在 <head> 里。 -->
   </body>
 </html>
