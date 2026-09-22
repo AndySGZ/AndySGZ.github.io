@@ -162,7 +162,7 @@ html[data-language='en'] [data-lang='en'] {
   color: var(--red);
 }
 
-/* 返回主站（石广喆个人主页）：排在站内导航最前，并保持期刊自身的深红点缀，
+/* 返回主站（Andy SGZ个人主页）：排在站内导航最前，并保持期刊自身的深红点缀，
    与 #top/#current 这类页内锚点区分开。 */
 .primary-nav a.back-home {
   color: var(--red);

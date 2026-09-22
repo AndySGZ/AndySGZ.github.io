@@ -1,4 +1,4 @@
-# 石广喆个人主页 Implementation Plan
+# Andy SGZ个人主页 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** HTML5、CSS3、原生 JavaScript、Node.js `node:test`、静态 HTTP 服务器
 
-**Spec:** `docs/superpowers/specs/2026-09-21-shiguangzhe-homepage-design.md`
+**Spec:** `docs/superpowers/specs/2026-09-21-andy-sgz-homepage-design.md`
 
 ## Global Constraints
 
@@ -42,7 +42,7 @@ const htmlPath = new URL('../index.html', import.meta.url);
 test('homepage exposes its core identity and violin interaction', async () => {
   const html = await readFile(htmlPath, 'utf8');
   assert.match(html, /<html[^>]+lang="zh-CN"/);
-  assert.match(html, /<h1[^>]*>\s*石广喆\s*<\/h1>/);
+  assert.match(html, /<h1[^>]*>\s*Andy SGZ\s*<\/h1>/);
   assert.match(html, /src="assets\/violin\.png"/);
   assert.match(html, /aria-label="奏响小提琴"/);
 });
@@ -102,7 +102,7 @@ Expected: FAIL because stage and interaction tokens are absent.
   <div class="curtain curtain-left" aria-hidden="true"></div>
   <div class="curtain curtain-right" aria-hidden="true"></div>
   <section class="hero" aria-labelledby="artist-name">
-    <h1 id="artist-name">石广喆</h1>
+    <h1 id="artist-name">Andy SGZ</h1>
     <button class="violin-stage" type="button" aria-label="奏响小提琴">
       <img src="assets/violin.png" alt="鎏金霓虹小提琴">
     </button>
