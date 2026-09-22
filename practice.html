@@ -30,19 +30,24 @@
 
     <main id="main">
       <div class="page-header">
-        <div class="container">
-          <h1 class="page-header__title">练琴</h1>
-          <p class="page-header__lead">
-            在练的、想练的、练完的。当作一份公开的练习日志。
-          </p>
+        <div class="container page-header__split">
+          <div class="page-header__text">
+            <h1 class="page-header__title">练琴</h1>
+            <p class="page-header__lead">
+              练琴是对的，人生苦短，而曲子太多。
+            </p>
+          </div>
+          <!-- 方形配图由 scripts/render-sections.js 依据 practice.intro 生成；
+               没填 image 时这里就是一个空的占位方块。 -->
+          <figure class="page-header__square" data-practice-intro></figure>
         </div>
       </div>
 
       <section class="section" aria-labelledby="practice-heading">
         <div class="container">
           <h2 class="sr-only" id="practice-heading">曲目清单</h2>
-          <!-- 三栏由 scripts/render-sections.js 依据 site-data.js 里的 practice 生成。
-               栏目标题与顺序都来自数据，这个文件不用改。 -->
+          <!-- 标签页与曲目由 scripts/render-sections.js 依据 practice.stages 生成。
+               栏目顺序与标题都来自数据，这个文件不用改。 -->
           <div class="practice-board" data-practice-board></div>
         </div>
       </section>

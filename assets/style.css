@@ -420,6 +420,22 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
   max-width: 46ch;
 }
 
+/* 页头带配图的版本（目前只有练琴页用）：左文字 + 右方形图。
+   其它页头没有 __split 容器，布局完全不受影响。 */
+.page-header__split { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) {
+  .page-header__split { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+}
+.page-header__square {
+  margin: 0;                            /* figure 默认有外边距，这里要清掉 */
+  width: 100%; max-width: 11rem; aspect-ratio: 1 / 1;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.page-header__square img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
 /* ==========================================================================
    杂谈条目列表
    ========================================================================== */
@@ -482,19 +498,54 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
 .entry[hidden] { display: none; }
 
 /* ==========================================================================
-   练琴：在练 / 想练 / 已练 三栏
+   练琴：可切换的标签页 + 每条曲目右侧的横向图位
    ========================================================================== */
-.practice-board { display: grid; gap: 3rem 2.5rem; grid-template-columns: 1fr; }
-@media (min-width: 768px) {              /* md：与 .contact-list 一致，768 起排三栏 */
-  .practice-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.practice-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2.5rem; }
+
+.practice-tab {
+  padding: 0.5rem 1.125rem;
+  font-size: 0.8125rem;
+  color: var(--wood-text);
+  background: transparent;              /* 按钮默认底色要显式清掉 */
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: color var(--med) var(--ease), border-color var(--med) var(--ease),
+              background-color var(--med) var(--ease);
+}
+.practice-tab:hover { color: var(--charcoal); border-color: var(--line-hover); }
+.practice-tab[aria-selected="true"] {
+  color: var(--bg);                     /* 选中态：深底浅字，与 .skip-link 同一套语言 */
+  background: var(--charcoal);
+  border-color: var(--charcoal);
 }
 
-.practice-col { border-top: 1px solid var(--line); padding-top: 1.5rem; }
-.practice-col__title { font-size: 1.0625rem; }
-.practice-col__count { margin-top: 0.375rem; font-size: 0.75rem; color: var(--wood-text); }
-.practice-col__empty { margin-top: 1.75rem; font-size: 0.8125rem; color: var(--wool); }
+/* 面板自身可聚焦（内部没有可聚焦元素），但不该因此画出焦点框 */
+.practice-panel:focus-visible { outline: none; box-shadow: none; }
+.practice-panel[hidden] { display: none; }
 
-.practice-list { margin-top: 1.75rem; display: grid; gap: 1.5rem; }
+.practice-list { display: grid; gap: 2.5rem; }
+.practice-empty { font-size: 0.8125rem; color: var(--wool); }
+
+/* 每条曲目：左文字 + 右横向图。窄屏时图落到文字下方 */
+.piece { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) {
+  .piece {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 15rem);
+    gap: 2rem; align-items: start;
+  }
+}
+
+/* 图位：没放图时就是一个空框，方便先确认版式。
+   object-fit: contain —— 谱例截图不能被裁掉音符，比例不符时宁可留白。 */
+.piece__figure {
+  aspect-ratio: 16 / 9;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.piece__figure img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
 .piece__title { font-size: 0.9375rem; margin-bottom: 0.375rem; text-wrap: pretty; }
 .piece__meta  { font-size: 0.75rem;   color: var(--wood-text); }

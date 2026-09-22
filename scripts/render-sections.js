@@ -172,33 +172,117 @@
     });
   }
 
-  /* —— 练琴三栏：栏目标题与顺序都来自数据，不写死「在练 / 想练 / 已练」 —— */
+  /* —— 练琴：可切换的标签页 ——
+     栏目顺序与标题都来自数据，加一项就多一个标签，页面不用改。
+     用标准 tablist / tab / tabpanel 语义：左右方向键切换、Home / End 跳首尾，
+     漫游 tabindex 让 Tab 键只落在当前标签上，不必逐个跳过。 */
+  var practice = data.practice;
   var practiceHost = document.querySelector('[data-practice-board]');
-  if (practiceHost && Array.isArray(data.practice)) {
-    data.practice.forEach(function (column) {
-      var items = Array.isArray(column.items) ? column.items : [];
 
-      var section = el('section', 'practice-col');
-      section.appendChild(el('h2', 'practice-col__title', column.stage || '未命名'));
-      section.appendChild(el('p', 'practice-col__count', items.length + ' 首'));
+  if (practiceHost && practice && Array.isArray(practice.stages)) {
+    var tabList = el('div', 'practice-tabs');
+    tabList.setAttribute('role', 'tablist');
+    tabList.setAttribute('aria-label', '练琴分类');
+
+    var panels = el('div', 'practice-panels');
+    var tabs = [];
+
+    function select(index, moveFocus) {
+      tabs.forEach(function (tab, i) {
+        var active = i === index;
+        tab.button.setAttribute('aria-selected', String(active));
+        tab.button.tabIndex = active ? 0 : -1;
+        tab.panel.hidden = !active;
+      });
+      if (moveFocus) tabs[index].button.focus();
+    }
+
+    practice.stages.forEach(function (column, index) {
+      var items = Array.isArray(column.items) ? column.items : [];
+      var panelId = 'practice-panel-' + index;
+
+      var button = el('button', 'practice-tab', column.stage || '未命名');
+      button.type = 'button';
+      button.id = 'practice-tab-' + index;
+      button.setAttribute('role', 'tab');
+      button.setAttribute('aria-controls', panelId);
+      button.addEventListener('click', function () { select(index, false); });
+      button.addEventListener('keydown', function (event) {
+        var step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+        if (step) {
+          event.preventDefault();
+          select((index + step + tabs.length) % tabs.length, true);
+        } else if (event.key === 'Home') {
+          event.preventDefault();
+          select(0, true);
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          select(tabs.length - 1, true);
+        }
+      });
+
+      var panel = el('div', 'practice-panel');
+      panel.id = panelId;
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', button.id);
+      panel.tabIndex = 0;   /* 面板内没有可聚焦元素，自身可聚焦才便于键盘滚动阅读 */
 
       if (!items.length) {
-        /* 空栏目也给一句占位，避免三栏高度差得太离谱 */
-        section.appendChild(el('p', 'practice-col__empty', '还没有记录。'));
+        panel.appendChild(el('p', 'practice-empty', '还没有记录。'));
       } else {
         var list = el('ul', 'practice-list');
         items.forEach(function (piece) {
           var li = el('li', 'piece');
-          li.appendChild(el('p', 'piece__title', piece.title || '未命名'));
-          if (piece.composer) li.appendChild(el('p', 'piece__meta', piece.composer));
-          if (piece.note) li.appendChild(el('p', 'piece__note', piece.note));
+
+          var text = el('div', 'piece__text');
+          text.appendChild(el('p', 'piece__title', piece.title || '未命名'));
+          if (piece.composer) text.appendChild(el('p', 'piece__meta', piece.composer));
+          if (piece.note) text.appendChild(el('p', 'piece__note', piece.note));
+          li.appendChild(text);
+
+          /* 横向图位：没给 image 就留一个空框，先让人看清版式 */
+          var figure = el('div', 'piece__figure');
+          if (piece.image) {
+            var img = el('img');
+            img.src = piece.image;
+            img.alt = piece.alt || piece.title || '';
+            img.loading = 'lazy';
+            /* 图还没放或路径写错时退回空占位框，不在页面上留裂图图标；
+               同时在控制台报一句，方便定位是哪个路径不对。 */
+            img.addEventListener('error', function () {
+              if (img.parentNode) img.parentNode.removeChild(img);
+              console.warn('[practice] 图片加载失败：' + piece.image);
+            });
+            figure.appendChild(img);
+          }
+          li.appendChild(figure);
+
           list.appendChild(li);
         });
-        section.appendChild(list);
+        panel.appendChild(list);
       }
 
-      practiceHost.appendChild(section);
+      tabList.appendChild(button);
+      panels.appendChild(panel);
+      tabs.push({ button: button, panel: panel });
     });
+
+    practiceHost.appendChild(tabList);
+    practiceHost.appendChild(panels);
+    select(0, false);
+  }
+
+  /* —— 练琴页头右侧的方形配图 —— 没填 image 时保留空框，位置不塌 */
+  var introHost = document.querySelector('[data-practice-intro]');
+  if (introHost && practice && practice.intro && practice.intro.image) {
+    var introImg = el('img');
+    introImg.src = practice.intro.image;
+    introImg.alt = practice.intro.alt || '';
+    introImg.addEventListener('error', function () {
+      if (introImg.parentNode) introImg.parentNode.removeChild(introImg);
+      console.warn('[practice] 页头配图加载失败：' + practice.intro.image);
+    });
+    introHost.appendChild(introImg);
   }
 
   /* —— 联系方式 —— */

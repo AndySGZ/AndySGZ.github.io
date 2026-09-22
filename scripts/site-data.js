@@ -64,31 +64,38 @@ window.SITE_DATA = {
     }
   ],
 
-  /* —— 练琴：三栏的顺序与标题都取自这里，页面从左到右照此渲染 ——
-     title 必填；composer / note 可省略，省略了就不渲染那一行。
+  /* —— 练琴 ——
+     intro：页头右侧的方形图；留空则只显示一个空占位方块。
+     stages：切换标签的顺序与标题都取自这里，加一项就多一个标签。
+       title 必填；composer / note / image 都可省略，省略了就不渲染那一部分。
+       image 是每条曲目右侧的横向图；留空则只显示占位框。
+     图片统一放在 assets/practice/，路径从站点根目录写起，详见该目录的 README。
      ⚠️ 下面几条是示例内容，请替换成你自己的曲目。 */
-  practice: [
-    {
-      stage: '在练',
-      items: [
-        { title: '无伴奏小提琴奏鸣曲第一号 · 柔板', composer: 'J. S. 巴赫', note: '每天先过一遍音准，再谈表情。' },
-        { title: 'E 小调小提琴协奏曲 · 第一乐章', composer: '门德尔松', note: '第二主题的换把还是不稳。' }
-      ]
-    },
-    {
-      stage: '想练',
-      items: [
-        { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '等第一号奏鸣曲站稳了再碰。' },
-        { title: '茨冈', composer: '拉威尔', note: '门槛太高，先当听力材料。' }
-      ]
-    },
-    {
-      stage: '已练',
-      items: [
-        { title: 'G 大调小提琴协奏曲 · 第一乐章', composer: '莫扎特', note: '2026 年 6 月过完谱子，现在偶尔回来复习。' }
-      ]
-    }
-  ],
+  practice: {
+    intro: { image: '', alt: '练琴' },
+    stages: [
+      {
+        stage: '在练',
+        items: [
+          { title: '无伴奏小提琴奏鸣曲第一号 · 柔板', composer: 'J. S. 巴赫', note: '每天先过一遍音准，再谈表情。', image: '' },
+          { title: 'E 小调小提琴协奏曲 · 第一乐章', composer: '门德尔松', note: '第二主题的换把还是不稳。', image: '' }
+        ]
+      },
+      {
+        stage: '想练',
+        items: [
+          { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '等第一号奏鸣曲站稳了再碰。', image: '' },
+          { title: '茨冈', composer: '拉威尔', note: '门槛太高，先当听力材料。', image: '' }
+        ]
+      },
+      {
+        stage: '已练',
+        items: [
+          { title: 'G 大调小提琴协奏曲 · 第一乐章', composer: '莫扎特', note: '2026 年 6 月过完谱子，现在偶尔回来复习。', image: '' }
+        ]
+      }
+    ]
+  },
 
   /* —— 联系方式（留位，等真实信息） —— */
   contact: [
