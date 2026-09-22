@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f0eb">
-    <meta name="description" content="Andy SGZ 的杂谈。">
-    <title>杂谈 | Andy SGZ</title>
+    <meta name="description" content="Andy SGZ 的练琴记录：在练、想练、已练。">
+    <title>练琴 | Andy SGZ</title>
     <link rel="stylesheet" href="assets/style.css">
     <script src="scripts/site-data.js" defer></script>
     <script src="scripts/render-sections.js" defer></script>
@@ -20,9 +20,9 @@
         <nav class="site-nav__links" aria-label="主导航">
           <a href="index.html"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
           <a href="about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
-          <a href="essays.html" aria-current="page"><span class="nav-zh">杂谈</span><span class="nav-en">Essays</span></a>
+          <a href="essays.html"><span class="nav-zh">杂谈</span><span class="nav-en">Essays</span></a>
           <a href="works.html"><span class="nav-zh">作品</span><span class="nav-en">Works</span></a>
-          <a href="practice.html"><span class="nav-zh">练琴</span><span class="nav-en">Practice</span></a>
+          <a href="practice.html" aria-current="page"><span class="nav-zh">练琴</span><span class="nav-en">Practice</span></a>
           <a href="Jary/index.html"><span class="nav-zh">《Jary行为研究》</span><span class="nav-en">JARY Behavior Research</span></a>
         </nav>
       </div>
@@ -31,23 +31,19 @@
     <main id="main">
       <div class="page-header">
         <div class="container">
-          <h1 class="page-header__title">杂谈</h1>
+          <h1 class="page-header__title">练琴</h1>
           <p class="page-header__lead">
-            按时间倒序排列。
+            在练的、想练的、练完的。当作一份公开的练习日志。
           </p>
         </div>
       </div>
 
-      <section class="section" aria-labelledby="all-essays-heading">
+      <section class="section" aria-labelledby="practice-heading">
         <div class="container">
-          <h2 class="sr-only" id="all-essays-heading">全部杂谈</h2>
-          <!-- 分类按钮由 scripts/render-sections.js 依据条目的 tag 自动生成。
-               以后想加新分类，只要在 site-data.js 里给条目写新的 tag，
-               按钮会自己出现，这个文件不用动。 -->
-          <div class="filter-bar" data-essay-filter role="group" aria-label="按分类筛选"></div>
-          <p class="filter-status" data-essay-status role="status" aria-live="polite"></p>
-          <!-- 不加 data-limit：显示全部。条目内容来自 scripts/site-data.js -->
-          <ul class="entry-list" data-essays-list></ul>
+          <h2 class="sr-only" id="practice-heading">曲目清单</h2>
+          <!-- 三栏由 scripts/render-sections.js 依据 site-data.js 里的 practice 生成。
+               栏目标题与顺序都来自数据，这个文件不用改。 -->
+          <div class="practice-board" data-practice-board></div>
         </div>
       </section>
     </main>

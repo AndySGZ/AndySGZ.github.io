@@ -3,7 +3,7 @@ import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
-const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html'];
+const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html', 'practice.html'];
 
 const isExternal = (href) => /^(https?:|mailto:|tel:|data:|\/\/)/i.test(href);
 

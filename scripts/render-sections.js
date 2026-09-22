@@ -172,6 +172,35 @@
     });
   }
 
+  /* —— 练琴三栏：栏目标题与顺序都来自数据，不写死「在练 / 想练 / 已练」 —— */
+  var practiceHost = document.querySelector('[data-practice-board]');
+  if (practiceHost && Array.isArray(data.practice)) {
+    data.practice.forEach(function (column) {
+      var items = Array.isArray(column.items) ? column.items : [];
+
+      var section = el('section', 'practice-col');
+      section.appendChild(el('h2', 'practice-col__title', column.stage || '未命名'));
+      section.appendChild(el('p', 'practice-col__count', items.length + ' 首'));
+
+      if (!items.length) {
+        /* 空栏目也给一句占位，避免三栏高度差得太离谱 */
+        section.appendChild(el('p', 'practice-col__empty', '还没有记录。'));
+      } else {
+        var list = el('ul', 'practice-list');
+        items.forEach(function (piece) {
+          var li = el('li', 'piece');
+          li.appendChild(el('p', 'piece__title', piece.title || '未命名'));
+          if (piece.composer) li.appendChild(el('p', 'piece__meta', piece.composer));
+          if (piece.note) li.appendChild(el('p', 'piece__note', piece.note));
+          list.appendChild(li);
+        });
+        section.appendChild(list);
+      }
+
+      practiceHost.appendChild(section);
+    });
+  }
+
   /* —— 联系方式 —— */
   var contactHost = document.querySelector('[data-contact-list]');
   if (contactHost && Array.isArray(data.contact)) {

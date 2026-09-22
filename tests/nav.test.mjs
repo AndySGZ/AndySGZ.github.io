@@ -4,14 +4,15 @@ import test from 'node:test';
 
 const read = (name) => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
 
-const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html'];
+const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html', 'practice.html'];
 
-/* 五个真实页面，且每个都带同字号的中英对照 */
+/* 六个真实页面，且每个都带同字号的中英对照 */
 const EXPECTED_NAV = [
   ['index.html', '首页', 'Home'],
   ['about.html', '关于', 'About'],
   ['essays.html', '杂谈', 'Essays'],
   ['works.html', '作品', 'Works'],
+  ['practice.html', '练琴', 'Practice'],
   ['Jary/index.html', '《Jary行为研究》', 'JARY Behavior Research'],
 ];
 
@@ -26,7 +27,7 @@ function navLinks(html) {
   });
 }
 
-test('every page shares the same five-item navigation', async () => {
+test('every page shares the same six-item navigation', async () => {
   for (const page of PAGES) {
     const html = await read(page);
     assert.deepEqual(navLinks(html), EXPECTED_NAV, `${page} 的导航与其他页面不一致`);

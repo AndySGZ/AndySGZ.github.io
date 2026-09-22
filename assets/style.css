@@ -481,6 +481,26 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
 /* 被筛掉的条目彻底移出布局（.entry 自身没有 display 声明，这里显式兜底） */
 .entry[hidden] { display: none; }
 
+/* ==========================================================================
+   练琴：在练 / 想练 / 已练 三栏
+   ========================================================================== */
+.practice-board { display: grid; gap: 3rem 2.5rem; grid-template-columns: 1fr; }
+@media (min-width: 768px) {              /* md：与 .contact-list 一致，768 起排三栏 */
+  .practice-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.practice-col { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+.practice-col__title { font-size: 1.0625rem; }
+.practice-col__count { margin-top: 0.375rem; font-size: 0.75rem; color: var(--wood-text); }
+.practice-col__empty { margin-top: 1.75rem; font-size: 0.8125rem; color: var(--wool); }
+
+.practice-list { margin-top: 1.75rem; display: grid; gap: 1.5rem; }
+
+.piece__title { font-size: 0.9375rem; margin-bottom: 0.375rem; text-wrap: pretty; }
+.piece__meta  { font-size: 0.75rem;   color: var(--wood-text); }
+.piece__note  { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--wood-text);
+                max-width: 40ch; text-wrap: pretty; }
+
 /* 作品卡片：筹备中（不可点）状态 */
 .card--pending { cursor: default; }
 .card--pending:hover { border-color: var(--line); background: var(--bg-raised); }
