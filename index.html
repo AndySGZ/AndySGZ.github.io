@@ -10,13 +10,15 @@
     <!-- 明暗主题：必须同步执行（不加 defer），否则首屏会先闪一下浅色 -->
     <script src="scripts/theme.js"></script>
 
-    <!-- 留言墙后端配置：接入 Supabase 后把 provider 改成 'supabase' 并填入两个值。
-         详细步骤见 docs/留言墙接入指南.md；不填则运行在本机演示模式。 -->
+    <!-- 留言墙后端配置：接的是 Supabase，访客无需登录，留言默认待审核。
+         详细步骤与自检方法见 docs/留言墙接入指南.md；
+         这个 publishable key 是设计上就公开的，真正的防线是表上的 RLS 策略
+         （只能读 approved=true，且写入时不许自己把 approved 设成 true）。 -->
     <script>
       window.GUESTBOOK_CONFIG = {
-        provider: 'local',
-        supabaseUrl: '',
-        supabaseAnonKey: '',
+        provider: 'supabase',
+        supabaseUrl: 'https://axmyalfajxcjfjduvvny.supabase.co',
+        supabaseAnonKey: 'sb_publishable_qghX8pHe6RJ2ULnX_VpODA_zvizbSkq',
         table: 'messages'
       };
     </script>
