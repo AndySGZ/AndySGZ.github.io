@@ -12,7 +12,7 @@ window.SITE_DATA = {
     items: [
       { text: '只要你不停地向上走，一级级楼梯就没有尽头，在你向上走的脚下，它们也在向上长。', source: '卡夫卡《律师》' },
       { text: 'The obstacles in your path define the path.\n道有坎坷方知路正，人无历练原力难成。 ', source: 'Star Wars Jedi：Fallen Order' },
-      { text: '记录本身就是一种缓慢的理解。', source: '给 JBR 的题记' }
+      { text: '亲爱的朋友，灰色的理论到处都有，\n而生活的金树长青。', source: 'Mephistopheles in 《Faust》' }
     ]
   },
 
