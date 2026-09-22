@@ -10,7 +10,7 @@ window.SITE_DATA = {
     fade: 700,      /* 与 CSS --slow 一致 */
     gap: 600,       /* 完全消失后到下一句出现的留白 */
     items: [
-      { text: '', source: '2026 年 9 月' },
+      { text: '只要你不停地向上走，一级级楼梯就没有尽头，在你向上走的脚下，它们也在向上长。', source: '卡夫卡《律师》' },
       { text: 'The obstacles in your path define the path.\n道有坎坷方知路正，人无历练原力难成。 ', source: 'Star Wars Jedi：Fallen Order' },
       { text: '记录本身就是一种缓慢的理解。', source: '给 JBR 的题记' }
     ]
@@ -30,30 +30,16 @@ window.SITE_DATA = {
       date: '2026-09-18',
       title: 'JBR 创刊说明',
       tag: '项目',
-      excerpt: '为什么会有一份只研究单一特定个体的期刊，以及它打算怎么记录、怎么分析。',
+      excerpt: 'Jary真神了',
       url: 'Jary/index.html'
     },
     {
       date: '2026-09-12',
-      title: '琴房里的一个小时',
+      title: '看到的快去练琴',
       tag: '练琴',
-      excerpt: '同一段乐句重复四十遍之后，耳朵会开始注意一些平时完全听不见的东西。',
+      excerpt: '',
       url: ''
     },
-    {
-      date: '2026-09-05',
-      title: '慢练的真正难点',
-      tag: '练琴',
-      excerpt: '慢下来不难，难的是慢下来之后还不着急。手可以慢，注意力慢不了。',
-      url: ''
-    },
-    {
-      date: '2026-08-28',
-      title: '为什么这个网站没有框架',
-      tag: '代码',
-      excerpt: '原生 HTML、CSS 和 JavaScript 就够了。少一层依赖，就少一个十年后打不开的理由。',
-      url: ''
-    }
   ],
 
   /* —— 作品 —— url 留空表示筹备中 */
@@ -75,6 +61,32 @@ window.SITE_DATA = {
       text: '想把每次练习的时长、段落和感受记下来，看看长期的曲线长什么样。',
       meta: '筹备中',
       url: ''
+    }
+  ],
+
+  /* —— 练琴：三栏的顺序与标题都取自这里，页面从左到右照此渲染 ——
+     title 必填；composer / note 可省略，省略了就不渲染那一行。
+     ⚠️ 下面几条是示例内容，请替换成你自己的曲目。 */
+  practice: [
+    {
+      stage: '在练',
+      items: [
+        { title: '无伴奏小提琴奏鸣曲第一号 · 柔板', composer: 'J. S. 巴赫', note: '每天先过一遍音准，再谈表情。' },
+        { title: 'E 小调小提琴协奏曲 · 第一乐章', composer: '门德尔松', note: '第二主题的换把还是不稳。' }
+      ]
+    },
+    {
+      stage: '想练',
+      items: [
+        { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '等第一号奏鸣曲站稳了再碰。' },
+        { title: '茨冈', composer: '拉威尔', note: '门槛太高，先当听力材料。' }
+      ]
+    },
+    {
+      stage: '已练',
+      items: [
+        { title: 'G 大调小提琴协奏曲 · 第一乐章', composer: '莫扎特', note: '2026 年 6 月过完谱子，现在偶尔回来复习。' }
+      ]
     }
   ],
 
