@@ -99,7 +99,7 @@ export function createObservationPlate(canvas, options = {}) {
 
     context.fillStyle = 'rgba(20, 20, 20, 0.8)';
     context.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
-    context.fillText('CONCEPTUAL TRACE / SUBJECT JARY', 22, 26);
+    context.fillText('CONCEPTUAL TRACE / JARY', 22, 26);
   }
 
   const resizeObserver = typeof ResizeObserver !== 'undefined'

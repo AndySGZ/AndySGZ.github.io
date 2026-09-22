@@ -9,7 +9,9 @@ test('Jary route exposes the complete bilingual journal identity', async () => {
 
   assert.match(html, /JARY Behavior Research/);
   assert.match(html, /《JARY行为研究》/);
-  assert.match(html, /Subject JARY/);
+  /* 期刊的「单一个体」设定靠侧栏这一栏撑着，正文里不再把人称作 Subject JARY */
+  assert.ok(html.includes('JARY / N=1'), '侧栏应保留研究对象与样本数');
+  assert.match(html, /研究对象/);
   assert.match(html, /严谨记录，科学分析/);
   assert.match(html, /Rigorous Recording, Scientific Analysis/);
 
