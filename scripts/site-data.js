@@ -10,8 +10,8 @@ window.SITE_DATA = {
     fade: 700,      /* 与 CSS --slow 一致 */
     gap: 600,       /* 完全消失后到下一句出现的留白 */
     items: [
-      { text: '把琴弓放下的时候，房间才真正安静下来。', source: '2026 年 9 月' },
-      { text: '有些旋律要练很久才能听懂，有些人也是。', source: '练琴笔记' },
+      { text: '', source: '2026 年 9 月' },
+      { text: 'The obstacles in your path define the path.\n道有坎坷方知路正，人无历练原力难成。 ', source: 'Star Wars Jedi：Fallen Order' },
       { text: '记录本身就是一种缓慢的理解。', source: '给 JBR 的题记' }
     ]
   },
@@ -80,8 +80,8 @@ window.SITE_DATA = {
 
   /* —— 联系方式（留位，等真实信息） —— */
   contact: [
-    { label: '邮箱', value: '待填写' },
+    { label: '邮箱', value: '1434582884@qq.com' },
     { label: 'GitHub', value: 'AndySGZ', url: 'https://github.com/AndySGZ' },
-    { label: '微信 / 其他', value: '待填写' }
+    { label: '微信', value: '不便透露:)' }
   ]
 };
