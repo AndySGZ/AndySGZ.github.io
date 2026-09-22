@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="assets/style.css">
     <!-- 明暗主题：必须同步执行（不加 defer），否则首屏会先闪一下浅色 -->
     <script src="scripts/theme.js"></script>
+    <!-- 联系方式跟首页共用 scripts/site-data.js 里的 contact 一份数据，
+         改那一处，两个页面一起变。 -->
+    <script src="scripts/site-data.js" defer></script>
+    <script src="scripts/render-sections.js" defer></script>
   </head>
 
   <body>
@@ -61,11 +65,15 @@
             <p>你可以在<a class="link-arrow" href="essays.html">杂谈</a>里看我新写的东西，
                在<a class="link-arrow" href="works.html">作品</a>里看我做过的事，
                在<a class="link-arrow" href="index.html#guestbook">留言墙</a>留下你的名字和一句话，
-               或者去看看我做的<a class="link-arrow" href="Jary/index.html">JBR 行为研究</a>期刊。</p>
+               或者去看看JARY———<a class="link-arrow" href="Jary/index.html">JBR</a>期刊。</p>
 
             <h2>联系</h2>
-            <p>联系方式还留着位置，等确定下来我会补上。在那之前，留言墙是最稳妥的方式。</p>
+            <p>下面这些都能找到我。不想露脸的话，
+               <a class="link-arrow" href="index.html#guestbook">留言墙</a>是最稳妥的方式。</p>
           </div>
+
+          <!-- 内容来自 scripts/site-data.js 的 contact，跟首页联系方式同一份数据 -->
+          <div class="contact-list" data-contact-list></div>
 
           <p class="section-more">
             <a class="btn btn--ghost" href="index.html">回到首页</a>

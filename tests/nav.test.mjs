@@ -1,8 +1,16 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import vm from 'node:vm';
 
 const read = (name) => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
+
+/* site-data.js 是普通脚本，数据挂在 window 上，造个假 window 取出来 */
+function loadSiteData(source) {
+  const context = { window: {} };
+  vm.runInNewContext(source, context);
+  return context.window.SITE_DATA;
+}
 
 const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html', 'practice.html'];
 
@@ -116,6 +124,63 @@ test('a pending entry renders as a non-link so there are no dead links', async (
   assert.match(script, /entry__body/);
   assert.match(script, /card--pending/);
   assert.match(script, /尚未发布/);
+});
+
+test('分类栏只在数据里写了分类时才出现', async () => {
+  const script = await read('scripts/render-sections.js');
+
+  // 分类清单来自数据，而不是回头去扫条目的 tag —— 想分类时才分类
+  assert.match(script, /tags:\s*data\.essayTags/);
+  assert.match(script, /tags:\s*data\.workTags/);
+  // 清单为空整栏不渲染
+  assert.match(script, /if \([^)]*!tags\.length[^)]*\) return;/);
+
+  const [essays, works] = await Promise.all([read('essays.html'), read('works.html')]);
+  assert.match(essays, /data-essay-filter/);
+  assert.match(essays, /data-essay-status/);
+  assert.match(works, /data-works-filter/);
+  assert.match(works, /data-works-status/);
+});
+
+test('作品页按五类分，每件作品都落在这五类里；杂谈先不分类', async () => {
+  const data = loadSiteData(await read('scripts/site-data.js'));
+
+  /* Array.from 是必须的：vm 里造出来的数组原型在另一个 realm，
+     直接 deepStrictEqual 会因为「不是同一个 Array」而失败 */
+  assert.deepEqual(Array.from(data.workTags), ['声音', '图像', '学习', '科研', '其他']);
+  assert.ok(data.works.length > 0, '作品列表不该是空的');
+  for (const work of data.works) {
+    assert.ok(data.workTags.includes(work.tag), `《${work.title}》的 tag「${work.tag}」不在 workTags 清单里`);
+  }
+
+  assert.deepEqual(Array.from(data.essayTags), [], '杂谈暂时不分类，清单要保持为空');
+});
+
+test('about 与首页共用同一份联系方式', async () => {
+  const [about, index, source] = await Promise.all([
+    read('about.html'), read('index.html'), read('scripts/site-data.js'),
+  ]);
+
+  assert.match(index, /data-contact-list/);
+  assert.match(about, /data-contact-list/);
+  assert.match(about, /src="scripts\/site-data\.js"/);
+
+  const { contact } = loadSiteData(source);
+  assert.deepEqual(Array.from(contact, (entry) => entry.value),
+    ['1434582884@qq.com', 'AndySGZ', '不便透露:)']);
+  assert.equal(contact[1].url, 'https://github.com/AndySGZ');
+});
+
+test('被筛掉的条目和卡片真的从布局里消失，卡片颜色也跟着重排', async () => {
+  const css = (await read('assets/style.css')).replace(/\s+/g, ' ');
+
+  // .entry 和 .card 都自带 display，作者样式会盖过 [hidden] 自带的 none
+  assert.ok(css.includes('.entry[hidden] { display: none; }'), '缺少 .entry[hidden] 兜底');
+  assert.ok(css.includes('.card[hidden] { display: none; }'), '缺少 .card[hidden] 兜底');
+
+  // 卡片阴影色号必须是变量，否则筛选后没法按当前可见顺序重排
+  assert.ok(css.includes('box-shadow: 6px 6px 0 0 var(--card-shadow)'), '卡片阴影没有走 --card-shadow');
+  assert.ok(css.includes('--card-shadow: var(--red)'), '缺少卡片阴影的循环换色');
 });
 
 test('the Jary journal page is left untouched and still standalone', async () => {

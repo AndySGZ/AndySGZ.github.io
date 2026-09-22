@@ -485,16 +485,19 @@ button, input, textarea { font: inherit; color: inherit; }
   background: var(--bg-raised);
   color: var(--charcoal);
   border: var(--border-w) solid var(--ink);
-  box-shadow: var(--shadow);
+  /* 阴影色号走 --card-shadow：下面按 n 循环换青红黄，JS 筛分类时也会重写它
+     （内联样式优先级更高），所以这里必须写成变量而不是写死黑色。 */
+  --card-shadow: var(--hard);
+  box-shadow: 6px 6px 0 0 var(--card-shadow);
   text-decoration: none;
   rotate: -1deg;
   transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
               background-color var(--quick) var(--ease), rotate var(--quick) var(--ease);
 }
 /* 硬阴影在青、红、黄之间跳着换：同一行卡片也不重样 */
-.card:nth-child(3n+1) { box-shadow: 6px 6px 0 0 var(--red); }
-.card:nth-child(3n+2) { box-shadow: 6px 6px 0 0 var(--pine); }
-.card:nth-child(3n)   { box-shadow: 6px 6px 0 0 var(--clay); }
+.card:nth-child(3n+1) { --card-shadow: var(--red); }
+.card:nth-child(3n+2) { --card-shadow: var(--pine); }
+.card:nth-child(3n)   { --card-shadow: var(--clay); }
 
 /* 悬停：阴影收掉、整块平移过去顶上，倾斜同时翻到反方向（仍在 3 度内） */
 .card:hover {
@@ -770,8 +773,9 @@ a.entry__body:hover { background: var(--pine); }
 }
 .entry__empty { padding: 1.75rem 0; font-size: 0.875rem; color: var(--wood); }
 
-/* —— 分类筛选（杂谈页） ——
-   按钮由 render-sections.js 依据条目的 tag 生成；只有一个分类时整栏不渲染。
+/* —— 分类筛选（杂谈页 / 作品页） ——
+   按钮由 render-sections.js 依据 site-data.js 里的分类清单生成；
+   清单是空的整栏就不渲染（杂谈页现在就是没分类的状态）。
    焦点样式走全局 :focus-visible，这里不再重复声明。 */
 .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
@@ -798,8 +802,10 @@ a.entry__body:hover { background: var(--pine); }
 .filter-status { margin-block: 1rem 1.5rem; font-size: 0.75rem; color: var(--wood-text); }
 .filter-status:empty { display: none; }  /* 禁用 JS 时不留下空白间隙 */
 
-/* 被筛掉的条目彻底移出布局（.entry 自身没有 display 声明，这里显式兜底） */
+/* 被筛掉的条目彻底移出布局（.entry / .card 都自带 display，这里显式兜底，
+   否则作者样式的 display 会盖过 [hidden] 自带的那个 display: none） */
 .entry[hidden] { display: none; }
+.card[hidden] { display: none; }
 
 /* ==========================================================================
    练琴：可切换的标签页 + 每条曲目右侧的横向图位

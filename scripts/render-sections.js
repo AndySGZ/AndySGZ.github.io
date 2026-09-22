@@ -93,32 +93,56 @@
     });
   }
 
-  /* —— 杂谈分类筛选 ——
-     只在带 [data-essay-filter] 的页面生效（杂谈页），首页的预览列表不受影响。
-     分类直接从条目的 tag 推导：site-data.js 里出现新 tag，按钮自动多一个，
-     不维护任何写死的分类清单。 */
-  (function () {
-    var host = document.querySelector('[data-essay-filter]');
-    if (!host || !essayNodes.length) return;
+  /* —— 作品网格 —— */
+  var worksHost = document.querySelector('[data-works-grid]');
+  var workNodes = [];
 
-    /* 按数据里首次出现的顺序收集分类 */
-    var tags = [];
-    essayNodes.forEach(function (node) {
-      var tag = node.getAttribute('data-tag');
-      if (tag && tags.indexOf(tag) === -1) tags.push(tag);
+  if (worksHost && Array.isArray(data.works)) {
+    take(worksHost, data.works).forEach(function (entry) {
+      var node = workNode(entry);
+      /* 同样把分类挂到节点上，筛选时不必回头再查数据 */
+      node.setAttribute('data-tag', String(entry.tag || '').trim());
+      workNodes.push(node);
+      worksHost.appendChild(node);
     });
-    if (tags.length < 2) return;   /* 只有一个分类时筛选没意义，不显示整条筛选栏 */
+  }
 
-    var statusEl = document.querySelector('[data-essay-status]');
+  /* —— 分类筛选：杂谈页与作品页共用同一套 ——
+     分类清单由数据显式给出（essayTags / workTags），不再从条目的 tag 上推导：
+
+       · 清单是空的 —— 整栏不渲染，页面看上去就跟没有分类一样。杂谈页现在
+         就是这个状态；以后往清单里写进分类名，筛选栏会自己长出来。
+       · 清单里先摆着还没有内容的分类也没关系，它会显示 0 篇 / 0 件，
+         等文章或作品补上就自动对上号。
+
+     条目靠节点上的 data-tag 归类；tag 不在清单里的条目只在「全部」下露面。
+     切换分类顺手把分类写进地址栏（?tag=），刷新、分享、前进后退都停在同一个分类。 */
+  function setupFilter(config) {
+    var host = document.querySelector(config.hostSelector);
+    var items = config.items || [];
+    /* 去空白、去重，保持清单里的原始顺序 —— 按钮顺序就是清单顺序 */
+    var tags = (Array.isArray(config.tags) ? config.tags : [])
+      .map(function (tag) { return String(tag).trim(); })
+      .filter(function (tag, index, all) { return tag && all.indexOf(tag) === index; });
+
+    if (!host || !items.length || !tags.length) return;
+
+    var statusEl = document.querySelector(config.statusSelector);
+    var unit = config.unit || '条';
+    /* 卡片阴影默认按 :nth-child 循环取色，筛过之后剩下的卡片还按原始位置
+       取色就会撞成一排同色，所以给了 tones 的列表按「当前可见的第几张」重排。 */
+    var tones = config.tones;
     var chips = [];
 
     function apply(value, syncUrl) {
       var shown = 0;
 
-      essayNodes.forEach(function (node) {
-        var visible = !value || node.getAttribute('data-tag') === value;
-        node.hidden = !visible;
-        if (visible) shown++;
+      items.forEach(function (item) {
+        var visible = !value || item.getAttribute('data-tag') === value;
+        item.hidden = !visible;
+        if (!visible) return;
+        if (tones) item.style.setProperty('--card-shadow', tones[shown % tones.length]);
+        shown++;
       });
 
       chips.forEach(function (chip) {
@@ -127,8 +151,8 @@
 
       if (statusEl) {
         statusEl.textContent = value
-          ? '「' + value + '」共 ' + shown + ' 篇'
-          : '共 ' + shown + ' 篇';
+          ? '「' + value + '」共 ' + shown + ' ' + unit
+          : '共 ' + shown + ' ' + unit;
       }
 
       /* 把分类写进地址栏：刷新、分享、前进后退都能停在同一个分类。
@@ -154,7 +178,7 @@
     makeChip('全部', '');
     tags.forEach(function (tag) { makeChip(tag, tag); });
 
-    /* 首次进入读取 ?tag=，值不合法（或分类已被删掉）就落回「全部」 */
+    /* 首次进入读取 ?tag=，值不合法（或分类已被改掉）就落回「全部」 */
     var initial = '';
     try {
       initial = new URLSearchParams(location.search).get('tag') || '';
@@ -162,15 +186,26 @@
     if (tags.indexOf(initial) === -1) initial = '';
 
     apply(initial, false);
-  }());
-
-  /* —— 作品网格 —— */
-  var worksHost = document.querySelector('[data-works-grid]');
-  if (worksHost && Array.isArray(data.works)) {
-    take(worksHost, data.works).forEach(function (entry) {
-      worksHost.appendChild(workNode(entry));
-    });
   }
+
+  /* 杂谈：清单在 site-data.js 里是空的，所以这条现在什么都不画 */
+  setupFilter({
+    hostSelector: '[data-essay-filter]',
+    statusSelector: '[data-essay-status]',
+    items: essayNodes,
+    tags: data.essayTags,
+    unit: '篇'
+  });
+
+  /* 作品：声音 / 图像 / 学习 / 科研 / 其他，顺序与颜色都跟着清单走 */
+  setupFilter({
+    hostSelector: '[data-works-filter]',
+    statusSelector: '[data-works-status]',
+    items: workNodes,
+    tags: data.workTags,
+    unit: '件',
+    tones: ['var(--red)', 'var(--pine)', 'var(--clay)']
+  });
 
   /* —— 练琴：可切换的标签页 ——
      栏目顺序与标题都来自数据，加一项就多一个标签，页面不用改。

@@ -49,6 +49,11 @@
       <section class="section" aria-labelledby="all-works-heading">
         <div class="container">
           <h2 class="sr-only" id="all-works-heading">全部作品</h2>
+          <!-- 分类按钮由 scripts/render-sections.js 依据 site-data.js 里的
+               workTags 清单生成。想调整分类：改那份清单的顺序或名字即可，
+               这个文件不用动。 -->
+          <div class="filter-bar" data-works-filter role="group" aria-label="按分类筛选作品"></div>
+          <p class="filter-status" data-works-status role="status" aria-live="polite"></p>
           <!-- 不加 data-limit：显示全部。内容来自 scripts/site-data.js -->
           <div class="card-grid" data-works-grid></div>
         </div>
