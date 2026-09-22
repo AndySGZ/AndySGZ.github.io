@@ -126,3 +126,151 @@ test('observation plate identifies itself as conceptual rather than measured dat
   assert.match(source, /CONCEPTUAL TRACE/);
   assert.doesNotMatch(source, /SIGNAL JARY-01|T\+/);
 });
+
+/* —— 导航：首页 / 游戏 / 动态 / 本期 / 往期 / 关于本刊（前面再加一个返回主页） —— */
+
+const JARY_PAGES = [
+  'Jary/index.html',
+  'Jary/games.html',
+  'Jary/updates.html',
+  'Jary/issues.html',
+  'Jary/escape-nailong.html',
+];
+
+/* 栏目名：中文、英文，以及属于这一栏目的页面（用来找 aria-current） */
+const JARY_SECTIONS = [
+  ['首页', 'Home', ['Jary/index.html']],
+  ['游戏', 'Games', ['Jary/games.html', 'Jary/escape-nailong.html']],
+  ['动态', 'Updates', ['Jary/updates.html']],
+  ['本期', 'Current issue', ['Jary/index.html#current']],
+  ['往期', 'Archive', ['Jary/issues.html']],
+  ['关于本刊', 'About', ['Jary/index.html#about']],
+];
+
+/* 把 <nav class="primary-nav"> 里的链接拆成 { href, zh, en, current } */
+function jaryNavLinks(html) {
+  const nav = html.match(/<nav class="primary-nav"[\s\S]*?<\/nav>/);
+  if (!nav) return null;
+
+  return [...nav[0].matchAll(/<a\s([^>]*)>([\s\S]*?)<\/a>/g)].map((match) => {
+    const attrs = match[1];
+    const inner = match[2];
+    return {
+      href: (attrs.match(/href="([^"]+)"/) || [])[1],
+      zh: (inner.match(/data-lang="zh">([^<]*)</) || [])[1],
+      en: (inner.match(/data-lang="en">([^<]*)</) || [])[1],
+      current: /\baria-current="page"/.test(attrs),
+    };
+  });
+}
+
+test('每一页期刊页面共用同一套六个栏目', async () => {
+  for (const page of JARY_PAGES) {
+    const html = await readFile(new URL(page, projectRoot), 'utf8');
+    const links = jaryNavLinks(html);
+    assert.ok(links, `${page} 里找不到 primary-nav`);
+
+    // 第一个是「返回主页」，之后六个才是栏目本身
+    const [backHome, ...sections] = links;
+    assert.match(backHome.href, /^\.\.\/index\.html$/, `${page} 的返回主页应指向 ../index.html`);
+    assert.ok(backHome.zh && backHome.en, '返回主页应有中英两行文案');
+
+    assert.deepEqual(
+      sections.map((link) => [link.zh, link.en]),
+      JARY_SECTIONS.map(([zh, en]) => [zh, en]),
+      `${page} 的栏目与其他期刊页面不一致`
+    );
+
+    // 每个栏目都要有中英对照，否则切到 EN 会看到中文
+    for (const link of sections) {
+      assert.ok(link.zh && link.en, `${page} 的「${link.zh}」缺中英对照`);
+    }
+  }
+});
+
+test('每一页只标一个「当前栏目」，且标的是自己', async () => {
+  for (const page of JARY_PAGES) {
+    const html = await readFile(new URL(page, projectRoot), 'utf8');
+    const links = jaryNavLinks(html).slice(1);
+    const current = links.filter((link) => link.current);
+
+    assert.equal(current.length, 1, `${page} 应该只有一个 aria-current="page"`);
+
+    // 把页面里的链接按所在文件解析成 Jary/xxx.html[#frag]，再和归属表对上
+    const owner = JARY_SECTIONS.find((section) => section[2].some((target) => {
+      const [file, fragment] = target.split('#');
+      if (file !== page) return false;
+      if (!fragment) return true;
+      // 页内锚点写成 #frag，跨页写成 file.html#frag
+      return current[0].href === `#${fragment}` || current[0].href === target;
+    }));
+    assert.ok(owner, `${page} 的 aria-current 落在了没有对应内容的链接上`);
+    assert.equal(current[0].zh, owner[0], `${page} 标错了当前栏目`);
+  }
+});
+
+/* —— 动态 —— */
+
+test('动态的数据形状齐全，页面才敢直接照着渲染', async () => {
+  const { UPDATES } = await import('../Jary/updates-data.js');
+
+  assert.ok(Array.isArray(UPDATES) && UPDATES.length > 0, '动态至少得有一条');
+
+  for (const entry of UPDATES) {
+    assert.match(entry.date, /^\d{4}-\d{2}-\d{2}$/, `日期要写 YYYY-MM-DD：${entry.date}`);
+    assert.ok(entry.title, `${entry.date} 那条缺标题`);
+    assert.ok(entry.text || (entry.images || []).length, `${entry.date} 那条既没正文也没图`);
+
+    for (const image of entry.images || []) {
+      // alt 是给读屏和加载失败时看的，不能省
+      assert.ok(image.alt, `${image.src} 缺 alt`);
+    }
+  }
+});
+
+test('期刊自己发的动态是中英各一份，不是靠中文兜底', async () => {
+  const { UPDATES } = await import('../Jary/updates-data.js');
+
+  /* 渲染层允许只写一边（缺的用另一边顶上），但期刊里的文案都是双语，
+     只写中文会让 EN 版出现「英文标题 + 中文正文」，所以这一条盯住自己发的动态。 */
+  const both = (value) => value && typeof value === 'object' && value.zh && value.en;
+
+  for (const entry of UPDATES) {
+    assert.ok(both(entry.title), `${entry.date} 的标题缺中英之一`);
+    assert.ok(both(entry.text), `${entry.date} 的正文缺中英之一`);
+    if (entry.kind) assert.ok(both(entry.kind), `${entry.date} 的标签缺中英之一`);
+    if (entry.link) assert.ok(both(entry.link.label), `${entry.date} 的链接文案缺中英之一`);
+    for (const image of entry.images || []) {
+      if (image.caption) assert.ok(both(image.caption), `${image.src} 的图注缺中英之一`);
+    }
+  }
+});
+
+test('动态文案缺了英文时落回中文，不留下空白', async () => {
+  const { pick } = await import('../Jary/updates.js');
+
+  assert.equal(pick({ zh: '只有中文' }, 'en'), '只有中文');
+  assert.equal(pick({ en: 'English only' }, 'zh'), 'English only');
+  assert.equal(pick({ zh: '甲', en: 'B' }, 'en'), 'B');
+  // 纯字符串中英共用
+  assert.equal(pick('两边一样', 'en'), '两边一样');
+  // 什么都没有时给空串，而不是 "undefined"
+  assert.equal(pick(undefined, 'zh'), '');
+  assert.equal(pick(null, 'en'), '');
+});
+
+test('动态正文按空行分段，中英各切各的，不会印出 [object Object]', async () => {
+  const { splitParagraphs } = await import('../Jary/updates.js');
+
+  const text = { zh: '甲一。\n\n甲二。', en: 'B one.\n\nB two.' };
+  assert.deepEqual(splitParagraphs(text, 'zh'), ['甲一。', '甲二。']);
+  assert.deepEqual(splitParagraphs(text, 'en'), ['B one.', 'B two.']);
+  // 对象要当对象处理 —— 直接 String() 的话整段会变成 [object Object]
+  assert.ok(!splitParagraphs(text, 'zh').some((line) => line.includes('[object')));
+
+  // 只写了中文时，英文那侧落回中文，段数也对得上
+  assert.deepEqual(splitParagraphs({ zh: '只有中文' }, 'en'), ['只有中文']);
+  // 纯字符串中英共用
+  assert.deepEqual(splitParagraphs('一句\n\n又一句', 'zh'), ['一句', '又一句']);
+  assert.deepEqual(splitParagraphs(undefined, 'zh'), []);
+});

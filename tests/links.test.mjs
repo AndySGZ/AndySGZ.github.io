@@ -5,8 +5,14 @@ import test from 'node:test';
 const root = new URL('../', import.meta.url);
 const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html', 'practice.html'];
 
-/* 期刊子页同样纳入检查：导航里的「游戏」与游戏页里的锚点都指向真实文件 */
-const JARY_PAGES = ['Jary/index.html', 'Jary/games.html', 'Jary/escape-nailong.html'];
+/* 期刊子页同样纳入检查：导航里的「游戏 / 动态 / 往期」与页内锚点都指向真实文件 */
+const JARY_PAGES = [
+  'Jary/index.html',
+  'Jary/games.html',
+  'Jary/updates.html',
+  'Jary/issues.html',
+  'Jary/escape-nailong.html',
+];
 
 const isExternal = (href) => /^(https?:|mailto:|tel:|data:|\/\/)/i.test(href);
 
@@ -73,6 +79,28 @@ test('练琴配图带上 alt，读屏和「图挂了」时都有说明', async (
     const start = source.lastIndexOf('{', match.index);
     const end = source.indexOf('}', match.index);
     assert.match(source.slice(start, end), /alt:/, `${match[0]} 这一条没写 alt`);
+  }
+});
+
+test('动态里的图与链接都指得到真实文件', async () => {
+  // 文件开头那段注释里有路径示例（assets/updates/xxx.svg），先去掉注释免得误判
+  const source = (await readFile(new URL('Jary/updates-data.js', root), 'utf8'))
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+
+  // 图片路径从 Jary/ 写起，所以拿动态页当基准解析
+  const images = [...source.matchAll(/src:\s*'([^']+)'/g)].map((match) => match[1].trim());
+  assert.ok(images.length > 0, '动态数据里应该至少有一张图');
+  for (const href of images) {
+    assert.ok(!href.startsWith('/'), `图片路径不能以 / 开头，否则本地直接打开会失效：${href}`);
+    assert.ok(!href.startsWith('http'), `动态配图应放在站内：${href}`);
+    await assertResolves('Jary/updates.html', filePart(href));
+  }
+
+  // 每条带 href 的动态，目标文件（含锚点所在页）必须存在
+  const links = [...source.matchAll(/href:\s*'([^']+)'/g)].map((match) => match[1].trim());
+  for (const href of links) {
+    if (isExternal(href)) continue;
+    await assertResolves('Jary/updates.html', filePart(href));
   }
 });
 

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN" data-language="zh"
+      data-title-zh="动态 | JARY行为研究"
+      data-title-en="Updates | JARY Behavior Research"
+      data-description-zh="JARY行为研究期刊的动态：创刊、栏目更新与观察记录。"
+      data-description-en="Updates from JARY Behavior Research: launches, new sections, and observation notes.">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="JARY行为研究期刊的动态：创刊、栏目更新与观察记录。">
+    <meta name="theme-color" content="#a6192e">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="动态 | JARY Behavior Research">
+    <meta property="og:description" content="Launches, new sections, and observation notes.">
+    <title>动态 | JARY Behavior Research</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="language.js"></script>
+    <!-- 动态条目在 updates-data.js 里维护，这个文件只管版式 -->
+    <script type="module" src="updates.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">
+      <span data-lang="zh">跳至正文</span><span data-lang="en">Skip to content</span>
+    </a>
+
+    <header class="site-header" id="top">
+      <div class="masthead page-shell">
+        <a class="wordmark" href="index.html" aria-label="JARY Behavior Research home">
+          <span class="wordmark-main">JARY</span>
+          <span class="wordmark-sub">Behavior Research</span>
+        </a>
+        <p class="journal-description">
+          <span data-lang="zh">单一个体行为学研究期刊</span>
+          <span data-lang="en">A journal of single-subject behavioral research</span>
+        </p>
+      </div>
+
+      <div class="navigation-rule">
+        <div class="page-shell navigation-inner">
+          <nav class="primary-nav" aria-label="Primary navigation">
+            <a class="back-home" href="../index.html"><span data-lang="zh">← 返回主页</span><span data-lang="en">← Main site</span></a>
+            <a href="index.html"><span data-lang="zh">首页</span><span data-lang="en">Home</span></a>
+            <a href="games.html"><span data-lang="zh">游戏</span><span data-lang="en">Games</span></a>
+            <a href="updates.html" aria-current="page"><span data-lang="zh">动态</span><span data-lang="en">Updates</span></a>
+            <a href="index.html#current"><span data-lang="zh">本期</span><span data-lang="en">Current issue</span></a>
+            <a href="issues.html"><span data-lang="zh">往期</span><span data-lang="en">Archive</span></a>
+            <a href="index.html#about"><span data-lang="zh">关于本刊</span><span data-lang="en">About</span></a>
+          </nav>
+          <div class="language-switcher" role="group" aria-label="Language / 语言">
+            <button type="button" data-language-option="zh" aria-pressed="true">中文</button>
+            <button type="button" data-language-option="en" aria-pressed="false">EN</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="issue-ribbon">
+        <div class="page-shell">
+          <strong><span data-lang="zh">动态</span><span data-lang="en">Updates</span></strong>
+          <span>JARY</span>
+          <span><span data-lang="zh">期刊公告与记录</span><span data-lang="en">Announcements &amp; notes</span></span>
+        </div>
+      </div>
+
+      <section class="updates-page page-shell" aria-labelledby="updates-title">
+        <header class="section-header">
+          <div>
+            <h1 id="updates-title"><span data-lang="zh">动态</span><span data-lang="en">Updates</span></h1>
+            <p><span data-lang="zh">创刊、栏目更新与观察记录，都发布在这里。</span><span data-lang="en">Launches, new sections, and observation notes are posted here.</span></p>
+          </div>
+        </header>
+
+        <p class="updates-lead">
+          <span data-lang="zh">每条动态按时间倒序排列，可以配一张或多张图。内容维护在 <code>updates-data.js</code> 里，加一条不用改页面。</span>
+          <span data-lang="en">Entries run newest first and may carry one or more images. They live in <code>updates-data.js</code>; adding one needs no page edits.</span>
+        </p>
+
+        <!-- 条目由 updates.js 依据 updates-data.js 生成 -->
+        <div class="updates-feed" data-updates-feed></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-shell footer-main">
+        <div><strong>JARY</strong><span>Behavior Research</span></div>
+        <p><span data-lang="zh">单一个体行为学研究期刊</span><span data-lang="en">Journal of single-subject behavioral research</span></p>
+        <a href="#top"><span data-lang="zh">返回顶部</span><span data-lang="en">Back to top</span> ↑</a>
+      </div>
+      <div class="page-shell footer-legal">
+        <span>© 2026 JARY Behavior Research</span>
+        <span>VOL. 1 · UPDATES</span>
+      </div>
+    </footer>
+  </body>
+</html>
