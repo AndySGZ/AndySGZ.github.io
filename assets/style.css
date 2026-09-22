@@ -22,6 +22,17 @@
   --tint-fjord:  rgba(123, 160, 184, 0.10);   /* bg-[#7ba0b8]/10 */
   --tint-clay:   rgba(201, 168, 140, 0.10);   /* bg-[#c9a88c]/10 */
 
+  /* 这几处原先直接写在组件里，为了暗色能一起换，收上来做 token */
+  --surface-hover:   rgba(255, 255, 255, 0.85);   /* 卡片悬停时的底色 */
+  --btn-hover:       #4a4a4a;                     /* 实心按钮悬停 */
+  --selected-bg:     #3d3d3d;                     /* 选中标签的实底（浅色下反白成炭灰） */
+  --selected-fg:     #f5f0eb;                     /* 选中标签的字色 */
+  --warn:            #8a6d3b;                     /* 留言墙的警示文字 */
+  --focus-ring:      rgba(90, 122, 107, 0.4);
+  --focus-ring-soft: rgba(90, 122, 107, 0.3);
+
+  color-scheme: light;            /* 滚动条、表单控件跟着走 */
+
   /* —— 间距 —— */
   --gutter:    1.5rem;    /* px-6  */
   --section-y: 5rem;      /* py-20 */
@@ -49,6 +60,84 @@
 }
 @media (min-width: 1024px) {                     /* lg: */
   :root { --gutter: 5rem; --section-y: 9rem; }
+}
+
+/* ==========================================================================
+   暗色
+   --------------------------------------------------------------------------
+   同一组值写两遍：一处给手动切换（<html data-theme="dark">），
+   一处给关掉 JS 时跟随系统（那时 <html> 上不会有 data-theme）。
+   --charcoal / --bg 这些名字保留：它们在全站表达的是「正文色 / 底色」，
+   到暗色下正好互换角色，所以组件一行都不用改。
+
+   底色不是纯黑，是压暗的暖木色，跟浅色的桦木白是一个路子；
+   松绿、峡湾蓝、陶土都提亮了一档，否则落在深底上会糊成一片。
+   ========================================================================== */
+html[data-theme="dark"] {
+  --bg:          #191817;                     /* bg-[#191817] 深桦木 */
+  --bg-raised:   rgba(255, 255, 255, 0.045);
+  --charcoal:    #ebe6df;                     /* 正文：米白 */
+  --wood:        #7d7060;                     /* 装饰/边框，比浅色下略提，避免糊掉 */
+  --wood-text:   #ab9c88;                     /* 正文辅色，对 6.6:1，过 WCAG AA */
+  --wool:        #55504a;
+  --pine:        #86ab97;
+  --fjord:       #93b6cd;
+  --clay:        #c2a184;
+
+  --line:        rgba(235, 230, 223, 0.14);
+  --line-hover:  rgba(235, 230, 223, 0.34);
+
+  --tint-pine:   rgba(134, 171, 151, 0.10);
+  --tint-fjord:  rgba(147, 182, 205, 0.10);
+  --tint-clay:   rgba(194, 161, 132, 0.10);
+
+  --surface-hover:   rgba(255, 255, 255, 0.09);
+  --btn-hover:       #ffffff;
+  --warn:            #d8ac63;
+  --focus-ring:      rgba(134, 171, 151, 0.55);
+  --focus-ring-soft: rgba(134, 171, 151, 0.4);
+  --selected-bg:     rgba(235, 230, 223, 0.16);   /* 暗色下不整块反白，只提一档底 */
+  --selected-fg:     #ebe6df;
+
+  color-scheme: dark;
+}
+
+/* 没有 JS（或脚本还没跑）时，先跟着系统走 */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg:          #191817;
+    --bg-raised:   rgba(255, 255, 255, 0.045);
+    --charcoal:    #ebe6df;
+    --wood:        #7d7060;
+    --wood-text:   #ab9c88;
+    --wool:        #55504a;
+    --pine:        #86ab97;
+    --fjord:       #93b6cd;
+    --clay:        #c2a184;
+
+    --line:        rgba(235, 230, 223, 0.14);
+    --line-hover:  rgba(235, 230, 223, 0.34);
+
+    --tint-pine:   rgba(134, 171, 151, 0.10);
+    --tint-fjord:  rgba(147, 182, 205, 0.10);
+    --tint-clay:   rgba(194, 161, 132, 0.10);
+
+    --surface-hover:   rgba(255, 255, 255, 0.09);
+    --btn-hover:       #ffffff;
+    --warn:            #d8ac63;
+    --focus-ring:      rgba(134, 171, 151, 0.55);
+    --focus-ring-soft: rgba(134, 171, 151, 0.4);
+    --selected-bg:     rgba(235, 230, 223, 0.16);
+    --selected-fg:     #ebe6df;
+
+    color-scheme: dark;
+  }
+}
+
+/* 首屏那张竖向图是浅色风景，暗色下压一档，看着像黄昏而不是过曝 */
+html[data-theme="dark"] .hero__figure img { filter: brightness(0.68) saturate(0.9); }
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .hero__figure img { filter: brightness(0.68) saturate(0.9); }
 }
 
 /* —— 基底 —— */
@@ -82,7 +171,7 @@ button, input, textarea { font: inherit; color: inherit; }
 /* —— 焦点可见（保留无障碍，去掉默认 outline） —— */
 :focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px rgba(90, 122, 107, 0.4);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--focus-ring);
   border-radius: var(--radius);
 }
 
@@ -127,6 +216,26 @@ button, input, textarea { font: inherit; color: inherit; }
   padding: 1.25rem var(--gutter);
 }
 .wordmark { font-size: 1.125rem; letter-spacing: 0.04em; color: var(--charcoal); text-decoration: none; }
+
+/* 站名和明暗开关并成一组：窄屏整条导航折行时，它俩也跟着一起走 */
+.site-nav__brand { display: flex; align-items: center; gap: 1rem; }
+
+/* 明暗开关：排版跟导航项一致（中文在上、英文在下），只是它是个按钮 */
+.theme-toggle {
+  display: inline-flex; flex-direction: column; align-items: center;
+  min-width: 4.4rem;                 /* 文案在「暗色 / 亮色」之间变，别带着整排跳 */
+  padding: 0.3rem 0.6rem;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--wood-text);
+  cursor: pointer;
+  transition: color var(--med) var(--ease), border-color var(--med) var(--ease),
+              background-color var(--med) var(--ease);
+}
+.theme-toggle:hover { color: var(--charcoal); border-color: var(--line-hover); background: var(--bg-raised); }
+.theme-toggle[aria-pressed="true"] { color: var(--charcoal); border-color: var(--line-hover); }
+
 .site-nav__links { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; }
 .site-nav__links a {
   display: inline-flex; flex-direction: column; align-items: center;
@@ -255,7 +364,7 @@ button, input, textarea { font: inherit; color: inherit; }
               border-color var(--quick) var(--ease),
               color var(--quick) var(--ease);
 }
-.btn:hover  { background: #4a4a4a; border-color: #4a4a4a; }
+.btn:hover  { background: var(--btn-hover); border-color: var(--btn-hover); }
 .btn:active { filter: brightness(0.94); }     /* 仅细微明暗，不做形变 */
 
 .btn--ghost { background: transparent; color: var(--charcoal); border-color: var(--line-hover); }
@@ -295,7 +404,7 @@ button, input, textarea { font: inherit; color: inherit; }
   text-decoration: none;
   transition: border-color var(--med) var(--ease), background-color var(--med) var(--ease);
 }
-.card:hover { border-color: var(--line-hover); background: rgba(255, 255, 255, 0.85); }
+.card:hover { border-color: var(--line-hover); background: var(--surface-hover); }
 .card__title { font-size: 1.125rem; margin-bottom: 0.75rem; }
 .card__text  { font-size: 0.875rem; color: var(--wood-text); }
 .card__meta  { display: block; margin-top: 1.25rem; font-size: 0.75rem; color: var(--wood); }
@@ -320,7 +429,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .field__input:focus {
   outline: none;                                  /* focus:outline-none */
   border-color: var(--pine);
-  box-shadow: 0 0 0 2px rgba(90, 122, 107, 0.3);  /* focus:ring-2 ring-[#5a7a6b]/30 */
+  box-shadow: 0 0 0 2px var(--focus-ring-soft);  /* focus:ring-2 */
 }
 .field__input::placeholder { color: var(--wool); }
 textarea.field__input { min-height: 6.5rem; resize: vertical; }
@@ -328,7 +437,7 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
 
 .form-status { margin-top: 1.25rem; font-size: 0.75rem; color: var(--wood-text); min-height: 1.5rem; }
 .form-status[data-tone="ok"]   { color: var(--pine); }
-.form-status[data-tone="warn"] { color: #8a6d3b; }
+.form-status[data-tone="warn"] { color: var(--warn); }
 
 .wall__list { display: grid; gap: 1.5rem; }
 .wall__item {
@@ -371,11 +480,14 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
 .site-footer {
   background: var(--bg-raised);
   border-top: 1px solid var(--line);
-  padding-block: 4rem;
+  padding-block: 3rem;
   font-size: 0.75rem;
   color: var(--wood-text);
 }
-.site-footer__inner { display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between; }
+.site-footer__inner {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: 0.75rem 2rem; justify-content: space-between;
+}
 .site-footer a { color: var(--wood-text); text-decoration: none; transition: color var(--med) var(--ease); }
 .site-footer a:hover { color: var(--charcoal); }
 
@@ -515,9 +627,9 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
 }
 .practice-tab:hover { color: var(--charcoal); border-color: var(--line-hover); }
 .practice-tab[aria-selected="true"] {
-  color: var(--bg);                     /* 选中态：深底浅字，与 .skip-link 同一套语言 */
-  background: var(--charcoal);
-  border-color: var(--charcoal);
+  color: var(--selected-fg);            /* 选中态：深底浅字，与 .skip-link 同一套语言 */
+  background: var(--selected-bg);       /* 暗色下换成提亮一档的底，见 --selected-bg */
+  border-color: var(--selected-bg);
 }
 
 /* 面板自身可聚焦（内部没有可聚焦元素），但不该因此画出焦点框 */

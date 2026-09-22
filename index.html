@@ -7,6 +7,8 @@
     <meta name="description" content="Andy SGZ 的个人主页。">
     <title>Andy SGZ</title>
     <link rel="stylesheet" href="assets/style.css">
+    <!-- 明暗主题：必须同步执行（不加 defer），否则首屏会先闪一下浅色 -->
+    <script src="scripts/theme.js"></script>
 
     <!-- 留言墙后端配置：接入 Supabase 后把 provider 改成 'supabase' 并填入两个值。
          详细步骤见 docs/留言墙接入指南.md；不填则运行在本机演示模式。 -->
@@ -27,9 +29,15 @@
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
 
-    <header class="site-nav">
+    <header class="site-nav" id="top">
       <div class="site-nav__inner">
-        <a class="wordmark" href="index.html">Andy SGZ</a>
+        <div class="site-nav__brand">
+          <a class="wordmark" href="index.html">Andy SGZ</a>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+            <span class="nav-zh" data-theme-label-zh>暗色</span>
+            <span class="nav-en" data-theme-label-en>Dark</span>
+          </button>
+        </div>
         <nav class="site-nav__links" aria-label="主导航">
           <a href="index.html" aria-current="page"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
           <a href="about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
@@ -155,14 +163,8 @@
 
     <footer class="site-footer">
       <div class="container site-footer__inner">
-        <span>© 2026 Andy SGZ</span>
-        <span>
-          <a href="essays.html">杂谈</a>
-          <span aria-hidden="true"> · </span>
-          <a href="works.html">作品</a>
-          <span aria-hidden="true"> · </span>
-          <a href="Jary/index.html">JBR 行为研究</a>
-        </span>
+        <span>&copy; 2026 Andy SGZ</span>
+        <a href="#top">回到顶部 &uarr;</a>
       </div>
     </footer>
   </body>

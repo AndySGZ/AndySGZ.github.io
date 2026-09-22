@@ -7,6 +7,8 @@
     <meta name="description" content="Andy SGZ 的杂谈。">
     <title>杂谈 | Andy SGZ</title>
     <link rel="stylesheet" href="assets/style.css">
+    <!-- 明暗主题：必须同步执行（不加 defer），否则首屏会先闪一下浅色 -->
+    <script src="scripts/theme.js"></script>
     <script src="scripts/site-data.js" defer></script>
     <script src="scripts/render-sections.js" defer></script>
   </head>
@@ -14,9 +16,15 @@
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
 
-    <header class="site-nav">
+    <header class="site-nav" id="top">
       <div class="site-nav__inner">
-        <a class="wordmark" href="index.html">Andy SGZ</a>
+        <div class="site-nav__brand">
+          <a class="wordmark" href="index.html">Andy SGZ</a>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+            <span class="nav-zh" data-theme-label-zh>暗色</span>
+            <span class="nav-en" data-theme-label-en>Dark</span>
+          </button>
+        </div>
         <nav class="site-nav__links" aria-label="主导航">
           <a href="index.html"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
           <a href="about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
@@ -54,12 +62,8 @@
 
     <footer class="site-footer">
       <div class="container site-footer__inner">
-        <span>© 2026 Andy SGZ</span>
-        <span>
-          <a href="works.html">作品</a>
-          <span aria-hidden="true"> · </span>
-          <a href="Jary/index.html">JBR 行为研究</a>
-        </span>
+        <span>&copy; 2026 Andy SGZ</span>
+        <a href="#top">回到顶部 &uarr;</a>
       </div>
     </footer>
   </body>
