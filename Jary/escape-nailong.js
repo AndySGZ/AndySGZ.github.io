@@ -24,15 +24,17 @@ const PLAYER_WIDTH = 34;
 const PLAYER_HEIGHT = 72;
 const SLIDE_HEIGHT = 34;
 
-const CHASE_START = 300;         /* 开局奶龙落后多少 px */
+const CHASE_START = 280;         /* 开局奶龙落后多少 px */
 const CHASE_MAX = 440;
-const HIT_PENALTY = 86;          /* 撞一次被追近多少（约 4 次被抓住） */
-const FLOWER_BONUS = 64;         /* 吃到小红花拉开多少 */
-const CHASE_REGEN = 14;          /* 无失误时每秒自然拉开多少 */
+const HIT_PENALTY = 98;          /* 撞一次被追近多少：连着撞三下就被抓住 */
+const FLOWER_BONUS = 52;         /* 吃到小红花拉开多少 */
+const CHASE_REGEN = 8;           /* 无失误时每秒自然拉开多少 */
 
-const BASE_SPEED = 320;          /* 起始速度 px/s */
-const MAX_SPEED = 840;
-const SPEED_GAIN = 12;           /* 每秒提速 */
+const BASE_SPEED = 360;          /* 起始速度 px/s */
+const MAX_SPEED = 900;
+const SPEED_GAIN = 15;           /* 每秒提速，约 36 秒到顶 */
+
+const OVER_ENTER = 0.42;         /* 结束卡片进场动画用多久（秒） */
 
 const STEP = 1 / 120;            /* 固定步长，保证物理稳定 */
 const METERS_PER_PIXEL = 1 / 24;
@@ -48,6 +50,10 @@ const OBSTACLE_TYPES = {
 };
 const OBSTACLE_ORDER = ['desk', 'books', 'bin', 'cone', 'bench', 'plane'];
 
+/* 越跑越热：纸飞机与长凳变多，最好躲的路障变少 */
+const OBSTACLE_WEIGHTS = { desk: 1.15, books: 1, bin: 1, cone: 0.8, bench: 0.9, plane: 0.55 };
+const OBSTACLE_HEAT = 0.6;       /* 45 秒内纸飞机的权重涨这么多 */
+
 /* 画面上的文字跟着期刊的双语开关走（读取 <html> 的当前语言） */
 const LABELS = {
   zh: {
@@ -57,6 +63,7 @@ const LABELS = {
     keys: '空格 / ↑ 起跳（可二段跳）· ↓ 滑铲 · P 暂停',
     paused: '已暂停',
     over: '被奶龙抓住了！',
+    record: '新纪录！',
     again: '按 R 或点「重新开始」再来一次',
     distance: '距离',
     best: '最好',
@@ -69,6 +76,7 @@ const LABELS = {
     keys: 'Space / Up jump (double jump) · Down slide · P pause',
     paused: 'Paused',
     over: 'Nailong caught JARY!',
+    record: 'NEW BEST!',
     again: 'Press R or Restart to run again',
     distance: 'Distance',
     best: 'Best',
@@ -108,6 +116,7 @@ export function createRun(options = {}) {
     nextFlower: 900,
     shake: 0,
     hits: 0,
+    record: false,               /* 这一趟是否刷新了纪录（结束时才知道） */
     best: Math.max(0, Math.floor(Number(options.best) || 0)),
   };
 }
@@ -172,13 +181,36 @@ export function requestSlide(run) {
   return true;
 }
 
-function spawnObstacle(run) {
-  const type = OBSTACLE_ORDER[Math.floor(run.random() * OBSTACLE_ORDER.length)];
-  run.obstacles.push({ type, x: run.nextSpawn, hit: false });
+/* 按权重抽障碍：权重随已跑时间漂移，越到后面越不客气。
+   整个抽取只消耗一个随机数，换难度也不会打乱随机序列的长度。 */
+export function pickObstacle(run) {
+  const heat = clamp(run.elapsed / 45, 0, 1);
+  let total = 0;
 
-  /* 间距必须留得下「跳一次再落地」：速度越快，间距越远 */
-  const factor = 0.82 + run.random() * 0.55;
-  run.nextSpawn += Math.max(250, run.speed * factor);
+  const weights = OBSTACLE_ORDER.map((type) => {
+    let weight = OBSTACLE_WEIGHTS[type];
+    if (type === 'plane') weight += heat * OBSTACLE_HEAT;
+    else if (type === 'bench') weight += heat * OBSTACLE_HEAT * 0.6;
+    else if (type === 'cone') weight -= heat * OBSTACLE_HEAT * 0.5;
+    total += Math.max(0.08, weight);
+    return Math.max(0.08, weight);
+  });
+
+  let roll = run.random() * total;
+  for (let index = 0; index < weights.length; index += 1) {
+    roll -= weights[index];
+    if (roll <= 0) return OBSTACLE_ORDER[index];
+  }
+  return OBSTACLE_ORDER[OBSTACLE_ORDER.length - 1];
+}
+
+function spawnObstacle(run) {
+  run.obstacles.push({ type: pickObstacle(run), x: run.nextSpawn, hit: false });
+
+  /* 间距必须留得下「跳一次再落地」：速度越快，间距越远。
+     但换算成时间就固定了——0.66~1.08 秒来一个，比早期版本挤了两成。 */
+  const factor = 0.66 + run.random() * 0.42;
+  run.nextSpawn += Math.max(220, run.speed * factor);
 }
 
 function spawnFlower(run) {
@@ -193,7 +225,7 @@ function spawnFlower(run) {
   }
 
   run.flowers.push({ x, y: GROUND_Y - 22 - height, taken: false });
-  run.nextFlower = x + 520 + run.random() * 620;
+  run.nextFlower = x + 640 + run.random() * 660;
 }
 
 /* ---------- 推进一步（按固定步长调用，输入只有「是否按住滑铲」） ---------- */
@@ -267,8 +299,10 @@ export function stepRun(run, dt, hold = {}) {
 
   run.chase = clamp(run.chase, 0, CHASE_MAX);
   if (run.chase <= 0) {
+    const meters = distanceOf(run);
+    run.record = meters > run.best;
+    run.best = Math.max(run.best, meters);
     run.phase = 'over';
-    run.best = Math.max(run.best, distanceOf(run));
     events.push({ type: 'caught' });
   }
 
@@ -974,27 +1008,98 @@ function drawHud(ctx, run, labels) {
   ctx.restore();
 }
 
-function drawOverlay(ctx, run, labels) {
-  if (run.phase === 'running') return;
+/* 结束卡片：左边是捧腹大笑的奶龙，右边是这一趟的成绩。
+   那张立绘本来就是白底，放在白卡片上不用抠图，边缘自然融进去。 */
+function drawResultCard(ctx, run, labels, view) {
+  const laugh = view?.laugh ?? null;
+  const enter = view?.enter ?? 1;
+
+  const cardWidth = 596;
+  const cardHeight = 304;
+  const cardX = (VIEW.width - cardWidth) / 2;
+  const cardY = (VIEW.height - cardHeight) / 2;
+  const pad = 20;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(23, 23, 23, 0.44)';
+  ctx.globalAlpha = enter;
+  /* 从画面中心稍微放大着弹进来 */
+  const growth = 0.86 + 0.14 * enter;
+  ctx.translate(VIEW.width / 2, VIEW.height / 2);
+  ctx.scale(growth, growth);
+  ctx.translate(-VIEW.width / 2, -VIEW.height / 2);
+
+  ctx.shadowColor = 'rgba(15, 15, 15, 0.42)';
+  ctx.shadowBlur = 34;
+  ctx.shadowOffsetY = 14;
+  ctx.fillStyle = '#ffffff';
+  roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 20);
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  ctx.strokeStyle = 'rgba(23, 23, 23, 0.1)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  let textLeft = VIEW.width / 2;
+  ctx.textAlign = 'center';
+
+  if (laugh) {
+    const artHeight = cardHeight - pad * 2;
+    const box = spriteBox(laugh, artHeight, 176);
+    const artX = cardX + pad;
+    const artY = cardY + (cardHeight - box.height) / 2;
+    ctx.drawImage(laugh, artX, artY, box.width, box.height);
+
+    textLeft = artX + box.width + 24;
+    ctx.textAlign = 'left';
+  }
+
+  const titleY = cardY + 86;
+  ctx.fillStyle = '#a6192e';
+  ctx.font = 'bold 30px ' + UI_FONT;
+  ctx.fillText(labels.over, textLeft, titleY);
+
+  const metersText = distanceOf(run) + ' m';
+  const metersY = cardY + 158;
+  ctx.fillStyle = '#171717';
+  ctx.font = 'bold 46px ' + MONO_FONT;
+  ctx.fillText(metersText, textLeft, metersY);
+
+  /* 破了纪录就在成绩右边挂一个小红字，不另起一行 */
+  if (run.record) {
+    const used = ctx.measureText(metersText).width;
+    ctx.fillStyle = '#d6453b';
+    ctx.font = '700 15px ' + UI_FONT;
+    ctx.fillText(labels.record, textLeft + used + 14, metersY);
+  }
+
+  ctx.fillStyle = '#6b6b6b';
+  ctx.font = '600 17px ' + UI_FONT;
+  ctx.fillText(labels.best + '：' + run.best + ' m', textLeft, cardY + 200);
+
+  ctx.fillStyle = '#8a8a8a';
+  ctx.font = '600 15px ' + UI_FONT;
+  ctx.fillText(labels.again, textLeft, cardY + 242);
+
+  ctx.restore();
+}
+
+function drawOverlay(ctx, run, labels, view) {
+  if (run.phase === 'running') return;
+
+  const enter = view?.enter ?? 1;
+
+  ctx.save();
+  ctx.globalAlpha = enter;
+  ctx.fillStyle = 'rgba(23, 23, 23, 0.5)';
   ctx.fillRect(0, 0, VIEW.width, VIEW.height);
+  ctx.globalAlpha = 1;
   ctx.textAlign = 'center';
 
   if (run.phase === 'over') {
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 40px ' + UI_FONT;
-    ctx.fillText(labels.over, VIEW.width / 2, 172);
-
-    ctx.fillStyle = '#ffe08a';
-    ctx.font = 'bold 26px ' + MONO_FONT;
-    ctx.fillText(distanceOf(run) + ' m', VIEW.width / 2, 224);
-
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-    ctx.font = '600 16px ' + UI_FONT;
-    ctx.fillText(labels.distance + ' / ' + labels.best + ': ' + run.best + ' m', VIEW.width / 2, 258);
-    ctx.fillText(labels.again, VIEW.width / 2, 292);
+    drawResultCard(ctx, run, labels, view);
   } else {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 42px ' + UI_FONT;
@@ -1029,7 +1134,7 @@ export function createGame(canvas, options = {}) {
   const onEvent = typeof options.onEvent === 'function' ? options.onEvent : function () {};
 
   const run = createRun({ seed: options.seed, best: options.best });
-  const sprites = { jary: null, nailong: null };
+  const sprites = { jary: null, nailong: null, laugh: null };
   const hold = { slide: false };
 
   let scale = 1;
@@ -1038,6 +1143,7 @@ export function createGame(canvas, options = {}) {
   let frameId = 0;
   let lastTime = 0;
   let accumulator = 0;
+  let overTime = 0;                /* 结束卡片进场走了多久 */
 
   function currentLabels() {
     const language = options.language ?? documentRef?.documentElement?.lang ?? 'zh';
@@ -1056,6 +1162,12 @@ export function createGame(canvas, options = {}) {
   }
 
   /* ---------- 画面 ---------- */
+  /* 结束卡片的进场进度：0 → 1；开了「减少动态效果」就直接到位 */
+  function enterProgress() {
+    if (reducedMotion) return 1;
+    return clamp(overTime / OVER_ENTER, 0, 1);
+  }
+
   function render() {
     const labels = currentLabels();
 
@@ -1089,7 +1201,7 @@ export function createGame(canvas, options = {}) {
     context.restore();
 
     drawHud(context, run, labels);
-    drawOverlay(context, run, labels);
+    drawOverlay(context, run, labels, { laugh: sprites.laugh, enter: enterProgress() });
     context.restore();
   }
 
@@ -1120,9 +1232,15 @@ export function createGame(canvas, options = {}) {
       if (run.phase !== 'running') break;
     }
 
+    if (run.phase === 'over') {
+      overTime = reducedMotion ? OVER_ENTER : Math.min(OVER_ENTER, overTime + delta);
+    }
+
     render();
 
-    if (run.phase === 'running') {
+    /* 结束后再多跑一小会儿——只为了让结果卡片进场，放完就停 */
+    const entering = run.phase === 'over' && overTime < OVER_ENTER;
+    if (run.phase === 'running' || entering) {
       frameId = windowRef.requestAnimationFrame(advance);
     } else {
       frameId = 0;
@@ -1166,6 +1284,7 @@ export function createGame(canvas, options = {}) {
     begin() {
       if (run.phase === 'running') return;
       const resuming = run.phase === 'paused';
+      overTime = 0;
       beginRun(run);
       handleEvent({ type: resuming ? 'resume' : 'start' });
       render();

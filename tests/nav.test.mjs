@@ -40,7 +40,7 @@ test('navigation is bilingual with Chinese and English at the same size', async 
   // 找出所有选择器命中 .nav-zh / .nav-en 的规则
   const navRules = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)]
     .map((match) => ({ selector: match[1].trim(), body: match[2] }))
-    .filter((rule) => /\.nav-(zh|en)/.test(rule.selector));
+    .filter((rule) => /\.nav-(zh|en)\b/.test(rule.selector));
 
   const sized = navRules.filter((rule) => /font-size\s*:/.test(rule.body));
 

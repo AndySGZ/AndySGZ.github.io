@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const read = (name) => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
-const escape = (token) => token.replace(/[.*+?^${}()|[\]\]/g, '\$&');
+const escape = (token) => token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 test('homepage exposes the Scandinavian shell and main navigation', async () => {
   const html = await read('index.html');
@@ -47,7 +47,8 @@ test('hero lays out a portrait image beside the quotes, not a full-width banner'
 test('the JBR journal entry point is preserved', async () => {
   const html = await read('index.html');
 
-  assert.match(html, /href="\/Jary\/index\.html"/);
+  /* 站内一律用相对链接（本地 file:// 直接打开也能跳），所以两种写法都算数 */
+  assert.match(html, /href="(?:\.\/|\/)?Jary\/index\.html"/, '主页应当保留通往《Jary行为研究》的入口');
 });
 
 test('quote rotator has a reading pause and a reduced-motion fallback', async () => {

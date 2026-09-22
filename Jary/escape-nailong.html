@@ -65,8 +65,8 @@
         <div class="game-head">
           <h1 id="game-title"><span data-lang="zh">JARY 逃离奶龙</span><span data-lang="en">JARY Escapes Nailong</span></h1>
           <p>
-            <span data-lang="zh">奶龙在身后穷追不舍。跳过课桌、书堆与垃圾桶，滑铲躲开贴着地皮飞来的纸飞机，顺手捡走小红花把距离重新拉开——被追上，这一趟就结束了。</span>
-            <span data-lang="en">Nailong is right behind you. Vault the desks, book piles and bins, slide under the paper planes, and grab the little red flowers to widen the gap. Get caught, and the run is over.</span>
+            <span data-lang="zh">奶龙在身后穷追不舍。跳过课桌、书堆与垃圾桶，滑铲躲开贴着地皮飞来的纸飞机，顺手捡走小红花把距离重新拉开——被追上，这一趟就结束了。越跑越快，障碍之间的缝也越来越窄，连着撞三下基本就到头了。</span>
+            <span data-lang="en">Nailong is right behind you. Vault the desks, book piles and bins, slide under the paper planes, and grab the little red flowers to widen the gap. Get caught, and the run is over. The pace climbs, the gaps keep shrinking, and three stumbles in a row usually finish you.</span>
           </p>
         </div>
 
@@ -76,6 +76,7 @@
             <canvas id="nailong-canvas" class="game-canvas" width="960" height="420" tabindex="0"
                     data-jary-sprite="assets/game/jary.png"
                     data-nailong-sprite="assets/game/nailong.png"
+                    data-laugh-sprite="assets/game/laugh.png"
                     aria-label="JARY 逃离奶龙 游戏画面 / JARY Escapes Nailong game canvas"></canvas>
           </div>
 
@@ -157,14 +158,14 @@
               <span class="swatch swatch--nailong" aria-hidden="true"></span>
               <div>
                 <strong><span data-lang="zh">奶龙</span><span data-lang="en">Nailong</span></strong>
-                <small><span data-lang="zh">撞一次就近一步，追上就结束</span><span data-lang="en">Every stumble brings it closer</span></small>
+                <small><span data-lang="zh">撞一次就近一步，连着撞三下就追上了</span><span data-lang="en">Three stumbles in a row and it has you</span></small>
               </div>
             </li>
           </ul>
 
           <p class="game-note">
-            <span data-lang="zh">场上这两位用的是真图：JARY 和他那辆共享单车，以及紧追不舍的奶龙。想换画风，把 <code>Jary/assets/game/</code> 下的 <code>jary.png</code>、<code>nailong.png</code> 换成同名文件即可（建议透明底 PNG、单张 200 KB 以内）；把 canvas 上那两个 <code>data-*-sprite</code> 属性删掉，就会退回模块里现画的卡通角色。</span>
-            <span data-lang="en">Both characters use real artwork now: JARY and his shared bike, with Nailong in hot pursuit. To change the art, replace <code>jary.png</code> and <code>nailong.png</code> in <code>Jary/assets/game/</code> with files of the same name (transparent PNGs under 200 KB work best). Remove the two <code>data-*-sprite</code> attributes from the canvas and the hand-drawn cartoon pair takes over.</span>
+            <span data-lang="zh">场上这两位用的是真图：JARY 和他那辆共享单车，以及紧追不舍的奶龙。被追上时会弹出一张成绩卡，旁边就是奶龙捧着肚子笑的那张图。想换画风，把 <code>Jary/assets/game/</code> 下的 <code>jary.png</code>、<code>nailong.png</code>、<code>laugh.png</code> 换成同名文件即可（建议透明底 PNG、单张 200 KB 以内）；把 canvas 上那几个 <code>data-*-sprite</code> 属性删掉，就会退回模块里现画的卡通角色和纯文字的成绩卡。</span>
+            <span data-lang="en">The cast uses real artwork now: JARY and his shared bike, with Nailong in hot pursuit — and when it catches you, a results card pops up with Nailong laughing his head off beside it. To change the art, replace <code>jary.png</code>, <code>nailong.png</code> and <code>laugh.png</code> in <code>Jary/assets/game/</code> with files of the same name (transparent PNGs under 200 KB work best). Remove the <code>data-*-sprite</code> attributes from the canvas and the hand-drawn cartoon cast plus the plain-text card take over.</span>
           </p>
 
           <p class="game-credit">
@@ -284,6 +285,7 @@
         sprites: {
           jary: canvas ? canvas.dataset.jarySprite || '' : '',
           nailong: canvas ? canvas.dataset.nailongSprite || '' : '',
+          laugh: canvas ? canvas.dataset.laughSprite || '' : '',
         },
         onEvent(event) {
           const text = messages();
