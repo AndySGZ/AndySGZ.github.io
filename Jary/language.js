@@ -11,6 +11,20 @@ const PAGE_METADATA = {
   },
 };
 
+/* 子页面（游戏厅、小游戏）可以在 <html> 上用
+   data-title-zh / data-title-en / data-description-zh / data-description-en
+   覆盖默认文案；不写就退回上面的期刊主文案，主页因此不用改。 */
+function pageMetadata(language, root) {
+  const dataset = root.dataset ?? {};
+  const suffix = language === 'zh' ? 'Zh' : 'En';
+  const defaults = PAGE_METADATA[language];
+
+  return {
+    title: dataset['title' + suffix] || defaults.title,
+    description: dataset['description' + suffix] || defaults.description,
+  };
+}
+
 export function resolveLanguage(savedLanguage, browserLanguage = '') {
   if (SUPPORTED_LANGUAGES.has(savedLanguage)) return savedLanguage;
   return browserLanguage.toLowerCase().startsWith('zh') ? 'zh' : 'en';
@@ -27,10 +41,11 @@ export function applyLanguage(language, root = document.documentElement, storage
   });
 
   if (typeof document !== 'undefined' && root === document.documentElement) {
-    document.title = PAGE_METADATA[nextLanguage].title;
+    const metadata = pageMetadata(nextLanguage, root);
+    document.title = metadata.title;
     document
       .querySelector('meta[name="description"]')
-      ?.setAttribute('content', PAGE_METADATA[nextLanguage].description);
+      ?.setAttribute('content', metadata.description);
   }
 
   try {

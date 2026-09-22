@@ -656,8 +656,15 @@ html[data-language='en'] [data-lang='en'] {
     font-size: 3.15rem;
   }
 
+  /* 导航已经有六项，窄屏放不下一行时允许折到第二行，而不是被裁掉 */
   .navigation-inner {
+    flex-wrap: wrap;
     gap: 4px;
+    padding-block: 6px;
+  }
+
+  .primary-nav {
+    flex-wrap: wrap;
   }
 
   .primary-nav a,

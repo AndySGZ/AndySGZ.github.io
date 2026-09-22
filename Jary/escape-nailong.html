@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-CN" data-language="zh"
+      data-title-zh="JARY 逃离奶龙 | 游戏厅"
+      data-title-en="JARY Escapes Nailong | Game Room"
+      data-description-zh="2D 横版跑酷：帮 JARY 躲开校园里的障碍，别让奶龙追上。"
+      data-description-en="A 2D side-scrolling runner: help JARY dodge the campus and stay ahead of Nailong.">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="2D 横版跑酷：帮 JARY 躲开校园里的障碍，别让奶龙追上。">
+    <meta name="theme-color" content="#a6192e">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="JARY 逃离奶龙 | JARY Behavior Research">
+    <meta property="og:description" content="A cartoon campus endless runner starring Subject JARY.">
+    <title>JARY 逃离奶龙 | Game Room</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="games.css">
+    <script type="module" src="language.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">
+      <span data-lang="zh">跳至正文</span><span data-lang="en">Skip to content</span>
+    </a>
+
+    <header class="site-header" id="top">
+      <div class="masthead page-shell">
+        <a class="wordmark" href="index.html" aria-label="JARY Behavior Research home">
+          <span class="wordmark-main">JARY</span>
+          <span class="wordmark-sub">Behavior Research</span>
+        </a>
+        <p class="journal-description">
+          <span data-lang="zh">单一个体行为学研究期刊</span>
+          <span data-lang="en">A journal of single-subject behavioral research</span>
+        </p>
+      </div>
+
+      <div class="navigation-rule">
+        <div class="page-shell navigation-inner">
+          <nav class="primary-nav" aria-label="Primary navigation">
+            <a class="back-home" href="../index.html"><span data-lang="zh">← 返回主页</span><span data-lang="en">← Main site</span></a>
+            <a href="index.html"><span data-lang="zh">首页</span><span data-lang="en">Home</span></a>
+            <a href="games.html" aria-current="page"><span data-lang="zh">游戏</span><span data-lang="en">Games</span></a>
+            <a href="index.html#current"><span data-lang="zh">本期</span><span data-lang="en">Current issue</span></a>
+            <a href="index.html#scope"><span data-lang="zh">研究</span><span data-lang="en">Research</span></a>
+            <a href="index.html#about"><span data-lang="zh">关于本刊</span><span data-lang="en">About</span></a>
+          </nav>
+          <div class="language-switcher" role="group" aria-label="Language / 语言">
+            <button type="button" data-language-option="zh" aria-pressed="true">中文</button>
+            <button type="button" data-language-option="en" aria-pressed="false">EN</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="issue-ribbon">
+        <div class="page-shell">
+          <strong><span data-lang="zh">游戏厅</span><span data-lang="en">Game room</span></strong>
+          <span><span data-lang="zh">第 1 号作品</span><span data-lang="en">Game no. 1</span></span>
+          <span><span data-lang="zh">卡通校园 · 无尽跑酷</span><span data-lang="en">Cartoon campus · endless runner</span></span>
+        </div>
+      </div>
+
+      <section class="game-page page-shell" aria-labelledby="game-title">
+        <div class="game-head">
+          <h1 id="game-title"><span data-lang="zh">JARY 逃离奶龙</span><span data-lang="en">JARY Escapes Nailong</span></h1>
+          <p>
+            <span data-lang="zh">奶龙在身后穷追不舍。跳过课桌、书堆与垃圾桶，滑铲躲开贴着地皮飞来的纸飞机，顺手捡走小红花把距离重新拉开——被追上，这一趟就结束了。</span>
+            <span data-lang="en">Nailong is right behind you. Vault the desks, book piles and bins, slide under the paper planes, and grab the little red flowers to widen the gap. Get caught, and the run is over.</span>
+          </p>
+        </div>
+
+        <div class="game-stage">
+          <!-- 想换上自己的立绘：把图放进 assets/game/，再给下面的 canvas 加上
+               data-jary-sprite="assets/game/jary.png"
+               data-nailong-sprite="assets/game/nailong.png"
+               不加这两个属性时，用模块里现画的卡通角色。 -->
+          <div class="game-frame">
+            <canvas id="nailong-canvas" class="game-canvas" width="960" height="420" tabindex="0"
+                    aria-label="JARY 逃离奶龙 游戏画面 / JARY Escapes Nailong game canvas"></canvas>
+          </div>
+
+          <div class="game-controls">
+            <button type="button" class="game-button game-button--primary" data-game-start>
+              <span data-lang="zh">开始</span><span data-lang="en">Start</span>
+            </button>
+            <button type="button" class="game-button" data-game-pause>
+              <span data-lang="zh">暂停</span><span data-lang="en">Pause</span>
+            </button>
+            <button type="button" class="game-button" data-game-restart>
+              <span data-lang="zh">重新开始</span><span data-lang="en">Restart</span>
+            </button>
+            <button type="button" class="game-button game-button--touch" data-game-jump>
+              <span data-lang="zh">跳</span><span data-lang="en">Jump</span>
+            </button>
+            <button type="button" class="game-button game-button--touch" data-game-slide>
+              <span data-lang="zh">滑铲</span><span data-lang="en">Slide</span>
+            </button>
+          </div>
+
+          <p class="game-status" data-game-status role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="game-help">
+          <h2><span data-lang="zh">怎么玩</span><span data-lang="en">How to play</span></h2>
+
+          <h3><span data-lang="zh">操作</span><span data-lang="en">Controls</span></h3>
+          <dl class="game-keys">
+            <div>
+              <dt><span data-lang="zh">起跳（空中可再跳一次）</span><span data-lang="en">Jump (again mid-air)</span></dt>
+              <dd><kbd>Space</kbd> <kbd>↑</kbd></dd>
+            </div>
+            <div>
+              <dt><span data-lang="zh">滑铲（按住可连续滑）</span><span data-lang="en">Slide (hold to keep sliding)</span></dt>
+              <dd><kbd>↓</kbd></dd>
+            </div>
+            <div>
+              <dt><span data-lang="zh">暂停</span><span data-lang="en">Pause</span></dt>
+              <dd><kbd>P</kbd></dd>
+            </div>
+            <div>
+              <dt><span data-lang="zh">重新开始</span><span data-lang="en">Restart</span></dt>
+              <dd><kbd>R</kbd></dd>
+            </div>
+          </dl>
+          <p>
+            <span data-lang="zh">手机上可以直接点画面起跳，也可以用下面的「跳」「滑铲」两个按钮。</span>
+            <span data-lang="en">On a phone, tap the canvas to jump, or use the Jump and Slide buttons below it.</span>
+          </p>
+
+          <h3><span data-lang="zh">场上都有些什么</span><span data-lang="en">Field guide</span></h3>
+          <ul class="game-legend">
+            <li>
+              <span class="swatch swatch--desk" aria-hidden="true"></span>
+              <div>
+                <strong><span data-lang="zh">课桌 · 书堆 · 垃圾桶 · 路障 · 长凳</span><span data-lang="en">Desks, books, bins, cones, benches</span></strong>
+                <small><span data-lang="zh">跳过去</span><span data-lang="en">Jump over them</span></small>
+              </div>
+            </li>
+            <li>
+              <span class="swatch swatch--plane" aria-hidden="true"></span>
+              <div>
+                <strong><span data-lang="zh">纸飞机</span><span data-lang="en">Paper plane</span></strong>
+                <small><span data-lang="zh">贴地飞来，只能滑铲躲开</span><span data-lang="en">Skims in low — slide under it</span></small>
+              </div>
+            </li>
+            <li>
+              <span class="swatch swatch--flower" aria-hidden="true"></span>
+              <div>
+                <strong><span data-lang="zh">小红花</span><span data-lang="en">Little red flower</span></strong>
+                <small><span data-lang="zh">吃到就把奶龙甩开一段</span><span data-lang="en">Collect it to widen the gap</span></small>
+              </div>
+            </li>
+            <li>
+              <span class="swatch swatch--nailong" aria-hidden="true"></span>
+              <div>
+                <strong><span data-lang="zh">奶龙</span><span data-lang="en">Nailong</span></strong>
+                <small><span data-lang="zh">撞一次就近一步，追上就结束</span><span data-lang="en">Every stumble brings it closer</span></small>
+              </div>
+            </li>
+          </ul>
+
+          <p class="game-note">
+            <span data-lang="zh">想换成自己的立绘？把图片放进 <code>Jary/assets/game/</code>，再给上面的 canvas 加上 <code>data-jary-sprite="assets/game/jary.png"</code> 与 <code>data-nailong-sprite="assets/game/nailong.png"</code> 即可；不加就用页面里现画的两个卡通角色。有透明背景的 PNG 效果最好。</span>
+            <span data-lang="en">Want your own artwork? Drop the files into <code>Jary/assets/game/</code> and add <code>data-jary-sprite="assets/game/jary.png"</code> and <code>data-nailong-sprite="assets/game/nailong.png"</code> to the canvas above. Otherwise the hand-drawn cartoon pair is used. Transparent PNGs look best.</span>
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-shell footer-main">
+        <div><strong>JARY</strong><span>Behavior Research</span></div>
+        <p><span data-lang="zh">单一个体行为学研究期刊</span><span data-lang="en">Journal of single-subject behavioral research</span></p>
+        <a href="#top"><span data-lang="zh">返回顶部</span><span data-lang="en">Back to top</span> ↑</a>
+      </div>
+      <div class="page-shell footer-legal">
+        <span>© 2026 JARY Behavior Research</span>
+        <span>VOL. 1 · GAME ROOM</span>
+      </div>
+    </footer>
+
+    <script type="module">
+      import { createGame } from './escape-nailong.js';
+
+      const BEST_KEY = 'jary-nailong-best';
+
+      const canvas = document.querySelector('#nailong-canvas');
+      const startButton = document.querySelector('[data-game-start]');
+      const pauseButton = document.querySelector('[data-game-pause]');
+      const restartButton = document.querySelector('[data-game-restart]');
+      const jumpButton = document.querySelector('[data-game-jump]');
+      const slideButton = document.querySelector('[data-game-slide]');
+      const status = document.querySelector('[data-game-status]');
+
+      /* 状态提示也跟着期刊的双语开关走，所以按当前语言现取 */
+      const MESSAGES = {
+        zh: {
+          start: '起跑。躲开障碍，别让奶龙追上。',
+          pause: '已暂停，点「开始」继续。',
+          caught: (meters) => '被奶龙抓住了：' + meters + ' 米。',
+          record: (meters) => '新纪录：' + meters + ' 米！',
+        },
+        en: {
+          start: 'Running — dodge the campus and keep Nailong behind you.',
+          pause: 'Paused. Press Start to continue.',
+          caught: (meters) => 'Nailong caught JARY at ' + meters + ' m.',
+          record: (meters) => 'New best: ' + meters + ' m!',
+        },
+      };
+
+      function messages() {
+        const language = String(document.documentElement.lang || 'zh').toLowerCase();
+        return language.indexOf('zh') === 0 ? MESSAGES.zh : MESSAGES.en;
+      }
+
+      function readBest() {
+        try {
+          return Number(window.localStorage.getItem(BEST_KEY)) || 0;
+        } catch (error) {
+          return 0;
+        }
+      }
+
+      function writeBest(value) {
+        try {
+          window.localStorage.setItem(BEST_KEY, String(value));
+        } catch (error) {
+          /* 隐私模式下写不进去，不影响玩 */
+        }
+      }
+
+      function syncButtons(phase) {
+        if (startButton) startButton.disabled = phase === 'running';
+        if (pauseButton) pauseButton.disabled = phase !== 'running';
+      }
+
+      const game = createGame(canvas, {
+        best: readBest(),
+        /* 页面没写立绘属性时留空，模块会退回内置卡通角色 */
+        sprites: {
+          jary: canvas ? canvas.dataset.jarySprite || '' : '',
+          nailong: canvas ? canvas.dataset.nailongSprite || '' : '',
+        },
+        onEvent(event) {
+          const text = messages();
+
+          if (event.type === 'caught') {
+            const previous = readBest();
+            if (event.distance > previous) {
+              writeBest(event.distance);
+              if (status) status.textContent = text.record(event.distance);
+            } else if (status) {
+              status.textContent = text.caught(event.distance);
+            }
+          } else if (event.type === 'pause') {
+            if (status) status.textContent = text.pause;
+          } else if (event.type === 'start' || event.type === 'resume' || event.type === 'restart') {
+            if (status) status.textContent = text.start;
+          }
+
+          syncButtons(event.phase);
+        },
+      });
+
+      if (!game) {
+        if (status) status.textContent = '这个浏览器没有可用的 Canvas 2D，游戏暂时跑不起来。';
+        [startButton, pauseButton, restartButton, jumpButton, slideButton].forEach(function (button) {
+          if (button) button.disabled = true;
+        });
+      } else {
+        startButton?.addEventListener('click', function () { game.begin(); });
+        pauseButton?.addEventListener('click', function () { game.pause(); });
+        restartButton?.addEventListener('click', function () { game.restart(); });
+        jumpButton?.addEventListener('click', function () { game.jump(); });
+
+        /* 滑铲要按住才持续：按下开始，抬手 / 移出 / 取消都结束 */
+        slideButton?.addEventListener('pointerdown', function (event) {
+          event.preventDefault();
+          game.setSlide(true);
+        });
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (type) {
+          slideButton?.addEventListener(type, function () { game.setSlide(false); });
+        });
+
+        syncButtons('ready');
+      }
+    </script>
+  </body>
+</html>

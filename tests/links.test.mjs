@@ -5,6 +5,9 @@ import test from 'node:test';
 const root = new URL('../', import.meta.url);
 const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html', 'practice.html'];
 
+/* 期刊子页同样纳入检查：导航里的「游戏」与游戏页里的锚点都指向真实文件 */
+const JARY_PAGES = ['Jary/index.html', 'Jary/games.html', 'Jary/escape-nailong.html'];
+
 const isExternal = (href) => /^(https?:|mailto:|tel:|data:|\/\/)/i.test(href);
 
 /* 去掉 #fragment 与 ?query，只留文件部分 */
@@ -18,7 +21,7 @@ async function assertResolves(page, href) {
 }
 
 test('every internal link on every page resolves to a real file', async () => {
-  for (const page of PAGES) {
+  for (const page of [...PAGES, ...JARY_PAGES]) {
     const html = await readFile(new URL(page, root), 'utf8');
     const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
 
@@ -48,7 +51,7 @@ test('every internal url in site-data.js resolves to a real file', async () => {
 });
 
 test('cross-page anchors point at ids that actually exist', async () => {
-  for (const page of PAGES) {
+  for (const page of [...PAGES, ...JARY_PAGES]) {
     const html = await readFile(new URL(page, root), 'utf8');
 
     for (const match of html.matchAll(/href="([^"]*#[^"]+)"/g)) {
