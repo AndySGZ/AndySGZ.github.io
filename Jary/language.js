@@ -3,11 +3,11 @@ const SUPPORTED_LANGUAGES = new Set(['zh', 'en']);
 const PAGE_METADATA = {
   zh: {
     title: 'JARY行为研究 | JARY Behavior Research',
-    description: '一份专注于单一特定个体 Subject JARY 的深度行为学学术期刊。',
+    description: '一份专注于Jary的行为学学术期刊。',
   },
   en: {
     title: 'JARY Behavior Research | Journal of a Single Subject',
-    description: 'An academic journal dedicated to the in-depth behavioral study of Subject JARY.',
+    description: 'An academic journal dedicated to the behavioral study of JARY.',
   },
 };
 
