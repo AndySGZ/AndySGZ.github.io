@@ -13,7 +13,7 @@
   var DARK = 'dark';
 
   /* 地址栏 / 状态栏颜色，跟 CSS 里的 --bg 对齐 */
-  var THEME_COLOR = { light: '#f5f0eb', dark: '#191817' };
+  var THEME_COLOR = { light: '#ffffff', dark: '#000000' };
 
   /* 两张表都按「当前主题」取：按钮上写的永远是按下去会变成什么，
      跟游戏页的静音键一个约定。所以 key 是现在，value 是下一步。 */

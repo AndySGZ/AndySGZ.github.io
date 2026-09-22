@@ -5,7 +5,7 @@ import test from 'node:test';
 const read = (name) => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
 const escape = (token) => token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-test('homepage exposes the Scandinavian shell and main navigation', async () => {
+test('homepage exposes the brutalist shell and main navigation', async () => {
   const html = await read('index.html');
 
   assert.match(html, /<html[^>]+lang="zh-CN"/);
@@ -61,6 +61,25 @@ test('quote rotator has a reading pause and a reduced-motion fallback', async ()
   assert.doesNotMatch(script, /innerHTML/);
 });
 
+test('reduced motion lays the quotes out flat instead of stacking them', async () => {
+  const [css, script] = await Promise.all([read('assets/style.css'), read('scripts/quote-rotator.js')]);
+
+  /* 脚本在不轮播时会给每一句都加 is-visible（"静态铺开全部句子"）。
+     但默认布局把这些句子叠在同一格做交叉淡入，全亮就成了糊字。
+     样式表必须在这个分支里把叠放拆掉——两者缺一，读屏用户看到的就是一坨。 */
+  assert.match(script, /showAllStatic/);
+
+  /* 把这条媒体查询到文件末尾整段切出来查。
+     [^}] 跨不过右花括号，所以每条断言只可能命中某个规则自己的规则体，
+     不会一路匹配到别的规则上去。 */
+  const block = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'));
+
+  assert.match(block, /\.quote-rotator\s*\{[^}]*display:\s*block[^}]*min-height:\s*0/s,
+    '不轮播时句子应当依次往下排，而不是继续叠在同一格里');
+  assert.match(block, /\.quote-rotator__item\s*\{[^}]*grid-area:\s*auto/s,
+    '不轮播时要把 grid-area: 1/1 拆掉，否则几句会压在一起');
+});
+
 test('rotator clears the no-JS fallback so quotes never stack on each other', async () => {
   const [html, script] = await Promise.all([read('index.html'), read('scripts/quote-rotator.js')]);
 
@@ -84,25 +103,44 @@ test('guestbook form is labelled, moderated and injection-safe', async () => {
   assert.doesNotMatch(script, /innerHTML/);
 });
 
-test('stylesheet stays inside the Scandinavian token set', async () => {
+test('stylesheet stays inside the Neo-Brutalist Playful token set', async () => {
   const css = await read('assets/style.css');
+  /* 注释里会大方地提到被禁的东西（「无圆角」之类），所以先剥掉注释再查，
+     否则规矩一写进注释就自己把自己判违规了。 */
+  const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
 
-  assert.match(css, /#f5f0eb/);   // 桦木白背景
-  assert.match(css, /#3d3d3d/);   // 炭灰正文
-  assert.match(css, /#a89279/);   // 木质色
-  assert.match(css, /#d4cdc5/);   // 羊毛灰
-  assert.match(css, /font-weight:\s*300/);
+  // 五种强调色，一个都不能少
+  for (const accent of ['#ff6b6b', '#4ecdc4', '#ffe66d', '#f38181', '#95e1d3']) {
+    assert.ok(css.includes(accent), `缺少强调色 ${accent}`);
+  }
+  assert.match(code, /font-weight:\s*900/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
 
   // 全站字号总开关：改 --text-scale 一处即可整体缩放
   assert.match(css, /--text-scale:\s*[\d.]+%/);
   assert.match(css, /html\s*\{[^}]*font-size:\s*var\(--text-scale\)/s);
 
+  // 绝对禁止：圆角、模糊、渐变、柔和的灰
   for (const forbidden of [
-    'bg-black', 'bg-gray-900', 'bg-slate-900',
-    'font-black', 'font-extrabold', 'font-bold',
-    'border-4', 'border-[3px]', 'rounded-full', 'rounded-3xl',
+    'border-radius', 'linear-gradient', 'radial-gradient',
+    'filter: blur', 'backdrop-filter',
+    'font-weight: 300', 'font-weight: 400', 'text-gray-300', 'text-gray-400', 'text-gray-500',
   ]) {
-    assert.doesNotMatch(css, new RegExp(escape(forbidden)));
+    assert.doesNotMatch(code, new RegExp(escape(forbidden)), `风格禁止出现 ${forbidden}`);
+  }
+
+  // 倾斜必须收在 3 度以内，否则整页会散架
+  for (const tilt of code.matchAll(/rotate:\s*(-?[\d.]+)deg/g)) {
+    assert.ok(Math.abs(Number(tilt[1])) <= 3, `倾斜 ${tilt[1]}deg 超过了 3 度`);
+  }
+
+  // 硬边阴影：偏移之后必须是 0 模糊半径，出现模糊半径就不是野兽派了
+  for (const shadow of code.matchAll(/box-shadow:\s*([^;}]+)/g)) {
+    for (const layer of shadow[1].split(/,(?![^(]*\))/)) {
+      const parts = layer.trim().split(/\s+/);
+      if (parts.length < 4 || parts[0].startsWith('inset')) continue;
+      assert.ok(parts[2] === '0' || parts[2] === '0px',
+        `阴影 ${layer.trim()} 的模糊半径不是 0，硬边阴影不许发虚`);
+    }
   }
 });

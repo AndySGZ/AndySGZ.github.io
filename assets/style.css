@@ -1,153 +1,175 @@
 /* ==========================================================================
-   北欧极简风 (Scandinavian Minimalism) — Andy SGZ个人主页
-   Token 与 STYLEKIT_STYLE_REFERENCE 一一对应；无构建步骤、无第三方依赖。
+   Neo-Brutalist Playful（俏皮野兽派）— Andy SGZ 个人主页
+   --------------------------------------------------------------------------
+   风格来源：STYLEKIT_STYLE_REFERENCE / neo-brutalist-playful。
+   无构建步骤、无第三方依赖；组件层不写死任何颜色，一律走 token。
+
+   三条贯穿全表的硬规矩，也是这份表最容易破功的地方：
+     · 无圆角     —— 全表不出现任何非零 border-radius
+     · 粗黑边框   —— 4px solid var(--ink)，全站同一个粗细
+     · 硬边阴影   —— Npx Npx 0 0 <纯色>：不模糊、不渐变
+
+   倾斜一律用独立的 rotate 属性，不写进 transform。这是刻意的：
+   hover 的位移是 transform: translate(...)，两者分开写才能叠加，
+   否则后写的会把倾斜整个覆盖掉。
+
+   换风格只改这一个文件：HTML 结构、类名、脚本一行都不用动。
    ========================================================================== */
 
 :root {
-  /* —— 颜色 —— */
-  --bg:          #f5f0eb;                     /* bg-[#f5f0eb] 桦木白 */
-  --bg-raised:   rgba(255, 255, 255, 0.6);    /* bg-white/60 */
-  --charcoal:    #3d3d3d;                     /* text-[#3d3d3d] 炭灰 */
-  --wood:        #a89279;                     /* text-[#a89279] 木质色（仅装饰/边框） */
-  --wood-text:   #7a6a58;                     /* 正文辅色：由 #a89279 加深以通过 WCAG AA */
-  --wool:        #d4cdc5;                     /* 羊毛灰 */
-  --pine:        #5a7a6b;                     /* pine green 松绿 */
-  --fjord:       #7ba0b8;                     /* fjord blue 峡湾蓝 */
-  --clay:        #c9a88c;                     /* 陶土 */
+  /* —— 颜色 ——
+     纸白、纯黑，加五种强调色。强调色只在这里出现一次，
+     组件层全部靠 var() 取用，所以换一个色就是全站一起换。 */
+  --bg:            #ffffff;   /* 纸 */
+  --bg-raised:     #ffffff;   /* 卡片 / 输入框的底，同样是纸 */
+  --charcoal:      #000000;   /* 正文：纯黑 */
+  --wood-text:     #374151;   /* 正文辅色（原来是木质色，太浅过不了 AA，改用深灰） */
+  --wood:          #4b5563;   /* 再弱一档的装饰文字 */
+  --wool:          #95e1d3;   /* 图片占位底色（原来是羊毛灰） */
 
-  --line:        rgba(212, 205, 197, 0.4);    /* border-[#d4cdc5]/40 */
-  --line-hover:  rgba(168, 146, 121, 0.45);
+  --pine:          #4ecdc4;   /* 青 */
+  --fjord:         #f38181;   /* 珊瑚 */
+  --clay:          #ffe66d;   /* 黄 */
+  --red:           #ff6b6b;   /* 红：实心按钮、卡片阴影 */
 
-  --tint-pine:   rgba(90, 122, 107, 0.10);    /* bg-[#5a7a6b]/10 */
-  --tint-fjord:  rgba(123, 160, 184, 0.10);   /* bg-[#7ba0b8]/10 */
-  --tint-clay:   rgba(201, 168, 140, 0.10);   /* bg-[#c9a88c]/10 */
+  /* 边框与硬阴影的底色。暗色下要翻成白：黑底上的黑框等于没有框。 */
+  --ink:           #000000;
+  --hard:          #000000;
+
+  /* 分隔线直接用黑色，跟边框同一套语言，不再有「浅一号的线」 */
+  --line:          #000000;
+  --line-hover:    #000000;
+
+  /* 大片色块：首屏、页头、提示条。底色一律亮，字一律黑，
+     两个主题下都不翻——它们就是贴在纸上的色纸。 */
+  --tint-pine:     #ffe66d;
+  --tint-fjord:    #4ecdc4;
+  --tint-clay:     #95e1d3;
+  --on-tint:       #000000;
+
+  /* 反色块：页脚与站名牌。浅色下是黑底白字；暗色下仍是黑底，
+     靠 --ink 翻出来的白边框和黑页分开，不跟着翻，免得夜里一片刺白。 */
+  --plate-bg:      #000000;
+  --plate-fg:      #ffffff;
 
   /* 这几处原先直接写在组件里，为了暗色能一起换，收上来做 token */
-  --surface-hover:   rgba(255, 255, 255, 0.85);   /* 卡片悬停时的底色 */
-  --btn-hover:       #4a4a4a;                     /* 实心按钮悬停 */
-  --selected-bg:     #3d3d3d;                     /* 选中标签的实底（浅色下反白成炭灰） */
-  --selected-fg:     #f5f0eb;                     /* 选中标签的字色 */
-  --warn:            #8a6d3b;                     /* 留言墙的警示文字 */
-  --focus-ring:      rgba(90, 122, 107, 0.4);
-  --focus-ring-soft: rgba(90, 122, 107, 0.3);
+  --surface-hover:   #ffe66d;   /* 卡片悬停时的底（让位给硬阴影的黄色） */
+  --btn-hover:       #4ecdc4;   /* 实心按钮悬停 */
+  --selected-bg:     #000000;   /* 选中标签的实底 */
+  --selected-fg:     #ffe66d;   /* 选中标签的字色 */
+  --warn:            #7e1022;   /* 留言墙提示条上的警示文字（落在薄荷底上） */
+  --focus-ring:      #000000;   /* 键盘焦点的描边 */
+  --focus-ring-soft: #4ecdc4;   /* 输入框聚焦时那圈硬阴影 */
 
-  color-scheme: light;            /* 滚动条、表单控件跟着走 */
+  color-scheme: light;          /* 滚动条、表单控件跟着走 */
 
-  /* —— 间距 —— */
-  --gutter:    1.5rem;    /* px-6  */
-  --section-y: 5rem;      /* py-20 */
-  --card-pad:  1.5rem;    /* p-6  */
-  --radius:    2px;       /* rounded-sm */
+  /* —— 边框 / 硬阴影：偏移量一律等于边框粗细的整数倍，视觉上才咬得住 —— */
+  --border-w:  4px;
+  --shadow-sm: 4px 4px 0 0 var(--hard);
+  --shadow:    6px 6px 0 0 var(--hard);
+  --shadow-lg: 8px 8px 0 0 var(--hard);
+
+  /* —— 间距（对应 px-4 / py-12 起步，断点见下） —— */
+  --gutter:    1rem;
+  --section-y: 3rem;
+  --card-pad:  1rem;
+  --radius:    0px;     /* 保留这个名字只为兼容旧写法：全站无圆角 */
 
   /* —— 排版：只改这一个值，全站字号就按比例整体缩放 ——
      浏览器默认 16px。112.5% = 18px（当前）、118.75% = 19px、
-     106.25% = 17px、100% = 恢复原样。
-     改成这个数，正文、标题、导航、间距会一起变，比例不会走样。 */
+     106.25% = 17px、100% = 恢复原样。 */
   --text-scale: 112.5%;
 
-  /* —— 过渡（晨雾散去：缓慢、无弹跳） —— */
-  --ease:  cubic-bezier(0.42, 0, 0.58, 1);    /* ease-in-out */
-  --quick: 300ms;   /* duration-300 */
-  --med:   500ms;   /* duration-500 */
-  --slow:  700ms;   /* duration-700 */
+  /* —— 过渡 ——
+     「玩具弹簧」：位移和旋转落定时带一点回弹，而不是硬切到位。
+     提示词里「必须遵守」要求这条曲线，自检清单里又写着不要弹性缓动，
+     两者直接冲突。这里按风格专属的那一条走——活泼感就来自这点回弹——
+     但把位移量压到 3px，回弹幅度不到 1px，读起来是「有生气」而不是「弹跳」。 */
+  --ease:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --quick: 300ms;
+  --med:   300ms;
+  --slow:  500ms;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-               "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans SC",
-               "Microsoft YaHei", sans-serif;
+  /* 正文字体走等宽（风格要求 font-mono）。中文会落到后面的中文族里，
+     等宽只作用在拉丁字母和数字上，正好做出一层机器味。 */
+  --font-sans: "Helvetica Neue", Helvetica, Arial, "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular,
+               Menlo, Consolas, "PingFang SC", "Microsoft YaHei", monospace;
 }
 
 @media (min-width: 768px) {                      /* md: */
-  :root { --gutter: 3rem; --section-y: 7rem; --card-pad: 2rem; }
+  :root { --gutter: 2rem; --section-y: 5rem; --card-pad: 1.5rem; }
 }
 @media (min-width: 1024px) {                     /* lg: */
-  :root { --gutter: 5rem; --section-y: 9rem; }
+  :root { --gutter: 3rem; --section-y: 7rem; }
 }
 
 /* ==========================================================================
    暗色
    --------------------------------------------------------------------------
-   同一组值写两遍：一处给手动切换（<html data-theme="dark">），
+   同一组值写两遍：一处给手动切换（<html> 上带 data-theme="dark"），
    一处给关掉 JS 时跟随系统（那时 <html> 上不会有 data-theme）。
-   --charcoal / --bg 这些名字保留：它们在全站表达的是「正文色 / 底色」，
-   到暗色下正好互换角色，所以组件一行都不用改。
+   两份必须完全一致，测试会逐条比对——少写一条，关掉 JS 就换了副面孔。
 
-   底色不是纯黑，是压暗的暖木色，跟浅色的桦木白是一个路子；
-   松绿、峡湾蓝、陶土都提亮了一档，否则落在深底上会糊成一片。
+   暗色翻的是「纸」和「墨」：纸变黑、正文变白，边框和硬阴影一起翻成白，
+   否则黑底上的黑框、黑阴影等于没有。五种强调色和色块不翻：
+   它们本来就是亮底黑字，暗色下充当贴纸，也是这个风格在夜里唯一还能
+   「俏皮」的地方。只覆盖中性色，强调色继续继承 :root。
    ========================================================================== */
 html[data-theme="dark"] {
-  --bg:          #191817;                     /* bg-[#191817] 深桦木 */
-  --bg-raised:   rgba(255, 255, 255, 0.045);
-  --charcoal:    #ebe6df;                     /* 正文：米白 */
-  --wood:        #7d7060;                     /* 装饰/边框，比浅色下略提，避免糊掉 */
-  --wood-text:   #ab9c88;                     /* 正文辅色，对 6.6:1，过 WCAG AA */
-  --wool:        #55504a;
-  --pine:        #86ab97;
-  --fjord:       #93b6cd;
-  --clay:        #c2a184;
+  --bg:            #000000;
+  --bg-raised:     #000000;
+  --charcoal:      #ffffff;
+  --wood-text:     #e0e0e0;
+  --wood:          #c9c9c9;
 
-  --line:        rgba(235, 230, 223, 0.14);
-  --line-hover:  rgba(235, 230, 223, 0.34);
+  --ink:           #ffffff;
+  --hard:          #ffffff;
 
-  --tint-pine:   rgba(134, 171, 151, 0.10);
-  --tint-fjord:  rgba(147, 182, 205, 0.10);
-  --tint-clay:   rgba(194, 161, 132, 0.10);
+  --line:          #ffffff;
+  --line-hover:    #ffffff;
 
-  --surface-hover:   rgba(255, 255, 255, 0.09);
-  --btn-hover:       #ffffff;
-  --warn:            #d8ac63;
-  --focus-ring:      rgba(134, 171, 151, 0.55);
-  --focus-ring-soft: rgba(134, 171, 151, 0.4);
-  --selected-bg:     rgba(235, 230, 223, 0.16);   /* 暗色下不整块反白，只提一档底 */
-  --selected-fg:     #ebe6df;
+  --focus-ring:    #ffffff;
+
+  --selected-bg:   #ffe66d;
+  --selected-fg:   #000000;
 
   color-scheme: dark;
 }
 
-/* 没有 JS（或脚本还没跑）时，先跟着系统走 */
 @media (prefers-color-scheme: dark) {
   html:not([data-theme]) {
-    --bg:          #191817;
-    --bg-raised:   rgba(255, 255, 255, 0.045);
-    --charcoal:    #ebe6df;
-    --wood:        #7d7060;
-    --wood-text:   #ab9c88;
-    --wool:        #55504a;
-    --pine:        #86ab97;
-    --fjord:       #93b6cd;
-    --clay:        #c2a184;
+    --bg:            #000000;
+    --bg-raised:     #000000;
+    --charcoal:      #ffffff;
+    --wood-text:     #e0e0e0;
+    --wood:          #c9c9c9;
 
-    --line:        rgba(235, 230, 223, 0.14);
-    --line-hover:  rgba(235, 230, 223, 0.34);
+    --ink:           #ffffff;
+    --hard:          #ffffff;
 
-    --tint-pine:   rgba(134, 171, 151, 0.10);
-    --tint-fjord:  rgba(147, 182, 205, 0.10);
-    --tint-clay:   rgba(194, 161, 132, 0.10);
+    --line:          #ffffff;
+    --line-hover:    #ffffff;
 
-    --surface-hover:   rgba(255, 255, 255, 0.09);
-    --btn-hover:       #ffffff;
-    --warn:            #d8ac63;
-    --focus-ring:      rgba(134, 171, 151, 0.55);
-    --focus-ring-soft: rgba(134, 171, 151, 0.4);
-    --selected-bg:     rgba(235, 230, 223, 0.16);
-    --selected-fg:     #ebe6df;
+    --focus-ring:    #ffffff;
+
+    --selected-bg:   #ffe66d;
+    --selected-fg:   #000000;
 
     color-scheme: dark;
   }
 }
 
-/* 首屏那张竖向图是浅色风景，暗色下压一档，看着像黄昏而不是过曝 */
-html[data-theme="dark"] .hero__figure img { filter: brightness(0.68) saturate(0.9); }
-@media (prefers-color-scheme: dark) {
-  html:not([data-theme]) .hero__figure img { filter: brightness(0.68) saturate(0.9); }
-}
-
-/* —— 基底 —— */
+/* ==========================================================================
+   基底
+   ========================================================================== */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
   font-size: var(--text-scale);   /* 全站字号总开关 */
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 7rem;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -155,25 +177,35 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--charcoal);
-  font-family: var(--font-sans);
-  font-weight: 300;              /* font-light —— 全站最高字重 */
+  font-family: var(--font-mono);
+  font-weight: 500;              /* 风格禁用 font-light / font-normal，正文最细也到 medium */
   font-size: 1rem;
-  line-height: 1.75;
-  letter-spacing: 0.01em;
-  overflow-x: hidden;
+  line-height: 1.7;
+  letter-spacing: 0;
+  /* 倾斜元素的安全网。用 clip 而不是 hidden：hidden 会把 body 变成滚动容器，
+     顶栏的 sticky 就跟着失效了。 */
+  overflow-x: clip;
 }
 
-h1, h2, h3, h4 { font-weight: 300; letter-spacing: 0.03em; margin: 0; line-height: 1.3; }
+/* 标题一律最重字重 + 大写。中文没有大小写，这条主要作用在拉丁字母上 */
+h1, h2, h3, h4 {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1.15;
+}
+
 p { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
 img { display: block; max-width: 100%; }
 button, input, textarea { font: inherit; color: inherit; }
 
-/* —— 焦点可见（保留无障碍，去掉默认 outline） —— */
+/* —— 焦点可见 ——
+   直接用一圈粗描边，比柔光扩散更贴这个风格，也更难被背景吃掉。 */
 :focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--focus-ring);
-  border-radius: var(--radius);
+  outline: var(--border-w) solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .sr-only {
@@ -182,24 +214,41 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 
 .skip-link {
-  position: absolute; left: 1rem; top: -4rem; z-index: 100;
-  background: var(--charcoal); color: var(--bg);
-  padding: 0.75rem 1.25rem; border-radius: var(--radius);
-  font-size: 0.75rem; transition: top var(--quick) var(--ease);
+  position: absolute; left: 1rem; top: -6rem; z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--plate-bg); color: var(--plate-fg);
+  border: var(--border-w) solid var(--ink);
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  transition: top var(--quick) var(--ease);
 }
 .skip-link:focus { top: 1rem; }
 
-/* —— 布局 —— */
+/* ==========================================================================
+   布局
+   ========================================================================== */
 .container { max-width: 72rem; margin-inline: auto; padding-inline: var(--gutter); }
 .section   { padding-block: var(--section-y); }
 
-.section-title { font-size: 1.25rem; margin-bottom: 1.5rem; }   /* text-xl */
-@media (min-width: 768px) { .section-title { font-size: 1.875rem; } }  /* md:text-3xl */
+/* 标题做成一枚「贴纸」：黄底、黑框、硬阴影、微微翘起。
+   全站每个 section 标题都是同一枚贴纸，是这套风格最省事的识别点。 */
+.section-title {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  margin-bottom: 1.75rem;
+  font-size: 1.5rem;
+  background: var(--clay);
+  color: var(--on-tint);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  rotate: -1deg;
+}
+@media (min-width: 768px) { .section-title { font-size: 2.25rem; } }
 
 .section-lead {
   color: var(--wood-text);
   font-size: 0.875rem;
-  max-width: 42ch;
+  max-width: 48ch;
   margin-bottom: 2.5rem;
 }
 
@@ -209,59 +258,92 @@ button, input, textarea { font: inherit; color: inherit; }
 .site-nav {
   position: sticky; top: 0; z-index: 50;
   background: var(--bg);
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--border-w) solid var(--ink);
 }
 .site-nav__inner {
   display: flex; align-items: center; justify-content: space-between;
-  gap: 2rem; max-width: 72rem; margin-inline: auto;
-  padding: 1.25rem var(--gutter);
+  gap: 1.5rem; max-width: 72rem; margin-inline: auto;
+  padding: 1rem var(--gutter);
 }
-.wordmark { font-size: 1.125rem; letter-spacing: 0.04em; color: var(--charcoal); text-decoration: none; }
 
 /* 站名和明暗开关并成一组：窄屏整条导航折行时，它俩也跟着一起走 */
 .site-nav__brand { display: flex; align-items: center; gap: 1rem; }
 
-/* 明暗开关：排版跟导航项一致（中文在上、英文在下），只是它是个按钮 */
+/* 站名做成一块黑底白字的牌子，歪着钉在那儿 */
+.wordmark {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  background: var(--plate-bg); color: var(--plate-fg);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  font-size: 1.125rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  text-decoration: none;
+  rotate: -2deg;
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease);
+}
+.wordmark:hover { transform: translate(3px, 3px); box-shadow: none; }
+
+/* 明暗开关：排版跟导航项一致（中文在上、英文在下），只是它是个按钮。
+   按下状态（aria-pressed="true" 即暗色）给黄底，跟导航的当前页同一个语言。 */
 .theme-toggle {
   display: inline-flex; flex-direction: column; align-items: center;
   min-width: 4.4rem;                 /* 文案在「暗色 / 亮色」之间变，别带着整排跳 */
   padding: 0.3rem 0.6rem;
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: var(--wood-text);
+  background: var(--bg);
+  color: var(--charcoal);
+  border: 3px solid var(--ink);
   cursor: pointer;
-  transition: color var(--med) var(--ease), border-color var(--med) var(--ease),
-              background-color var(--med) var(--ease);
+  transition: transform var(--quick) var(--ease), background-color var(--quick) var(--ease);
 }
-.theme-toggle:hover { color: var(--charcoal); border-color: var(--line-hover); background: var(--bg-raised); }
-.theme-toggle[aria-pressed="true"] { color: var(--charcoal); border-color: var(--line-hover); }
+.theme-toggle:hover { background: var(--pine); transform: translate(2px, 2px); }
+.theme-toggle[aria-pressed="true"] { background: var(--clay); }
 
-.site-nav__links { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; }
+.site-nav__links { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .site-nav__links a {
   display: inline-flex; flex-direction: column; align-items: center;
-  color: var(--wood-text); text-decoration: none;
-  transition: color var(--med) var(--ease);
+  padding: 0.35rem 0.7rem;
+  background: var(--bg);
+  color: var(--charcoal);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
+              background-color var(--quick) var(--ease);
 }
 /* 中文与英文共用同一条字号声明 —— 保证两者永远等大，不会各自漂移 */
 .nav-zh,
 .nav-en { font-size: 0.8125rem; }
-.nav-en { letter-spacing: 0.06em; }
-.site-nav__links a:hover { color: var(--charcoal); }
-.site-nav__links a[aria-current="page"] { color: var(--charcoal); }
+.nav-en { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.site-nav__links a:hover { transform: translate(3px, 3px); box-shadow: none; }
+/* 当前页：按下去的那一枚 —— 阴影收掉、位移补上，颜色换成黄 */
+.site-nav__links a[aria-current="page"] {
+  background: var(--clay);
+  color: var(--on-tint);
+  box-shadow: none;
+  transform: translate(4px, 4px);
+}
 
 @media (max-width: 767px) {
+  /* 六个导航项在手机上折成三行，钉在顶上要吃掉近三成屏幕高度。
+     这个风格本来就靠往下滚着读，所以在窄屏放它随页面滚走。 */
+  .site-nav { position: static; }
   .site-nav__inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-  .site-nav__links { gap: 1rem 1.25rem; }
+  .site-nav__links { gap: 0.5rem; }
 }
 
 /* ==========================================================================
    首屏：左侧竖向图 + 右侧较宽的感触句区
+   --------------------------------------------------------------------------
+   整块铺成一张黄色色纸，字一律用 --on-tint（永远是黑），
+   因为色纸在明暗两个主题下都不翻色。
    ========================================================================== */
 .hero {
   background: var(--tint-pine);
-  border-bottom: 1px solid var(--line);
-  padding-block: calc(var(--section-y) * 0.6);
+  color: var(--on-tint);
+  border-bottom: var(--border-w) solid var(--ink);
+  padding-block: calc(var(--section-y) * 0.7);
 }
 .hero__inner {
   max-width: 72rem; margin-inline: auto; padding-inline: var(--gutter);
@@ -277,16 +359,18 @@ button, input, textarea { font: inherit; color: inherit; }
   .hero__inner { gap: 5rem; }
 }
 
-/* 竖向图：固定 3:4，尺寸由容器决定，不再横贯全屏 */
+/* 竖向图：固定 3:4，尺寸由容器决定，不再横贯全屏。
+   图框歪 1 度、顶着一块厚硬阴影——整页最像「贴上去的」一样东西。 */
 .hero__figure {
   width: 100%;
   max-width: 16rem;
   margin-inline: auto;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
   background: var(--wool);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+  rotate: 1deg;
 }
 @media (min-width: 768px) {
   .hero__figure { margin-inline: 0; max-width: 20rem; }
@@ -320,17 +404,22 @@ button, input, textarea { font: inherit; color: inherit; }
    默认的 normal 会把换行符折叠成一个空格，所以光在数据里写 \n 是没效果的。
    选 pre-line 而非 pre-wrap：保留换行，但缩进造成的多余空格仍会被合并。 */
 .quote-rotator__text {
-  font-size: 1.125rem; color: var(--charcoal); text-wrap: pretty;
+  font-size: 1.5rem; font-weight: 900; line-height: 1.25;
+  color: var(--on-tint);
+  text-wrap: pretty;
   white-space: pre-line;
 }
-@media (min-width: 768px) { .quote-rotator__text { font-size: 1.375rem; } }
+/* 字号停在这里是有意的：这段可能是一句十几字的话，也可能是一首短诗。
+   风格给的 Hero 档（5xl 起步）对一句标题刚好，对一首诗就会把首屏撑爆；
+   1.875rem 在桌面已经是整页最大的一行字，气势够，还不至于挤走右侧那半屏。 */
+@media (min-width: 768px) { .quote-rotator__text { font-size: 1.875rem; } }
 
+/* 出处和提示语不靠灰色拉开层次（风格禁用柔和灰），改用字号和字重 */
 .quote-rotator__source {
   display: block; margin-top: 1.25rem;
-  font-size: 0.75rem; color: var(--wood-text);
+  font-size: 0.75rem; color: var(--on-tint);
 }
-
-.hero__hint { margin-top: 1.25rem; font-size: 0.75rem; color: var(--wood-text); }
+.hero__hint { margin-top: 1.25rem; font-size: 0.75rem; color: var(--on-tint); }
 
 /* ==========================================================================
    我是谁
@@ -342,51 +431,46 @@ button, input, textarea { font: inherit; color: inherit; }
    链接 / 按钮
    ========================================================================== */
 .link-arrow {
-  display: inline-block;
-  color: var(--wood-text);
-  text-decoration: none;
-  border-bottom: 1px solid var(--line-hover);
-  padding-bottom: 2px;
-  transition: color var(--med) var(--ease), border-color var(--med) var(--ease);
+  color: var(--charcoal);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.22em;
+  transition: background-color var(--quick) var(--ease);
 }
-.link-arrow:hover { color: var(--charcoal); border-color: var(--charcoal); }
+/* 箭头不再用「→」这类符号字符（风格禁止），改成一个几何方块：
+   悬停时它向右挪半步，指向感还在，但整条链没有引入任何字形。 */
+.link-arrow::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em; height: 0.5em;
+  margin-left: 0.35em;
+  background: currentColor;
+  transition: transform var(--quick) var(--ease);
+}
+.link-arrow:hover { background: var(--clay); }
+.link-arrow:hover::after { transform: translateX(0.25em); }
 
 .btn {
   display: inline-block;
-  background: var(--charcoal);
-  color: var(--bg);
-  border: 1px solid var(--charcoal);
-  border-radius: var(--radius);
   padding: 0.75rem 1.75rem;
-  font-size: 0.875rem;
+  background: var(--red);
+  color: var(--on-tint);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow);
+  font-size: 0.875rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.06em;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color var(--quick) var(--ease),
-              border-color var(--quick) var(--ease),
-              color var(--quick) var(--ease);
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
+              background-color var(--quick) var(--ease);
 }
-.btn:hover  { background: var(--btn-hover); border-color: var(--btn-hover); }
-.btn:active { filter: brightness(0.94); }     /* 仅细微明暗，不做形变 */
+/* 悬停＝把按钮推到阴影原来的位置上，阴影同时收掉；按下再推一点并压扁 */
+.btn:hover  { transform: translate(3px, 3px); box-shadow: none; background: var(--btn-hover); }
+.btn:active { transform: translate(4px, 4px); box-shadow: none; scale: 0.97; }
 
-.btn--ghost { background: transparent; color: var(--charcoal); border-color: var(--line-hover); }
-.btn--ghost:hover { background: var(--bg-raised); border-color: var(--wood); }
-
-/* ==========================================================================
-   最近发布列表
-   ========================================================================== */
-.post-list { border-top: 1px solid var(--line); }
-.post-list__item { border-bottom: 1px solid var(--line); }
-.post-list__link {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1.5rem;
-  padding: 1.5rem 0;
-  color: var(--charcoal); text-decoration: none;
-  transition: background-color var(--med) var(--ease);
-}
-.post-list__link:hover { background: var(--bg-raised); }
-.post-list__date  { font-size: 0.75rem; color: var(--wood-text); flex: 0 0 auto; }
-.post-list__title { font-size: 1rem; transition: color var(--med) var(--ease); }
-.post-list__link:hover .post-list__title { color: var(--wood-text); }
-.post-list__tag   { font-size: 0.75rem; color: var(--wood-text); margin-left: auto; }
+.btn--ghost { background: var(--bg); color: var(--charcoal); }
+.btn--ghost:hover { background: var(--clay); color: var(--on-tint); }
 
 /* ==========================================================================
    精选内容卡片
@@ -397,74 +481,127 @@ button, input, textarea { font: inherit; color: inherit; }
 
 .card {
   display: block;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);        /* rounded-sm */
   padding: var(--card-pad);
   background: var(--bg-raised);
-  color: inherit;
+  color: var(--charcoal);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow);
   text-decoration: none;
-  transition: border-color var(--med) var(--ease), background-color var(--med) var(--ease);
+  rotate: -1deg;
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
+              background-color var(--quick) var(--ease), rotate var(--quick) var(--ease);
 }
-.card:hover { border-color: var(--line-hover); background: var(--surface-hover); }
-.card__title { font-size: 1.125rem; margin-bottom: 0.75rem; }
+/* 硬阴影在青、红、黄之间跳着换：同一行卡片也不重样 */
+.card:nth-child(3n+1) { box-shadow: 6px 6px 0 0 var(--red); }
+.card:nth-child(3n+2) { box-shadow: 6px 6px 0 0 var(--pine); }
+.card:nth-child(3n)   { box-shadow: 6px 6px 0 0 var(--clay); }
+
+/* 悬停：阴影收掉、整块平移过去顶上，倾斜同时翻到反方向（仍在 3 度内） */
+.card:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+  background: var(--surface-hover);
+  rotate: 1deg;
+}
+.card:active { transform: translate(4px, 4px); box-shadow: none; scale: 0.97; }
+
+.card__title { font-size: 1.25rem; margin-bottom: 0.75rem; }
 .card__text  { font-size: 0.875rem; color: var(--wood-text); }
-.card__meta  { display: block; margin-top: 1.25rem; font-size: 0.75rem; color: var(--wood); }
+/* meta 做成一枚小牌子，配色由 nth-child 轮换 */
+.card__meta {
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: 0.15rem 0.5rem;
+  background: var(--pine);
+  color: var(--on-tint);
+  border: 3px solid var(--ink);
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+/* 筹备中（不可点）：不歪、不响应悬停，一眼看出来跟别的不一样 */
+.card--pending { rotate: 0deg; }
+.card--pending:hover {
+  transform: none; rotate: 0deg;
+  box-shadow: var(--shadow);
+  background: var(--bg-raised);
+}
 
 /* ==========================================================================
    留言墙
    ========================================================================== */
-.guestbook { display: grid; gap: 4rem; grid-template-columns: 1fr; }
-@media (min-width: 1024px) { .guestbook { grid-template-columns: 5fr 7fr; gap: 5rem; } }
+.guestbook { display: grid; gap: 3rem; grid-template-columns: 1fr; }
+@media (min-width: 1024px) { .guestbook { grid-template-columns: 5fr 7fr; gap: 4rem; } }
 
-.field { margin-bottom: 1.75rem; }
-.field__label { display: block; font-size: 0.75rem; color: var(--wood-text); margin-bottom: 0.5rem; }
+.field { margin-bottom: 1.5rem; }
+.field__label {
+  display: block; margin-bottom: 0.5rem;
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--charcoal);
+}
 .field__input {
   width: 100%;
-  background: transparent;                       /* bg-transparent */
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
   padding: 0.75rem 0.875rem;
+  background: var(--bg-raised);
+  color: var(--charcoal);
+  border: var(--border-w) solid var(--ink);
+  font-family: var(--font-mono);
   font-size: 0.875rem;
-  transition: border-color var(--med) var(--ease), box-shadow var(--med) var(--ease);
+  transition: box-shadow var(--quick) var(--ease);
 }
+/* 聚焦时那圈硬阴影：不是柔光，是另打一块青色的影子上去 */
 .field__input:focus {
-  outline: none;                                  /* focus:outline-none */
-  border-color: var(--pine);
-  box-shadow: 0 0 0 2px var(--focus-ring-soft);  /* focus:ring-2 */
+  outline: none;
+  box-shadow: 6px 6px 0 0 var(--focus-ring-soft);
 }
-.field__input::placeholder { color: var(--wool); }
+.field__input::placeholder { color: var(--wood); opacity: 1; }
 textarea.field__input { min-height: 6.5rem; resize: vertical; }
 .field__counter { display: block; margin-top: 0.5rem; font-size: 0.75rem; color: var(--wood); }
 
 .form-status { margin-top: 1.25rem; font-size: 0.75rem; color: var(--wood-text); min-height: 1.5rem; }
-.form-status[data-tone="ok"]   { color: var(--pine); }
-.form-status[data-tone="warn"] { color: var(--warn); }
+/* 状态文字也做成色块：黑字压在强调色上，比在纸面上写彩字清楚得多 */
+.form-status[data-tone="ok"],
+.form-status[data-tone="warn"] {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  color: var(--on-tint);
+  border: 3px solid var(--ink);
+}
+.form-status[data-tone="ok"]   { background: var(--pine); }
+.form-status[data-tone="warn"] { background: var(--red); }
 
 .wall__list { display: grid; gap: 1.5rem; }
 .wall__item {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
   background: var(--bg-raised);
-  transition: border-color var(--med) var(--ease);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
+              rotate var(--quick) var(--ease);
 }
-.wall__item:hover { border-color: var(--line-hover); }
+/* 一条左歪一条右歪，像随手贴上去的便签 */
+.wall__item:nth-child(odd)  { rotate: -0.6deg; }
+.wall__item:nth-child(even) { rotate: 0.6deg; }
+.wall__item:hover { transform: translate(3px, 3px); box-shadow: none; rotate: 0deg; }
+
 .wall__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem; margin-bottom: 0.625rem; }
-.wall__name { font-size: 0.875rem; color: var(--charcoal); }
+.wall__name { font-size: 0.875rem; font-weight: 700; color: var(--charcoal); }
 .wall__time { font-size: 0.75rem; color: var(--wood); }
 .wall__text { font-size: 0.875rem; color: var(--wood-text); white-space: pre-wrap; overflow-wrap: anywhere; }
 .wall__empty { font-size: 0.875rem; color: var(--wood); }
 
 .wall__notice {
   margin-top: 1.5rem; padding: 1rem 1.25rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
   background: var(--tint-clay);
-  font-size: 0.75rem; color: var(--wood-text);
+  color: var(--warn);
+  border: var(--border-w) solid var(--ink);
+  font-size: 0.75rem;
 }
 .wall__notice code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.7rem; overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  overflow-wrap: anywhere;
 }
 
 /* ==========================================================================
@@ -472,36 +609,69 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
    ========================================================================== */
 .contact-list { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
 @media (min-width: 768px) { .contact-list { grid-template-columns: repeat(3, 1fr); } }
-.contact-item { border-top: 1px solid var(--line); padding-top: 1.25rem; }
-.contact-item__label { display: block; font-size: 0.75rem; color: var(--wood-text); margin-bottom: 0.5rem; }
-.contact-item__value { font-size: 0.875rem; color: var(--charcoal); }
-.contact-item__value a { color: var(--wood-text); text-decoration: none; transition: color var(--med) var(--ease); }
-.contact-item__value a:hover { color: var(--charcoal); }
-
-.site-footer {
-  background: var(--bg-raised);
-  border-top: 1px solid var(--line);
-  padding-block: 3rem;
-  font-size: 0.75rem;
+.contact-item { border-top: var(--border-w) solid var(--ink); padding-top: 1.25rem; }
+.contact-item__label {
+  display: block; margin-bottom: 0.5rem;
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
   color: var(--wood-text);
 }
+.contact-item__value { font-size: 0.875rem; color: var(--charcoal); }
+.contact-item__value a {
+  color: var(--charcoal);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.22em;
+  transition: background-color var(--quick) var(--ease);
+}
+.contact-item__value a:hover { background: var(--clay); }
+
+/* 页脚是一块黑牌子。暗色下它仍是黑的，靠 --ink 翻出的白顶边跟黑页分开。 */
+.site-footer {
+  background: var(--plate-bg);
+  color: var(--plate-fg);
+  border-top: var(--border-w) solid var(--ink);
+  padding-block: 2.5rem;
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
 .site-footer__inner {
-  display: flex; flex-wrap: wrap; align-items: baseline;
+  display: flex; flex-wrap: wrap; align-items: center;
   gap: 0.75rem 2rem; justify-content: space-between;
 }
-.site-footer a { color: var(--wood-text); text-decoration: none; transition: color var(--med) var(--ease); }
-.site-footer a:hover { color: var(--charcoal); }
+.site-footer a {
+  padding: 0.35rem 0.75rem;
+  background: var(--clay);
+  color: var(--on-tint);
+  border: 3px solid var(--ink);
+  text-decoration: none;
+  transition: transform var(--quick) var(--ease), background-color var(--quick) var(--ease);
+}
+.site-footer a:hover { transform: translate(2px, 2px); background: var(--pine); }
 
 /* ==========================================================================
    关于我页
    ========================================================================== */
 .prose { max-width: 38rem; }
 .prose p { margin-bottom: 1.5rem; font-size: 0.9375rem; text-wrap: pretty; }
-.prose h2 { font-size: 1.25rem; margin: 3rem 0 1rem; }
+.prose h2 {
+  display: inline-block;
+  margin: 2.5rem 0 1rem;
+  padding: 0.15rem 0.6rem;
+  font-size: 1.25rem;
+  background: var(--clay);
+  color: var(--on-tint);
+  border: 3px solid var(--ink);
+}
 @media (min-width: 768px) { .prose h2 { font-size: 1.5rem; } }
+/* 还没写的小标题是个空占位。做成色块之后，空的会变成一小截黄条，
+   比原来那样「什么也不显示」显眼得多——所以空的直接不显示。 */
+.prose h2:empty { display: none; }
 
 /* ==========================================================================
    减少动态效果
+   --------------------------------------------------------------------------
+   倾斜是静态的，留着；动态的是位移和阴影，这里统一掐掉。
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -510,27 +680,39 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .quote-rotator__item { transform: none; }
+  .link-arrow:hover::after { transform: none; }
+
+  /* 不轮播时，scripts/quote-rotator.js 会给每一句都加上 is-visible，
+     想让它们「静态铺开」。但默认布局是把所有句子叠在同一格里做交叉淡入的
+     （grid-area: 1/1），全亮之后就变成几段文字糊在一起，一个字都读不出来。
+     这里必须把叠放拆掉，改成依次往下排——CSS 得跟上脚本的那句承诺。 */
+  .quote-rotator { display: block; min-height: 0; }
+  .quote-rotator__item {
+    grid-area: auto;
+    margin-bottom: 1.5rem;
+    transform: none;
+  }
 }
 
 /* 留言表单的机器人陷阱字段：视觉隐藏但不出现在无障碍树中 */
 .field--trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 /* ==========================================================================
-   子页面页头（杂谈 / 作品 / 关于）
+   子页面页头（杂谈 / 作品 / 关于 / 练琴）
    ========================================================================== */
 .page-header {
   background: var(--tint-fjord);
-  border-bottom: 1px solid var(--line);
-  padding-block: calc(var(--section-y) * 0.6);
+  color: var(--on-tint);
+  border-bottom: var(--border-w) solid var(--ink);
+  padding-block: calc(var(--section-y) * 0.7);
 }
-.page-header__title { font-size: 1.5rem; }
-@media (min-width: 768px) { .page-header__title { font-size: 2rem; } }
+.page-header__title { font-size: 2.25rem; color: var(--on-tint); }
+@media (min-width: 768px) { .page-header__title { font-size: 3.5rem; } }
 .page-header__lead {
   margin-top: 1rem;
   font-size: 0.875rem;
-  color: var(--wood-text);
-  max-width: 46ch;
+  color: var(--on-tint);
+  max-width: 48ch;
 }
 
 /* 页头带配图的版本（目前只有练琴页用）：左文字 + 右方形图。
@@ -538,48 +720,55 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
 .page-header__split { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 768px) {
   .page-header__split { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .page-header__square { width: 11rem; }
 }
 .page-header__square {
   margin: 0;                            /* figure 默认有外边距，这里要清掉 */
   width: 100%; max-width: 11rem; aspect-ratio: 1 / 1;
-  background: var(--bg-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  /* 窄屏这里是 1fr 列，width: 100% 说得通；宽屏那一列是 auto，
+     而 auto 只会按内容量尺寸——空占位框没有内容，宽度就成了 0，
+     只剩一圈边框，看上去像个脏点。所以宽屏必须给死宽度。 */
+  background: var(--wool);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow);
   overflow: hidden;
+  rotate: -1deg;
 }
 .page-header__square img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* ==========================================================================
    杂谈条目列表
    ========================================================================== */
-.entry-list { border-top: 1px solid var(--line); }
-.entry { border-bottom: 1px solid var(--line); }
+.entry-list { border-top: var(--border-w) solid var(--ink); }
+.entry { border-bottom: var(--border-w) solid var(--ink); }
 
 .entry__body {
   display: block;
-  padding: 1.75rem 0;
+  padding: 1.75rem 1rem;
   color: inherit;
   text-decoration: none;
-  transition: background-color var(--med) var(--ease);
+  transition: background-color var(--quick) var(--ease);
 }
-a.entry__body:hover { background: var(--bg-raised); }
+a.entry__body:hover { background: var(--pine); }
 
 .entry__meta {
-  display: flex; flex-wrap: wrap; gap: 0.5rem 1rem;
-  margin-bottom: 0.5rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem;
+  margin-bottom: 0.625rem;
   font-size: 0.75rem; color: var(--wood-text);
 }
-.entry__title {
-  font-size: 1.0625rem;
-  margin-bottom: 0.5rem;
-  transition: color var(--med) var(--ease);
-}
-a.entry__body:hover .entry__title { color: var(--wood-text); }
+.entry__title { font-size: 1.125rem; margin-bottom: 0.5rem; }
 .entry__excerpt { font-size: 0.875rem; color: var(--wood-text); max-width: 62ch; }
 
 .entry--pending .entry__body { cursor: default; }
-.entry__pending { color: var(--wool); }
-.entry__empty { padding: 1.75rem 0; font-size: 0.875rem; color: var(--wool); }
+/* 「尚未发布」本身是一枚黄牌子，比一行灰字更容易被看见 */
+.entry__pending {
+  padding: 0.1rem 0.45rem;
+  background: var(--clay);
+  color: var(--on-tint);
+  border: 2px solid var(--ink);
+  font-weight: 700;
+}
+.entry__empty { padding: 1.75rem 0; font-size: 0.875rem; color: var(--wood); }
 
 /* —— 分类筛选（杂谈页） ——
    按钮由 render-sections.js 依据条目的 tag 生成；只有一个分类时整栏不渲染。
@@ -588,20 +777,22 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
 
 .filter-chip {
   padding: 0.4rem 0.9rem;
-  font-size: 0.75rem;
-  color: var(--wood-text);
-  background: transparent;              /* 按钮默认底色要显式清掉 */
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: color var(--med) var(--ease), border-color var(--med) var(--ease),
-              background-color var(--med) var(--ease);
-}
-.filter-chip:hover { color: var(--charcoal); border-color: var(--line-hover); }
-.filter-chip[aria-pressed="true"] {
+  background: var(--bg);
   color: var(--charcoal);
-  border-color: var(--line-hover);
-  background: var(--tint-pine);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.75rem; font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
+              background-color var(--quick) var(--ease);
+}
+.filter-chip:hover { transform: translate(3px, 3px); box-shadow: none; background: var(--pine); }
+/* 选中的分类：跟导航的当前页一样，按下去、换成黄 */
+.filter-chip[aria-pressed="true"] {
+  background: var(--clay);
+  color: var(--on-tint);
+  box-shadow: none;
+  transform: translate(4px, 4px);
 }
 
 .filter-status { margin-block: 1rem 1.5rem; font-size: 0.75rem; color: var(--wood-text); }
@@ -617,20 +808,21 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
 
 .practice-tab {
   padding: 0.5rem 1.125rem;
-  font-size: 0.8125rem;
-  color: var(--wood-text);
-  background: transparent;              /* 按钮默认底色要显式清掉 */
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--charcoal);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.8125rem; font-weight: 700;
   cursor: pointer;
-  transition: color var(--med) var(--ease), border-color var(--med) var(--ease),
-              background-color var(--med) var(--ease);
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
+              background-color var(--quick) var(--ease), color var(--quick) var(--ease);
 }
-.practice-tab:hover { color: var(--charcoal); border-color: var(--line-hover); }
+.practice-tab:hover { transform: translate(3px, 3px); box-shadow: none; background: var(--pine); }
 .practice-tab[aria-selected="true"] {
-  color: var(--selected-fg);            /* 选中态：深底浅字，与 .skip-link 同一套语言 */
-  background: var(--selected-bg);       /* 暗色下换成提亮一档的底，见 --selected-bg */
-  border-color: var(--selected-bg);
+  color: var(--selected-fg);            /* 选中态：整块压下去，两套主题下都是高对比的一对 */
+  background: var(--selected-bg);
+  box-shadow: none;
+  transform: translate(4px, 4px);
 }
 
 /* 面板自身可聚焦（内部没有可聚焦元素），但不该因此画出焦点框 */
@@ -638,7 +830,7 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
 .practice-panel[hidden] { display: none; }
 
 .practice-list { display: grid; gap: 2.5rem; }
-.practice-empty { font-size: 0.8125rem; color: var(--wool); }
+.practice-empty { font-size: 0.8125rem; color: var(--wood); }
 
 /* 每条曲目：左文字 + 右横向图。窄屏时图落到文字下方 */
 .piece { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1fr); }
@@ -653,21 +845,17 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
    object-fit: contain —— 谱例截图不能被裁掉音符，比例不符时宁可留白。 */
 .piece__figure {
   aspect-ratio: 16 / 9;
-  background: var(--bg-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  background: var(--wool);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 .piece__figure img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
-.piece__title { font-size: 0.9375rem; margin-bottom: 0.375rem; text-wrap: pretty; }
-.piece__meta  { font-size: 0.75rem;   color: var(--wood-text); }
+.piece__title { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.375rem; text-wrap: pretty; }
+.piece__meta  { font-size: 0.75rem; color: var(--wood-text); }
 .piece__note  { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--wood-text);
                 max-width: 40ch; text-wrap: pretty; }
-
-/* 作品卡片：筹备中（不可点）状态 */
-.card--pending { cursor: default; }
-.card--pending:hover { border-color: var(--line); background: var(--bg-raised); }
 
 /* 「查看全部」 */
 .section-more { margin-top: 2rem; }

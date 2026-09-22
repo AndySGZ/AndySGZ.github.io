@@ -1,44 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img"
-     aria-label="北欧风格浅色竖向风景占位图：远山、薄雾与低垂的太阳">
-  <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#f3ede6"/>
-      <stop offset="50%"  stop-color="#efe8e0"/>
-      <stop offset="100%" stop-color="#e7dfd5"/>
-    </linearGradient>
-    <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#e6ded4" stop-opacity="0.95"/>
-      <stop offset="100%" stop-color="#e6ded4" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
+     aria-label="野兽派几何海报：厚黑外框里，黄底上一轮低垂的红色圆日，两座青与珊瑚色的三角远山，山脚横着三道薄荷色薄雾">
+  <!-- 画风跟着站点换成了俏皮野兽派：平涂纯色、厚黑描边、无渐变、无圆角。
+       构图还是「远山、薄雾与低垂的太阳」那个意思，只是把柔光换成了色块。 -->
+  <rect width="900" height="1200" fill="#ffe66d"/>
 
-  <rect width="900" height="1200" fill="url(#sky)"/>
+  <!-- 太阳先画，山后画，于是它正好沉在山脊后面 -->
+  <circle cx="620" cy="400" r="160" fill="#ff6b6b" stroke="#000000" stroke-width="16"/>
 
-  <!-- 低垂的太阳 -->
-  <circle cx="590" cy="392" r="104" fill="#e9d9bf" opacity="0.72"/>
+  <polygon points="0,780 300,420 620,780" fill="#4ecdc4" stroke="#000000"
+           stroke-width="16" stroke-linejoin="round"/>
+  <polygon points="340,780 660,500 900,780" fill="#f38181" stroke="#000000"
+           stroke-width="16" stroke-linejoin="round"/>
 
-  <!-- 顶部薄雾过渡 -->
-  <rect x="0" y="300" width="900" height="260" fill="url(#haze)" opacity="0.55"/>
+  <!-- 薄雾：三道横条，压在山的下半截上 -->
+  <rect x="40" y="830" width="820" height="64" fill="#95e1d3" stroke="#000000" stroke-width="16"/>
+  <rect x="40" y="940" width="820" height="64" fill="#95e1d3" stroke="#000000" stroke-width="16"/>
+  <rect x="40" y="1050" width="820" height="64" fill="#95e1d3" stroke="#000000" stroke-width="16"/>
 
-  <!-- 远山 -->
-  <path d="M0 800 L170 690 L330 772 L520 646 L700 760 L820 700 L900 742 L900 1200 L0 1200 Z"
-        fill="#ded5ca" opacity="0.85"/>
-
-  <!-- 山间薄雾 -->
-  <rect x="0" y="770" width="900" height="150" fill="url(#haze)"/>
-
-  <!-- 近丘 -->
-  <path d="M0 940 L200 862 L400 946 L610 856 L790 950 L900 902 L900 1200 L0 1200 Z"
-        fill="#d2c8bc" opacity="0.92"/>
-
-  <!-- 松林剪影 -->
-  <g fill="#b9c3b7" opacity="0.5">
-    <path d="M120 1032 L162 916 L204 1032 Z"/>
-    <path d="M196 1040 L246 900 L296 1040 Z"/>
-    <path d="M640 1036 L682 918 L724 1036 Z"/>
-    <path d="M716 1044 L768 898 L820 1044 Z"/>
-  </g>
-
-  <!-- 前景地面 -->
-  <path d="M0 1200 L0 1074 L900 1040 L900 1200 Z" fill="#c8bdb0" opacity="0.55"/>
+  <rect x="14" y="14" width="872" height="1172" fill="none" stroke="#000000" stroke-width="28"/>
 </svg>

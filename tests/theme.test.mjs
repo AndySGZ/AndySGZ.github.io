@@ -86,8 +86,8 @@ test('the theme is written onto <html> the moment the script runs', async () => 
   assert.equal(light.html.attributes['data-theme'], 'light');
 
   /* 地址栏颜色跟着主题走，否则手机上会留一条对不上的色带 */
-  assert.equal(dark.meta.attributes.content, '#191817');
-  assert.equal(light.meta.attributes.content, '#f5f0eb');
+  assert.equal(dark.meta.attributes.content, '#000000');
+  assert.equal(light.meta.attributes.content, '#ffffff');
 });
 
 test('a hand-picked theme outranks the system preference', async () => {
@@ -304,19 +304,17 @@ test('body text keeps WCAG AA contrast in both themes', async () => {
   }
 });
 
-test('every component color has a token, so dark mode cannot miss one', async () => {
+test('组件层不写死任何颜色，一律走 token', async () => {
   const css = await read('assets/style.css');
 
-  /* 这几处原先直接写在组件里，暗色会漏掉；现在只许作为 token 定义出现一次 */
-  for (const literal of [
-    '#4a4a4a', 'rgba(255, 255, 255, 0.85)', '#8a6d3b',
-    'rgba(90, 122, 107, 0.4)', 'rgba(90, 122, 107, 0.3)',
-  ]) {
-    const count = css.split(literal).length - 1;
-    assert.equal(count, 1, `${literal} 出现了 ${count} 次，应只作为 token 定义存在`);
-  }
+  /* 把自定义属性的声明整条抠掉，剩下的不该再剩下任何颜色字面量。
+     比逐个列举更严：以后新加一条写死的颜色，这条也拦得住。 */
+  const withoutTokens = css.replace(/--[a-z0-9-]+\s*:\s*[^;]+;/g, '');
+  assert.doesNotMatch(withoutTokens, /#[0-9a-fA-F]{3,8}|rgba?\(/,
+    '出现了 token 之外的写死颜色；暗色会漏掉它，两个主题就对不上了');
 
-  /* 用字符串比对而不是拼正则：模板串里的 \s 会被吃成字母 s，正则就悄悄变了意思 */
+  /* 这几处颜色原先直接写在组件里，为了暗色能一起换才收上来做 token。
+     名字必须还在，否则组件会静默退回浏览器默认值。 */
   for (const name of [
     '--surface-hover', '--btn-hover', '--warn', '--focus-ring', '--focus-ring-soft',
     '--selected-bg', '--selected-fg',
