@@ -77,13 +77,92 @@
 
   /* —— 杂谈列表 —— */
   var essaysHost = document.querySelector('[data-essays-list]');
+  var essayNodes = [];
+
   if (essaysHost && Array.isArray(data.essays)) {
     var essays = take(essaysHost, data.essays);
     if (!essays.length) {
       essaysHost.appendChild(el('li', 'entry__empty', '还没有内容。'));
     }
-    essays.forEach(function (entry) { essaysHost.appendChild(essayNode(entry)); });
+    essays.forEach(function (entry) {
+      var node = essayNode(entry);
+      /* 把分类挂到节点上，筛选时不必回头再查数据 */
+      node.setAttribute('data-tag', String(entry.tag || '').trim());
+      essayNodes.push(node);
+      essaysHost.appendChild(node);
+    });
   }
+
+  /* —— 杂谈分类筛选 ——
+     只在带 [data-essay-filter] 的页面生效（杂谈页），首页的预览列表不受影响。
+     分类直接从条目的 tag 推导：site-data.js 里出现新 tag，按钮自动多一个，
+     不维护任何写死的分类清单。 */
+  (function () {
+    var host = document.querySelector('[data-essay-filter]');
+    if (!host || !essayNodes.length) return;
+
+    /* 按数据里首次出现的顺序收集分类 */
+    var tags = [];
+    essayNodes.forEach(function (node) {
+      var tag = node.getAttribute('data-tag');
+      if (tag && tags.indexOf(tag) === -1) tags.push(tag);
+    });
+    if (tags.length < 2) return;   /* 只有一个分类时筛选没意义，不显示整条筛选栏 */
+
+    var statusEl = document.querySelector('[data-essay-status]');
+    var chips = [];
+
+    function apply(value, syncUrl) {
+      var shown = 0;
+
+      essayNodes.forEach(function (node) {
+        var visible = !value || node.getAttribute('data-tag') === value;
+        node.hidden = !visible;
+        if (visible) shown++;
+      });
+
+      chips.forEach(function (chip) {
+        chip.node.setAttribute('aria-pressed', String(chip.value === value));
+      });
+
+      if (statusEl) {
+        statusEl.textContent = value
+          ? '「' + value + '」共 ' + shown + ' 篇'
+          : '共 ' + shown + ' 篇';
+      }
+
+      /* 把分类写进地址栏：刷新、分享、前进后退都能停在同一个分类。
+         file:// 下 replaceState 会抛 SecurityError，所以先判协议再兜异常。 */
+      if (syncUrl && location.protocol.indexOf('http') === 0 &&
+          window.history && window.history.replaceState) {
+        try {
+          window.history.replaceState(null, '',
+            location.pathname + (value ? '?tag=' + encodeURIComponent(value) : ''));
+        } catch (error) { /* 地址栏同步失败不影响筛选本身 */ }
+      }
+    }
+
+    function makeChip(label, value) {
+      var chip = el('button', 'filter-chip', label);
+      chip.type = 'button';
+      chip.setAttribute('aria-pressed', 'false');
+      chip.addEventListener('click', function () { apply(value, true); });
+      host.appendChild(chip);
+      chips.push({ node: chip, value: value });
+    }
+
+    makeChip('全部', '');
+    tags.forEach(function (tag) { makeChip(tag, tag); });
+
+    /* 首次进入读取 ?tag=，值不合法（或分类已被删掉）就落回「全部」 */
+    var initial = '';
+    try {
+      initial = new URLSearchParams(location.search).get('tag') || '';
+    } catch (error) { initial = ''; }
+    if (tags.indexOf(initial) === -1) initial = '';
+
+    apply(initial, false);
+  }());
 
   /* —— 作品网格 —— */
   var worksHost = document.querySelector('[data-works-grid]');

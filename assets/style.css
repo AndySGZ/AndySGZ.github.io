@@ -206,7 +206,13 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 .quote-rotator__item.is-visible { opacity: 1; transform: translateY(0); }
 
-.quote-rotator__text { font-size: 1.125rem; color: var(--charcoal); text-wrap: pretty; }
+/* white-space: pre-line —— 让 site-data.js 里写的 \n 真正断行（多行句 / 诗用）。
+   默认的 normal 会把换行符折叠成一个空格，所以光在数据里写 \n 是没效果的。
+   选 pre-line 而非 pre-wrap：保留换行，但缩进造成的多余空格仍会被合并。 */
+.quote-rotator__text {
+  font-size: 1.125rem; color: var(--charcoal); text-wrap: pretty;
+  white-space: pre-line;
+}
 @media (min-width: 768px) { .quote-rotator__text { font-size: 1.375rem; } }
 
 .quote-rotator__source {
@@ -445,6 +451,35 @@ a.entry__body:hover .entry__title { color: var(--wood-text); }
 .entry--pending .entry__body { cursor: default; }
 .entry__pending { color: var(--wool); }
 .entry__empty { padding: 1.75rem 0; font-size: 0.875rem; color: var(--wool); }
+
+/* —— 分类筛选（杂谈页） ——
+   按钮由 render-sections.js 依据条目的 tag 生成；只有一个分类时整栏不渲染。
+   焦点样式走全局 :focus-visible，这里不再重复声明。 */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.filter-chip {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+  color: var(--wood-text);
+  background: transparent;              /* 按钮默认底色要显式清掉 */
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: color var(--med) var(--ease), border-color var(--med) var(--ease),
+              background-color var(--med) var(--ease);
+}
+.filter-chip:hover { color: var(--charcoal); border-color: var(--line-hover); }
+.filter-chip[aria-pressed="true"] {
+  color: var(--charcoal);
+  border-color: var(--line-hover);
+  background: var(--tint-pine);
+}
+
+.filter-status { margin-block: 1rem 1.5rem; font-size: 0.75rem; color: var(--wood-text); }
+.filter-status:empty { display: none; }  /* 禁用 JS 时不留下空白间隙 */
+
+/* 被筛掉的条目彻底移出布局（.entry 自身没有 display 声明，这里显式兜底） */
+.entry[hidden] { display: none; }
 
 /* 作品卡片：筹备中（不可点）状态 */
 .card--pending { cursor: default; }
