@@ -237,6 +237,7 @@ test('动态的数据形状齐全，页面才敢直接照着渲染', async () =>
   for (const entry of UPDATES) {
     assert.match(entry.date, /^\d{4}-\d{2}-\d{2}$/, `日期要写 YYYY-MM-DD：${entry.date}`);
     assert.ok(entry.title, `${entry.date} 那条缺标题`);
+    /* 只有一句话配几张照片也是一条动态，所以正文和图片有一样就行 */
     assert.ok(entry.text || (entry.images || []).length, `${entry.date} 那条既没正文也没图`);
 
     for (const image of entry.images || []) {
@@ -255,7 +256,8 @@ test('期刊自己发的动态是中英各一份，不是靠中文兜底', async
 
   for (const entry of UPDATES) {
     assert.ok(both(entry.title), `${entry.date} 的标题缺中英之一`);
-    assert.ok(both(entry.text), `${entry.date} 的正文缺中英之一`);
+    // text 本来就可选（只放图的那条没有正文），写了就得中英都有
+    if (entry.text) assert.ok(both(entry.text), `${entry.date} 的正文缺中英之一`);
     if (entry.kind) assert.ok(both(entry.kind), `${entry.date} 的标签缺中英之一`);
     if (entry.link) assert.ok(both(entry.link.label), `${entry.date} 的链接文案缺中英之一`);
     for (const image of entry.images || []) {

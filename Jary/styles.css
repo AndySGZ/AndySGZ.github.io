@@ -791,6 +791,17 @@ html[data-language='en'] [data-lang='en'] {
   margin: 0;
 }
 
+/* 并排时每格都会被拉到整行最高，竖图横图混在一起图注就参差不齐。
+   把图注压到格子底部，一排的图注就落在同一条线上。 */
+.update__images--row .update__figure {
+  display: flex;
+  flex-direction: column;
+}
+
+.update__images--row .update__figure figcaption {
+  margin-top: auto;
+}
+
 .update__figure img {
   display: block;
   width: 100%;

@@ -27,6 +27,30 @@
 export const UPDATES = [
   {
     date: '2026-09-22',
+    kind: { zh: '观测记录', en: 'Field note' },
+    title: { zh: 'JARY 说：大家好！', en: 'JARY says: hello, everyone!' },
+    /* 这条没有正文：话就一句，当标题更醒目。想把它挪到正文里，
+       就把 title 换成一个短标题，再给这里补一个 text。 */
+    images: [
+      {
+        src: 'assets/updates/2026-09-22-cap.webp',
+        alt: '室内：JARY 戴着鸭舌帽，帽子上夹着一台小相机',
+        caption: { zh: '帽子上别了一台相机', en: 'A camera clipped onto the cap' }
+      },
+      {
+        src: 'assets/updates/2026-09-22-bike.webp',
+        alt: 'JARY 骑着蓝色共享单车，停在树荫底下',
+        caption: { zh: '骑着那辆蓝色共享单车', en: 'Out on the blue shared bike' }
+      },
+      {
+        src: 'assets/updates/2026-09-22-scooters.webp',
+        alt: 'JARY 坐在共享单车上手托着腮，四周停满电动车',
+        caption: { zh: '停下来，手托着腮', en: 'Stopped, chin in hand' }
+      }
+    ]
+  },
+  {
+    date: '2026-09-22',
     kind: { zh: '公告', en: 'Announcement' },
     title: { zh: '游戏厅开张', en: 'The game room opens' },
     text: {
