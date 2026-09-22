@@ -71,12 +71,11 @@
         </div>
 
         <div class="game-stage">
-          <!-- 想换上自己的立绘：把图放进 assets/game/，再给下面的 canvas 加上
-               data-jary-sprite="assets/game/jary.png"
-               data-nailong-sprite="assets/game/nailong.png"
-               不加这两个属性时，用模块里现画的卡通角色。 -->
+          <!-- 立绘在 Jary/assets/game/ 下；去掉这两个 data-* 属性就会退回模块里现画的卡通角色。 -->
           <div class="game-frame">
             <canvas id="nailong-canvas" class="game-canvas" width="960" height="420" tabindex="0"
+                    data-jary-sprite="assets/game/jary.png"
+                    data-nailong-sprite="assets/game/nailong.png"
                     aria-label="JARY 逃离奶龙 游戏画面 / JARY Escapes Nailong game canvas"></canvas>
           </div>
 
@@ -161,8 +160,8 @@
           </ul>
 
           <p class="game-note">
-            <span data-lang="zh">想换成自己的立绘？把图片放进 <code>Jary/assets/game/</code>，再给上面的 canvas 加上 <code>data-jary-sprite="assets/game/jary.png"</code> 与 <code>data-nailong-sprite="assets/game/nailong.png"</code> 即可；不加就用页面里现画的两个卡通角色。有透明背景的 PNG 效果最好。</span>
-            <span data-lang="en">Want your own artwork? Drop the files into <code>Jary/assets/game/</code> and add <code>data-jary-sprite="assets/game/jary.png"</code> and <code>data-nailong-sprite="assets/game/nailong.png"</code> to the canvas above. Otherwise the hand-drawn cartoon pair is used. Transparent PNGs look best.</span>
+            <span data-lang="zh">场上这两位用的是真图：JARY 和他那辆共享单车，以及紧追不舍的奶龙。想换画风，把 <code>Jary/assets/game/</code> 下的 <code>jary.png</code>、<code>nailong.png</code> 换成同名文件即可（建议透明底 PNG、单张 200 KB 以内）；把 canvas 上那两个 <code>data-*-sprite</code> 属性删掉，就会退回模块里现画的卡通角色。</span>
+            <span data-lang="en">Both characters use real artwork now: JARY and his shared bike, with Nailong in hot pursuit. To change the art, replace <code>jary.png</code> and <code>nailong.png</code> in <code>Jary/assets/game/</code> with files of the same name (transparent PNGs under 200 KB work best). Remove the two <code>data-*-sprite</code> attributes from the canvas and the hand-drawn cartoon pair takes over.</span>
           </p>
         </div>
       </section>

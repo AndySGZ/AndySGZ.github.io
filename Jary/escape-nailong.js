@@ -789,6 +789,14 @@ function drawJarySliding(ctx) {
   ctx.fill();
 }
 
+/* 立绘按原始长宽比缩放到目标高度：换任何图都不会被拉变形 */
+function spriteBox(image, height, maxWidth) {
+  const ratio = (image.naturalWidth || image.width || 1) / (image.naturalHeight || image.height || 1);
+  const width = height * ratio;
+  if (width <= maxWidth) return { width: width, height: height };
+  return { width: maxWidth, height: maxWidth / ratio };
+}
+
 function drawRunner(ctx, run, sprite, reducedMotion) {
   const player = run.player;
   const feetY = GROUND_Y + player.offsetY;
@@ -802,13 +810,14 @@ function drawRunner(ctx, run, sprite, reducedMotion) {
   ctx.fill();
 
   if (sprite) {
-    const box = sliding
-      ? { x: PLAYER_SCREEN_X - 42, y: feetY - 46, width: 84, height: 46 }
-      : { x: PLAYER_SCREEN_X - 31, y: feetY - 88, width: 62, height: 88 };
+    /* 滑铲时整体压低一截，而不是把图压扁 */
+    const box = spriteBox(sprite, sliding ? 62 : 104, 170);
+    const left = PLAYER_SCREEN_X - box.width / 2;
+    const top = feetY - box.height;
     ctx.save();
-    roundRect(ctx, box.x, box.y, box.width, box.height, 12);
+    roundRect(ctx, left, top, box.width, box.height, 14);
     ctx.clip();
-    ctx.drawImage(sprite, box.x, box.y, box.width, box.height);
+    ctx.drawImage(sprite, left, top, box.width, box.height);
     ctx.restore();
     return;
   }
@@ -899,10 +908,13 @@ function drawChaser(ctx, run, sprite) {
   ctx.fill();
 
   if (sprite) {
+    const box = spriteBox(sprite, 96, 190);
+    const left = screenX - box.width / 2;
+    const top = feetY - box.height;
     ctx.save();
-    roundRect(ctx, screenX - 38, feetY - 78, 76, 78, 14);
+    roundRect(ctx, left, top, box.width, box.height, 14);
     ctx.clip();
-    ctx.drawImage(sprite, screenX - 38, feetY - 78, 76, 78);
+    ctx.drawImage(sprite, left, top, box.width, box.height);
     ctx.restore();
     return;
   }
