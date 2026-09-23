@@ -58,8 +58,10 @@
     [['上一条', -1], ['下一条', 1]].forEach(function (spec) {
       var button = document.createElement('button');
       button.type = 'button';
-      button.className = 'quote-nav__btn';
-      button.textContent = spec[0];
+      /* 按钮上只有一个画出来的三角形，没有字（符号箭头这站禁用），
+         所以名字得写进 aria-label —— 否则读屏念出来就是两个「按钮」。 */
+      button.className = 'quote-nav__btn quote-nav__btn--' + (spec[1] < 0 ? 'prev' : 'next');
+      button.setAttribute('aria-label', spec[0]);
       button.addEventListener('click', function () { step(spec[1]); });
       navHost.appendChild(button);
     });

@@ -159,12 +159,38 @@ async function boot(options = {}) {
 test('上一条 / 下一条真的生成出来了，且是正经按钮', async () => {
   const app = await boot();
 
-  assert.deepEqual(app.buttons.map((b) => b.textContent), ['上一条', '下一条']);
+  /* 按钮上只有一个画出来的三角形，没有字，所以名字必须在 aria-label 上，
+     否则读屏念出来就是两个光秃秃的「按钮」 */
+  assert.deepEqual(app.buttons.map((b) => b.getAttribute('aria-label')), ['上一条', '下一条']);
+  assert.deepEqual(app.buttons.map((b) => b.textContent), ['', ''], '箭头是画出来的，不该再塞字形进去');
+  assert.deepEqual(app.buttons.map((b) => b.className), [
+    'quote-nav__btn quote-nav__btn--prev',
+    'quote-nav__btn quote-nav__btn--next',
+  ]);
   assert.deepEqual(app.buttons.map((b) => b.type), ['button', 'button'], '按钮必须写死 type=button，别在表单里变成提交');
   assert.equal(app.navHost.getAttribute('role'), 'group');
 
+  /* 箭头得是 CSS 画的三角形：这站禁用「←」「→」这类符号字符，
+     整条链（HTML、脚本、样式表）都不许出现它们 */
+  const [html, css, script] = await Promise.all([
+    read('index.html'),
+    read('assets/style.css'),
+    read('scripts/quote-rotator.js'),
+  ]);
+  assert.match(css, /\.quote-nav__btn--prev::before\s*\{[^}]*border-right:[^}]*currentColor/s);
+  assert.match(css, /\.quote-nav__btn--next::before\s*\{[^}]*border-left:[^}]*currentColor/s);
+  /* 注释里会大方地提到被禁的字符（「不许用 →」之类），先剥掉注释再查，
+     否则规矩一写进注释就自己把自己判违规了 */
+  const stripComments = (source) => source
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+
+  for (const source of [html, css, script]) {
+    assert.doesNotMatch(stripComments(source), /[←→]/,
+      '箭头要用几何图形画，不许用符号字符');
+  }
+
   /* 按钮不能写在 HTML 里：没 JS 时轮播不存在，留着就是两个按不动的死按钮 */
-  const html = await read('index.html');
   assert.match(html, /data-quote-nav/);
   assert.doesNotMatch(html, /<button[^>]*quote-nav/, 'HTML 里不该有硬写的翻页按钮');
 });
