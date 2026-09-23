@@ -419,7 +419,15 @@ button, input, textarea { font: inherit; color: inherit; }
   display: block; margin-top: 1.25rem;
   font-size: 0.75rem; color: var(--on-tint);
 }
-.hero__hint { margin-top: 1.25rem; font-size: 0.75rem; color: var(--on-tint); }
+/* 轮播上方的一句说明，跟在句子下面。和再下面那行操作提示同色——
+   风格禁用柔和灰，所以两者靠字号和字重分层：说明大一号、粗一档，
+   提示小一号、常规字重，视线先读到「这里是什么」再读到「怎么操作」。 */
+.hero__note {
+  margin-top: 1.5rem;
+  font-size: 0.875rem; font-weight: 700;
+  color: var(--on-tint);
+}
+.hero__hint { margin-top: 0.5rem; font-size: 0.75rem; color: var(--on-tint); }
 
 /* ==========================================================================
    我是谁
