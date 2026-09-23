@@ -12,13 +12,22 @@ window.SITE_DATA = {
     items: [
       { text: '只要你不停地向上走，一级级楼梯就没有尽头，在你向上走的脚下，它们也在向上长。', source: '卡夫卡《律师》' },
       { text: 'The obstacles in your path define the path.\n道有坎坷方知路正，人无历练原力难成。 ', source: 'Star Wars Jedi：Fallen Order' },
-      { text: '亲爱的朋友，灰色的理论到处都有，\n而生活的金树长青。', source: 'Mephistopheles in 《Faust》' }
+      { text: '亲爱的朋友，灰色的理论到处都有，\n而生活的金树长青。', source: 'Mephistopheles in 《Faust》' },
+      /* 这句的正文里有撇号，所以整串用双引号写，免得在单引号里到处转义 */
+      { text: "Maybe there is a beast... maybe it's only us.", source: 'William Golding 《Lord of the Flies》' }
     ]
   },
 
   /* —— 杂谈：按时间倒序，最新的排最前 ——
      url 留空表示还没发布，页面会显示「尚未发布」而不是给一个死链接。 */
   essays: [
+    {
+      date: '2026-09-24',
+      title: '到底如何练好节奏啊？',
+      tag: '练琴',
+      excerpt: '点击来看笨人不会的节奏型。',
+      url: 'essays/rhythm.html'
+    },
     {
       date: '2026-09-21',
       title: '开始写点什么',
