@@ -21,6 +21,7 @@ node --test
 | `render.test.mjs` | 渲染冒烟：用假的 2D 上下文把 HUD、遮罩、成绩卡真画一遍，确认不会炸 |
 | `audio.test.mjs` | 声音开关、静音记忆、开跑/被抓时的播放次序 |
 | `homepage.test.mjs` / `nav.test.mjs` / `links.test.mjs` | 主站结构、导航、站内链接是否都指向真实文件 |
+| `quote-rotator.test.mjs` | 首屏题记栏：上一条 / 下一条手动翻页，以及它跟自动轮播、悬停暂停、减少动态效果的交界 |
 | `theme.test.mjs` | 明暗主题：首屏不闪、按钮文案说的是下一步、两套 token 对得上、对比度过 WCAG AA |
 | `jary.test.mjs` | 期刊子站的双语、语言切换与画布占位 |
 

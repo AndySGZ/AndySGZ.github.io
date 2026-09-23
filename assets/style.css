@@ -429,6 +429,32 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 .hero__hint { margin-top: 0.5rem; font-size: 0.75rem; color: var(--on-tint); }
 
+/* 上一条 / 下一条：按钮由 quote-rotator.js 生成，容器是 HTML 里的空 div。
+   样式跟导航项、分类按钮一套语言：白底、粗黑边、硬阴影，
+   悬停时把位移补上、阴影收掉，像按下去了一块纸片。
+   焦点样式走全局 :focus-visible，这里不再重复声明。 */
+.quote-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+/* 不轮播（减少动态效果）时整栏藏掉 —— 作者样式的 display 会盖过 [hidden] 自带的那个 */
+.quote-nav[hidden] { display: none; }
+
+.quote-nav__btn {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.75rem; font-weight: 700;
+  background: var(--bg);
+  color: var(--charcoal);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease),
+              background-color var(--quick) var(--ease);
+}
+.quote-nav__btn:hover {
+  background: var(--pine);
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+.quote-nav__btn:active { transform: translate(4px, 4px); box-shadow: none; }
+
 /* ==========================================================================
    我是谁
    ========================================================================== */
