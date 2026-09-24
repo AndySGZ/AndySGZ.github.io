@@ -104,6 +104,10 @@ window.SITE_DATA = {
       {
         stage: '在练',
         items: [
+          { title: 'Op.12 No.1·D大调小提琴奏鸣曲', composer: '贝多芬',
+            note: '克服自己过去形成的错误习惯和本能很困难。',
+            image: 'assets/practice/beethoven_op12.webp',
+            alt: '贝多芬 D 大调小提琴奏鸣曲 Op.12 No.1 开头：Allegro con brio 速度标记与独奏声部的进入' },
           { title: 'BWV1001·Adagio 柔板', composer: 'J.S.巴赫',
             note: '对我而言问题首先在于节奏，然后是和弦，最后才是音乐性',
             image: 'assets/practice/bwv1001adagio.webp',
