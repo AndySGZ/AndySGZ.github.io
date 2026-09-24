@@ -918,5 +918,17 @@ a.entry__body:hover { background: var(--pine); }
 .piece__note  { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--wood-text);
                 max-width: 40ch; text-wrap: pretty; }
 
+/* 最近在听：换行不缩进，长链接自然折行 */
+.piece__listening { margin-top: 0.75rem; font-size: 0.75rem; color: var(--wood-text); }
+.piece__listening-label { font-weight: 700; }
+.piece__listening a {
+  color: var(--charcoal);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.22em;
+  transition: background-color var(--quick) var(--ease);
+}
+.piece__listening a:hover { background: var(--clay); }
+
 /* 「查看全部」 */
 .section-more { margin-top: 2rem; }

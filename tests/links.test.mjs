@@ -154,3 +154,25 @@ test('entries without a url render as plain blocks, so no dead links', async () 
   assert.match(script, /if \(href\) \{\s*body = el\('a'/);
   assert.match(script, /if \(href\) \{\s*card = el\('a'/);
 });
+
+test('「最近在听」是站外链接：协议受控，且渲染时新开标签并断开来源引用', async () => {
+  const source = await readFile(new URL('scripts/site-data.js', root), 'utf8');
+  const script = await readFile(new URL('scripts/render-sections.js', root), 'utf8');
+
+  /* 取每个 listening 数组（到配对的 ] 为止）里的 url */
+  const urls = source.split('listening:').slice(1)
+    .flatMap((block) => [...block.slice(0, block.indexOf(']')).matchAll(/url:\s*'([^']*)'/g)])
+    .map((match) => match[1].trim());
+
+  assert.ok(urls.length > 0, '「最近在听」应该至少有一条');
+
+  for (const href of urls) {
+    assert.ok(/^https:\/\//i.test(href), `参考录音应是 https 外链：${href}`);
+  }
+
+  // 渲染逻辑：外链一律 rel="noopener noreferrer"，http(s) 才新开标签
+  assert.match(script, /link\.rel = 'noopener noreferrer'/);
+  assert.match(script, /if \(\/\^https\?:\/i\.test\(href\)\) link\.target = '_blank'/);
+  // 没有 url 的项退成纯文字，不留点不动的链接
+  assert.match(script, /listening\.appendChild\(document\.createTextNode\(track\.label \|\| ''\)\)/);
+});

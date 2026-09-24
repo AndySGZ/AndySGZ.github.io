@@ -97,6 +97,10 @@ window.SITE_DATA = {
        title 必填；composer / note / image / alt 都可省略，省略了就不渲染那一部分。
        image 是每条曲目右侧的横向图；留空则只显示占位框。
        alt 是给读屏和「图挂了」时看的说明，不写就退回用 title 顶上。
+       listening 是「最近在听」的参考录音，数组，每项 { label, url, title }：
+         label 是链接上显示的名字，url 是外链地址，title 可选，鼠标悬停时
+         显示完整曲名（视频页那种带演奏者和作品的标题就放这儿）。
+         没写 url 的项渲染成纯文字，不给死链接。
      图片统一放在 assets/practice/，路径从站点根目录写起，详见该目录的 README。 */
   practice: {
     intro: { image: '', alt: '练琴' },
@@ -106,6 +110,14 @@ window.SITE_DATA = {
         items: [
           { title: 'Op.12 No.1·D大调小提琴奏鸣曲', composer: '贝多芬',
             note: '克服自己过去形成的错误习惯和本能很困难。',
+            listening: [
+              { label: 'Noah',
+                title: 'Noah Bendix-Balgley & 贝多芬-D大调第一小提琴奏鸣曲｜Beethoven-Violin Sonata No.1 D major op.12',
+                url: 'https://www.bilibili.com/video/BV1aS4y157kp/?share_source=copy_web&vd_source=68815c4d1d2284d5d879dc1611d316c4' },
+              { label: '杜梅',
+                title: '【贝多芬/杜梅】D大调第一小提琴奏鸣曲 Op.12/1',
+                url: 'https://www.bilibili.com/video/BV1Uv4y1U7fz/?share_source=copy_web&vd_source=68815c4d1d2284d5d879dc1611d316c4' }
+            ],
             image: 'assets/practice/beethoven_op12.webp',
             alt: '贝多芬 D 大调小提琴奏鸣曲 Op.12 No.1 开头：Allegro con brio 速度标记与独奏声部的进入' },
           { title: 'BWV1001·Adagio 柔板', composer: 'J.S.巴赫',

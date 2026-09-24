@@ -273,6 +273,29 @@
           text.appendChild(el('p', 'piece__title', piece.title || '未命名'));
           if (piece.composer) text.appendChild(el('p', 'piece__meta', piece.composer));
           if (piece.note) text.appendChild(el('p', 'piece__note', piece.note));
+
+          /* 最近在听：一串外链。没写 url 的项退成纯文字，不留死链接。 */
+          var tracks = Array.isArray(piece.listening) ? piece.listening : [];
+          if (tracks.length) {
+            var listening = el('p', 'piece__listening');
+            listening.appendChild(el('span', 'piece__listening-label', '最近在听：'));
+            tracks.forEach(function (track, i) {
+              var href = String(track.url || '').trim();
+              if (i) listening.appendChild(document.createTextNode('、'));
+              if (!href) {
+                listening.appendChild(document.createTextNode(track.label || ''));
+                return;
+              }
+              var link = el('a', null, track.label || href);
+              link.href = href;
+              link.rel = 'noopener noreferrer';
+              if (/^https?:/i.test(href)) link.target = '_blank';
+              if (track.title) link.title = track.title;
+              listening.appendChild(link);
+            });
+            text.appendChild(listening);
+          }
+
           li.appendChild(text);
 
           /* 横向图位：没给 image 就留一个空框，先让人看清版式 */
