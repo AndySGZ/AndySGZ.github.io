@@ -108,6 +108,18 @@ window.SITE_DATA = {
       {
         stage: '在练',
         items: [
+          { title: 'Op.47·D小调小提琴协奏曲·第二乐章', composer: '西贝柳斯',
+            note: '如何演绎其冷峻的悲痛和深沉的内省？',
+            listening: [
+              { label: '海菲兹',
+                title: '【小提琴大师海菲兹演奏 西贝柳斯d小调小提琴协奏曲】',
+                url: 'https://www.bilibili.com/video/BV1Fv411Y7tF/?share_source=copy_web&vd_source=68815c4d1d2284d5d879dc1611d316c4' },
+              { label: '康珠美',
+                title: '【康珠美演奏 西贝柳斯小提琴协奏曲（完整版）】',
+                url: 'https://www.bilibili.com/video/BV17i4y1B79f/?share_source=copy_web&vd_source=68815c4d1d2284d5d879dc1611d316c4' }
+            ],
+            image: 'assets/practice/sibelius_op47.webp',
+            alt: '西贝柳斯 D 小调小提琴协奏曲 Op.47 第二乐章开头：Adagio di molto 速度标记，独奏声部在 G 弦上进入（sul G，mf sonore ed espress.）' },
           { title: 'Op.12 No.1·D大调小提琴奏鸣曲', composer: '贝多芬',
             note: '克服自己过去形成的错误习惯和本能很困难。',
             listening: [
