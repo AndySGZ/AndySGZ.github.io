@@ -90,5 +90,25 @@ export const UPDATES = [
       }
     ],
     link: { href: 'index.html#current', label: { zh: '看本期', en: 'View the issue' } }
+  },
+  {
+    date: '2026-09-26',
+    kind: { zh: '观测记录', en: 'Field note' },
+    title: {
+      zh: 'JARY 说：欢迎来大JARY转转转排练厅',
+      en: 'JARY says: come spin-spin-spin at Big JARY’s rehearsal room'
+    },
+    text: {
+      zh: '椅子一转就停不下来，胳膊张成一条线找平衡，身后那面排鼓也跟着晃。',
+      en: 'Once the chair starts turning it will not stop — arms out flat for balance, the drum behind '
+        + 'swaying along with every round.'
+    },
+    images: [
+      {
+        src: 'assets/updates/2026-09-26-jary-spin.gif',
+        alt: '排练厅里：JARY 坐在转椅上张开双臂，连人带椅子转了一圈又一圈，身后立着红金两面的排鼓',
+        caption: { zh: '转椅才是主角', en: 'The swivel chair steals the scene' }
+      }
+    ]
   }
 ];
