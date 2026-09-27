@@ -284,6 +284,29 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 .wordmark:hover { transform: translate(3px, 3px); box-shadow: none; }
 
+/* 小橘豆主页的入口：一枚只放图的方按钮，钉在站名牌左边。
+   图标本身已经抠成透明底（assets/xiaojudou-icon.png），所以明暗两套主题
+   都不用给它换底色。只占一个图标的位置——导航栏省下来的空间留给导航项。 */
+.nav-bird {
+  display: inline-flex;
+  flex-shrink: 0;                     /* 窄屏折行时别被挤扁 */
+  padding: 0.2rem;
+  background: var(--bg);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  rotate: 2deg;
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease);
+}
+.nav-bird img { display: block; width: 2rem; height: 2rem; }
+.nav-bird:hover { transform: translate(3px, 3px); box-shadow: none; }
+/* 在它自己那一页（xiaojudou/index.html）上，按下去的那一枚还是老规矩：
+   收阴影、补位移、换成黄底。 */
+.nav-bird[aria-current="page"] {
+  background: var(--clay);
+  box-shadow: none;
+  transform: translate(4px, 4px);
+}
+
 /* 明暗开关：排版跟导航项一致（中文在上、英文在下），只是它是个按钮。
    按下状态（aria-pressed="true" 即暗色）给黄底，跟导航的当前页同一个语言。 */
 .theme-toggle {

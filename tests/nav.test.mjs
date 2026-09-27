@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
 const read = (name) => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
+const ROOT = new URL('../', import.meta.url);
 
 /* site-data.js 是普通脚本，数据挂在 window 上，造个假 window 取出来 */
 function loadSiteData(source) {
@@ -12,16 +13,21 @@ function loadSiteData(source) {
   return context.window.SITE_DATA;
 }
 
-const PAGES = ['index.html', 'about.html', 'essays.html', 'works.html', 'practice.html'];
+/* 带主导航的全部页面。essays/ 与 xiaojudou/ 是子目录，导航里的链接写成 ../xxx，
+   比对时统一去掉前缀，所以和根目录页面用的是同一份期望值。 */
+const PAGES = [
+  'index.html', 'about.html', 'essays.html', 'works.html', 'practice.html',
+  'essays/rhythm.html', 'xiaojudou/index.html',
+];
 
-/* 六个真实页面，且每个都带同字号的中英对照 */
+/* 六个导航项，且每一项都带同字号的中英对照 */
 const EXPECTED_NAV = [
   ['index.html', '首页', 'Home'],
   ['about.html', '关于', 'About'],
   ['essays.html', '杂谈', 'Essays'],
   ['works.html', '作品', 'Works'],
   ['practice.html', '练琴', 'Practice'],
-  ['Jary/index.html', '《Jary行为研究》', 'JARY Behavior Research'],
+  ['Jary/index.html', '《Jary行为研究》', 'JBR'],
 ];
 
 function navLinks(html) {
@@ -31,7 +37,7 @@ function navLinks(html) {
     const inner = match[2];
     const zh = (inner.match(/class="nav-zh">([^<]*)</) || [])[1];
     const en = (inner.match(/class="nav-en">([^<]*)</) || [])[1];
-    return [match[1], zh, en];
+    return [match[1].replace(/^(?:\.\.\/|\.\/)/, ''), zh, en];
   });
 }
 
@@ -39,6 +45,45 @@ test('every page shares the same six-item navigation', async () => {
   for (const page of PAGES) {
     const html = await read(page);
     assert.deepEqual(navLinks(html), EXPECTED_NAV, `${page} 的导航与其他页面不一致`);
+  }
+});
+
+test('导航栏最左端是小橘豆的图标入口，排在站名左边', async () => {
+  /* 入口在子目录页面里写成 ../xiaojudou/index.html，在它自己那页写成 index.html，
+     所以按页面解析成绝对路径再比。 */
+  const target = new URL('xiaojudou/index.html', ROOT).pathname;
+
+  for (const page of PAGES) {
+    const html = await read(page);
+    const bird = html.match(/<a class="nav-bird" href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/);
+
+    assert.ok(bird, `${page} 的导航栏缺少小橘豆的入口`);
+    assert.equal(new URL(bird[1], new URL(page, ROOT)).pathname, target,
+      `${page} 的小橘豆入口指向了别处：${bird[1]}`);
+    assert.ok(html.indexOf('class="nav-bird"') < html.indexOf('class="wordmark"'),
+      `${page} 的小橘豆入口没有排在 ANDY SGZ 左边`);
+
+    /* 只放图不放字：按钮里只有一枚 <img>，不再写中文英文两行，
+       导航栏的横向空间就是这么省出来的。 */
+    assert.match(bird[2], /<img\b/, `${page} 的小橘豆入口没有图标`);
+    assert.doesNotMatch(bird[2], /nav-(zh|en)/, `${page} 的小橘豆入口里还写着文字`);
+
+    /* 图挂了、读屏在念的时候，按钮的名字只能靠 aria-label */
+    assert.match(bird[0], /aria-label="小橘豆的主页"/, `${page} 的小橘豆入口没有无障碍名字`);
+  }
+});
+
+test('导航栏那枚小橘豆图标在仓库里真实存在', async () => {
+  for (const page of PAGES) {
+    const html = await read(page);
+    const src = (html.match(/<a class="nav-bird"[\s\S]*?<img src="([^"]+)"/) || [])[1];
+
+    assert.ok(src, `${page} 的小橘豆入口没有图标`);
+    assert.ok(!src.startsWith('/'), `图标路径不能以 / 开头，本地直接打开会失效：${src}`);
+    await assert.doesNotReject(
+      access(new URL(src, new URL(page, ROOT))),
+      `${page} 的图标指向不存在的文件：${src}`
+    );
   }
 });
 

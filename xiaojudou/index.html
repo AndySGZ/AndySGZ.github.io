@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="小橘豆的主页：一只玄凤鹦鹉的地盘。">
+    <title>小橘豆的主页 | Andy SGZ</title>
+    <!-- 子站复用主站那套样式表，配色、边框、字号跟着主站一起走，
+         这里不再单独养一份 CSS。 -->
+    <link rel="stylesheet" href="../assets/style.css">
+    <!-- 明暗主题：必须同步执行（不加 defer），否则首屏会先闪一下浅色 -->
+    <script src="../scripts/theme.js"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <header class="site-nav" id="top">
+      <div class="site-nav__inner">
+        <div class="site-nav__brand">
+          <!-- 本站就是「小橘豆的主页」，所以这枚图标在这里是当前页 -->
+          <a class="nav-bird" href="index.html" aria-label="小橘豆的主页" title="小橘豆的主页"
+             aria-current="page">
+            <img src="../assets/xiaojudou-icon.png" alt="" width="192" height="192" decoding="async">
+          </a>
+          <a class="wordmark" href="../index.html">Andy SGZ</a>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+            <span class="nav-zh" data-theme-label-zh>暗色</span>
+            <span class="nav-en" data-theme-label-en>Dark</span>
+          </button>
+        </div>
+        <nav class="site-nav__links" aria-label="主导航">
+          <a href="../index.html"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
+          <a href="../about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
+          <a href="../essays.html"><span class="nav-zh">杂谈</span><span class="nav-en">Essays</span></a>
+          <a href="../works.html"><span class="nav-zh">作品</span><span class="nav-en">Works</span></a>
+          <a href="../practice.html"><span class="nav-zh">练琴</span><span class="nav-en">Practice</span></a>
+          <a href="../Jary/index.html"><span class="nav-zh">《Jary行为研究》</span><span class="nav-en">JBR</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- 页头左边写字、右边放方图，用的是主站练琴页那套 __split / __square，
+           图是 1:1 的，塞进 1:1 的框里不会被裁。 -->
+      <div class="page-header">
+        <div class="container page-header__split">
+          <div class="page-header__text">
+            <h1 class="page-header__title">小橘豆的主页</h1>
+            <p class="page-header__lead">
+              一只玄凤鹦鹉的地盘。照片、日常，以及它今天又拆了什么。
+            </p>
+          </div>
+          <!-- 换图：替换 xiaojudou/assets/xiaojudou.png（1024×1024，抠掉白底的版本）。
+               原图与导出脚本放在仓库外的 asset-originals/（xiaojudou-cockatiel.png
+               + make-xiaojudou-assets.py），要重新导出就跑那个脚本。 -->
+          <figure class="page-header__square">
+            <img src="assets/xiaojudou.png" width="1024" height="1024"
+                 alt="小橘豆：顶着黄色羽冠、两颊橘色圆斑的玄凤鹦鹉，从木屋的圆窗里探出身子">
+          </figure>
+        </div>
+      </div>
+
+      <section class="section" aria-labelledby="who-bird-heading">
+        <div class="container">
+          <h2 class="section-title" id="who-bird-heading">本尊</h2>
+
+          <!-- 想写什么写什么。空着的 <h2> 和 <p> 不会在页面上留痕迹，
+               想到再填也不迟。 -->
+          <div class="prose">
+            <p>小橘豆是一只玄凤鹦鹉。橘色的脸蛋是它名字的来处，黄羽冠立起来的时候，
+               说明它心情不错。</p>
+
+            <p>比起飞，它更喜欢站在窗沿上点评屋里的动静。</p>
+
+            <h2>日常</h2>
+            <p></p>
+
+            <h2>相册</h2>
+            <p></p>
+          </div>
+
+          <p class="section-more">
+            <a class="btn btn--ghost" href="../index.html">回到 Andy SGZ 的主页</a>
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <span>&copy; 2026 Andy SGZ</span>
+        <a href="#top">回到顶部</a>
+      </div>
+    </footer>
+  </body>
+</html>
