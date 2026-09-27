@@ -294,3 +294,21 @@ test('动态正文按空行分段，中英各切各的，不会印出 [object Ob
   assert.deepEqual(splitParagraphs('一句\n\n又一句', 'zh'), ['一句', '又一句']);
   assert.deepEqual(splitParagraphs(undefined, 'zh'), []);
 });
+
+test('单独一张配图靠左、半幅；多图仍是并排', async () => {
+  const script = await readFile(new URL('Jary/updates.js', projectRoot), 'utf8');
+  const css = await readFile(new URL('Jary/styles.css', projectRoot), 'utf8');
+
+  /* 渲染层：单图走 --single，多图走 --row，两个变体都得挂上 */
+  assert.match(script, /update__images--single/);
+  assert.match(script, /update__images--row/);
+
+  /* 版式：单图靠左、宽度是一半；图片本身仍是撑满它那个 figure */
+  assert.match(css, /\.update__images--single\s*\{[^}]*justify-content:\s*start/);
+  assert.match(css, /\.update__images--single\s+\.update__figure\s*\{[^}]*width:\s*50%/);
+  assert.match(css, /\.update__figure\s+img\s*\{[^}]*width:\s*100%/);
+
+  /* 窄屏单独一张恢复铺满，否则半幅在手机上只剩一百多 px */
+  const narrow = css.slice(css.indexOf('@media (max-width: 640px)'));
+  assert.match(narrow, /\.update__images--single\s+\.update__figure\s*\{[^}]*width:\s*100%/);
+});

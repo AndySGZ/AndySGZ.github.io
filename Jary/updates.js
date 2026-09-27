@@ -102,8 +102,9 @@ function updateNode(entry) {
   const images = Array.isArray(entry.images) ? entry.images.filter((item) => item && item.src) : [];
   if (images.length) {
     const gallery = document.createElement('div');
-    /* 一张铺满，两张以上并排（窄屏自动落回一张一行） */
-    gallery.className = 'update__images' + (images.length > 1 ? ' update__images--row' : '');
+    /* 一张靠左、半幅；两张以上并排（窄屏都落回一张一行）。样式见 styles.css */
+    gallery.className = 'update__images'
+      + (images.length > 1 ? ' update__images--row' : ' update__images--single');
     images.forEach((image) => gallery.appendChild(imageFigure(image)));
     body.appendChild(gallery);
   }

@@ -783,6 +783,18 @@ html[data-language='en'] [data-lang='en'] {
   margin: 22px 0 6px;
 }
 
+/* 单独一张不再铺满：靠左，宽度是整行的二分之一，高度按原比例跟着缩。
+   图注也跟着放到半幅里，不会甩到右边去。 */
+.update__images--single {
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: start;
+}
+
+.update__images--single .update__figure {
+  width: 50%;
+  max-width: 100%;
+}
+
 .update__images--row {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
@@ -871,6 +883,11 @@ html[data-language='en'] [data-lang='en'] {
 
   .update__title {
     font-size: 1.45rem;
+  }
+
+  /* 手机上半幅太窄了（一张竖图只有一百多 px），单独一张恢复铺满 */
+  .update__images--single .update__figure {
+    width: 100%;
   }
 
   .archive-empty {
