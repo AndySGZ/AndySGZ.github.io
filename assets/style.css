@@ -818,6 +818,30 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
 .page-header__square--big { max-width: 16rem; }
 @media (min-width: 768px) { .page-header__square--big { width: 16rem; } }
 
+/* 本尊栏：左边一段自述，右边挂一张竖版证件照（目前只有小橘豆那页用）。
+   照片按自己的比例排，不裁不拉；窄屏折成一列，照片落到文字下面。
+   同样地，固定宽度那条要写在 width: 100% 后面，否则同权重会被盖掉。 */
+.profile { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) {
+  .profile { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+}
+.profile__portrait {
+  margin: 0;                            /* figure 默认有外边距，这里要清掉 */
+  width: 100%; max-width: 13rem;
+  background: var(--wool);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: var(--shadow);
+  rotate: 1deg;
+}
+@media (min-width: 768px) { .profile__portrait { width: 13rem; } }
+.profile__portrait img { display: block; width: 100%; height: auto; }
+.profile__label {
+  padding: 0.4rem 0.75rem;
+  border-top: var(--border-w) solid var(--ink);
+  background: var(--bg);
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+}
+
 /* ==========================================================================
    杂谈条目列表
    ========================================================================== */
