@@ -141,6 +141,8 @@ window.SITE_DATA = {
       {
         stage: '想练',
         items: [
+          { title: 'Op.18 No.2·随想曲', composer: '维尼亚夫斯基', image: '' },
+          { title: 'Op.18 No.4·随想曲', composer: '维尼亚夫斯基', image: '' },
           { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '或许等adagio练完了可以严肃的尝试下？', image: '' },
         ]
       },
