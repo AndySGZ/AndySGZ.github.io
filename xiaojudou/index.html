@@ -82,13 +82,22 @@
               <p></p>
             </div>
 
-            <!-- 证件照：换图替换 xiaojudou/assets/xiaojudou-id.webp
-                 （原图与导出脚本同样在仓库外的 asset-originals/）。 -->
-            <figure class="profile__portrait">
-              <img src="assets/xiaojudou-id.webp" width="642" height="717" loading="lazy"
-                   alt="小橘豆的证件照：穿着蓝衬衫、系着蓝领结，正面看着镜头">
-              <figcaption class="profile__label">证件照</figcaption>
-            </figure>
+            <!-- 照片：换图替换 xiaojudou/assets/ 里对应的 webp
+                 （原图与导出脚本同样在仓库外的 asset-originals/）。
+                 两张并排，宽度由 .profile__shots 定，加第三张就是分三等份。 -->
+            <div class="profile__shots">
+              <figure class="profile__portrait">
+                <img src="assets/xiaojudou-id.webp" width="642" height="717" loading="lazy"
+                     alt="小橘豆的证件照：穿着蓝衬衫、系着蓝领结，正面看着镜头">
+                <figcaption class="profile__label">证件照</figcaption>
+              </figure>
+
+              <figure class="profile__portrait">
+                <img src="assets/xiaojudou-cheek.webp" width="1024" height="894" loading="lazy"
+                     alt="小橘豆歪着头的样子：头顶的黄羽，和脸颊上那块橘色羽毛">
+                <figcaption class="profile__label">特写</figcaption>
+              </figure>
+            </div>
           </div>
 
           <p class="section-more">
