@@ -834,6 +834,10 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
   rotate: 1deg;
 }
 @media (min-width: 768px) { .profile__portrait { width: 13rem; } }
+/* 窄屏折成一列时，照片提到文字前面：紧跟着「本尊」两个字出场，
+   否则它会掉到「日常 / 相册」两个空标题底下，看着像相册的配图。
+   宽屏必须把 order 收回去，不然照片会跑到左列去。 */
+@media (max-width: 767px) { .profile__portrait { order: -1; } }
 .profile__portrait img { display: block; width: 100%; height: auto; }
 .profile__label {
   padding: 0.4rem 0.75rem;
