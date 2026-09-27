@@ -44,6 +44,19 @@ test('every internal link on every page resolves to a real file', async () => {
   }
 });
 
+test('每一页里 <img> 指向的图都真实存在', async () => {
+  for (const page of PAGES) {
+    const html = await readFile(new URL(page, root), 'utf8');
+
+    for (const match of html.matchAll(/<img[^>]*\ssrc="([^"]+)"/g)) {
+      const src = match[1];
+      if (isExternal(src)) continue;
+      assert.ok(!src.startsWith('/'), `${page} 的配图用了绝对路径，本地直接打开会失效：${src}`);
+      await assertResolves(page, filePart(src));
+    }
+  }
+});
+
 test('every internal url in site-data.js resolves to a real file', async () => {
   const source = await readFile(new URL('scripts/site-data.js', root), 'utf8');
   const urls = [...source.matchAll(/url:\s*'([^']*)'/g)]

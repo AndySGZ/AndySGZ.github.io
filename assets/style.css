@@ -813,6 +813,10 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
   rotate: -1deg;
 }
 .page-header__square img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* 大一号的方图（目前只有小橘豆那页用）：同一块组件，只是占位从 11rem 放到 16rem。
+   必须写在上面的规则后面——两者选择器权重一样，靠先后分胜负。 */
+.page-header__square--big { max-width: 16rem; }
+@media (min-width: 768px) { .page-header__square--big { width: 16rem; } }
 
 /* ==========================================================================
    杂谈条目列表
