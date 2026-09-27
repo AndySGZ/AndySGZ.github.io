@@ -26,6 +26,18 @@
    ========================================================================== */
 export const UPDATES = [
   {
+    date: '2026-09-27',
+    kind: { zh: '观测记录', en: 'Field note' },
+    title: { zh: '大提琴躺在 Jary 的身上', en: 'The cello is lying on Jary' },
+    images: [
+      {
+        src: 'assets/updates/2026-09-27-cello.webp',
+        alt: '排练厅里：JARY 躺在地板上拉琴，红棕色大提琴横在胸前压在身上，白色琴盒立在旁边的镜子里',
+        caption: { zh: '大提琴躺在 Jary 的身上', en: 'The cello lies on Jary' }
+      }
+    ]
+  },
+  {
     date: '2026-09-22',
     kind: { zh: '观测记录', en: 'Field note' },
     title: { zh: 'JARY 说：大家好！', en: 'JARY says: hello, everyone!' },
