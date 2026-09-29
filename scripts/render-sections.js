@@ -272,7 +272,13 @@
           var text = el('div', 'piece__text');
           text.appendChild(el('p', 'piece__title', piece.title || '未命名'));
           if (piece.composer) text.appendChild(el('p', 'piece__meta', piece.composer));
-          if (piece.note) text.appendChild(el('p', 'piece__note', piece.note));
+
+          /* note 写一段字符串就是一段；写数组就是多段，按顺序各渲染成一个段落。
+             空字符串跳过，所以两种写法都不会在页面上留下空行。 */
+          var notes = Array.isArray(piece.note) ? piece.note : [piece.note];
+          notes.forEach(function (line) {
+            if (line) text.appendChild(el('p', 'piece__note', line));
+          });
 
           /* 最近在听：一串外链。没写 url 的项退成纯文字，不留死链接。 */
           var tracks = Array.isArray(piece.listening) ? piece.listening : [];

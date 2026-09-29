@@ -95,6 +95,8 @@ window.SITE_DATA = {
      intro：页头右侧的方形图；留空则只显示一个空占位方块。
      stages：切换标签的顺序与标题都取自这里，加一项就多一个标签。
        title 必填；composer / note / image / alt 都可省略，省略了就不渲染那一部分。
+       note 是曲目下面的一小段话；想写好几段就写成数组，一段渲染成一个段落，
+       第一段在最上面（空字符串的段落会被跳过）。
        image 是每条曲目右侧的横向图；留空则只显示占位框。
        alt 是给读屏和「图挂了」时看的说明，不写就退回用 title 顶上。
        listening 是「最近在听」的参考录音，数组，每项 { label, url, title }：
@@ -121,8 +123,12 @@ window.SITE_DATA = {
             image: 'assets/practice/sibelius_op47.webp',
             alt: '西贝柳斯 D 小调小提琴协奏曲 Op.47 第二乐章开头：Adagio di molto 速度标记，独奏声部在 G 弦上进入（sul G，mf sonore ed espress.）' },
           { title: 'Op.12 No.1·D大调小提琴奏鸣曲', composer: '贝多芬',
-            note: '克服自己过去形成的错误习惯和本能很困难。',
+            note: ['听Szigeti真是有品吧',
+                   '克服自己过去形成的错误习惯和本能很困难。'],
             listening: [
+              { label: 'Szigeti',
+                title: '【名版】贝多芬小提琴奏鸣曲全集-Szigeti/Arrau',
+                url: 'https://www.bilibili.com/video/BV1Ed4y1G7nb/?share_source=copy_web&vd_source=68815c4d1d2284d5d879dc1611d316c4' },
               { label: 'Noah',
                 title: 'Noah Bendix-Balgley & 贝多芬-D大调第一小提琴奏鸣曲｜Beethoven-Violin Sonata No.1 D major op.12',
                 url: 'https://www.bilibili.com/video/BV1aS4y157kp/?share_source=copy_web&vd_source=68815c4d1d2284d5d879dc1611d316c4' },
