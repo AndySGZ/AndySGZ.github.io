@@ -27,6 +27,19 @@
 export const UPDATES = [
   {
     date: '2026-09-27',
+    kind: { zh: '往日回忆', en: 'Remember when' },
+    title: { zh: '往日回忆：Jary 在清华', en: 'Remember when: Jary at Tsinghua' },
+    images: [
+      {
+        src: 'assets/updates/2026-09-27-tsinghua.webp',
+        alt: '清华园校门外：JARY 穿着浅蓝印花羽绒服、背着双肩包，头戴 TSU 1896 帽子；身后是二校门，'
+          + '旁边停着一辆黄色共享单车，游客往来，天很蓝',
+        caption: { zh: '在清华', en: 'At Tsinghua' }
+      }
+    ]
+  },
+  {
+    date: '2026-09-27',
     kind: { zh: '观测记录', en: 'Field note' },
     title: { zh: '大提琴躺在 Jary 的身上', en: 'The cello is lying on Jary' },
     images: [
