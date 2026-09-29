@@ -834,7 +834,8 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
   width: 100%; max-width: 20rem;
 }
 @media (max-width: 767px) { .profile__shots { order: -1; } }
-.profile__portrait {
+.profile__portrait,
+.prose-photo {
   margin: 0;                            /* figure 默认有外边距，这里要清掉 */
   background: var(--wool);
   border: var(--border-w) solid var(--ink);
@@ -843,8 +844,12 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
 }
 /* 两张朝相反方向歪一点，像随手贴上去的两张照片 */
 .profile__portrait:nth-child(even) { rotate: -1deg; }
-.profile__portrait img { display: block; width: 100%; height: auto; }
-.profile__label {
+/* 正文里插的照片（目前只有小橘豆那页的「日常」用）：同一套卡片，自己定宽 */
+.prose-photo { max-width: 20rem; margin-bottom: 1.5rem; rotate: -1deg; }
+.profile__portrait img,
+.prose-photo img { display: block; width: 100%; height: auto; }
+.profile__label,
+.prose-photo figcaption {
   padding: 0.4rem 0.75rem;
   border-top: var(--border-w) solid var(--ink);
   background: var(--bg);
