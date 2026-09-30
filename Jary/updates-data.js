@@ -135,5 +135,21 @@ export const UPDATES = [
         caption: { zh: '转椅才是主角', en: 'The swivel chair steals the scene' }
       }
     ]
+  },
+  {
+    date: '2026-09-30',
+    kind: { zh: '观测记录', en: 'Field note' },
+    title: {
+      zh: 'Jary 将军指挥苏德前线战局',
+      en: 'General Jary commands the front'
+    },
+    images: [
+      {
+        src: 'assets/updates/2026-09-30-jary-general.webp',
+        alt: '室内：JARY 穿米白短袖坐在笔记本前，身后大屏上是东线战局的战略地图，'
+          + '地图上密布部队番号与防线，屏幕下方一排将领头像',
+        caption: { zh: '22:00，1941 年 10 月 18 日', en: '22:00, 18 October 1941' }
+      }
+    ]
   }
 ];
