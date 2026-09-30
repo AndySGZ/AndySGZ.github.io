@@ -160,6 +160,12 @@ export const UPDATES = [
         alt: '室内：JARY 穿米白短袖坐在笔记本前，身后大屏上是东线战局的战略地图，'
           + '地图上密布部队番号与防线，屏幕下方一排将领头像',
         caption: { zh: '22:00，1941 年 10 月 18 日', en: '22:00, 18 October 1941' }
+      },
+      {
+        src: 'assets/updates/2026-09-30-jary-general-tokyo.webp',
+        alt: '室内：JARY 换上一身挂满勋章绶带的苏军将官制服坐在笔记本前，身后大屏弹出 World News 报纸，'
+          + '标题是攻克东京的消息，下方一排将领头像',
+        caption: { zh: '东京陷落，Jary 神了', en: 'Tokyo has fallen — Jary is a legend' }
       }
     ]
   }
