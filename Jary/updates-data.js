@@ -143,6 +143,17 @@ export const UPDATES = [
       zh: 'Jary 将军指挥苏德前线战局',
       en: 'General Jary commands the front'
     },
+    /* 前线几句话，空一行分两段：前面是战报，最后一句是对着地图犯愁 */
+    text: {
+      zh: '「我火车和卡车全都炸没了」\n\n'
+        + '「德国空军的骇人轰炸」\n\n'
+        + '「你看极度舒适的战线」\n\n'
+        + '「但我火车和卡车炸没了补给怎么办」',
+      en: '“My trains and trucks are all bombed to bits.”\n\n'
+        + '“The Luftwaffe’s bombing is terrifying.”\n\n'
+        + '“Look at that front line — extremely satisfying.”\n\n'
+        + '“But with my trains and trucks bombed, how am I supposed to supply anything?”'
+    },
     images: [
       {
         src: 'assets/updates/2026-09-30-jary-general.webp',
