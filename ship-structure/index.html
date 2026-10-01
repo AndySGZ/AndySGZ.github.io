@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="船舶结构力学可视化展示：把课本上的式子做成能拖着看的交互小项目，目前有带板（附连翼板）受力与变形演示。">
+    <title>船舶结构力学可视化展示 | Andy SGZ</title>
+    <!-- 子目录页面复用主站那套样式表，配色、边框、字号跟着主站一起走 -->
+    <link rel="stylesheet" href="../assets/style.css">
+    <!-- 明暗主题：必须同步执行（不加 defer），否则首屏会先闪一下浅色 -->
+    <script src="../scripts/theme.js"></script>
+    <script src="../scripts/site-data.js" defer></script>
+    <script src="../scripts/render-sections.js" defer></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <header class="site-nav" id="top">
+      <div class="site-nav__inner">
+        <div class="site-nav__brand">
+          <!-- 小橘豆的主页：只放图不放字，省下导航栏的横向空间。 -->
+          <a class="nav-bird" href="../xiaojudou/index.html" aria-label="小橘豆的主页" title="小橘豆的主页">
+            <img src="../assets/xiaojudou-icon.png" alt="" width="192" height="192" decoding="async">
+          </a>
+          <a class="wordmark" href="../index.html">Andy SGZ</a>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+            <span class="nav-zh" data-theme-label-zh>暗色</span>
+            <span class="nav-en" data-theme-label-en>Dark</span>
+          </button>
+        </div>
+        <nav class="site-nav__links" aria-label="主导航">
+          <a href="../index.html"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
+          <a href="../about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
+          <a href="../essays.html"><span class="nav-zh">杂谈</span><span class="nav-en">Essays</span></a>
+          <!-- 这一页本身就是作品「船舶结构力学可视化展示」，所以导航停在「作品」上 -->
+          <a href="../works.html" aria-current="page"><span class="nav-zh">作品</span><span class="nav-en">Works</span></a>
+          <a href="../practice.html"><span class="nav-zh">练琴</span><span class="nav-en">Practice</span></a>
+          <a href="../Jary/index.html"><span class="nav-zh">《Jary行为研究》</span><span class="nav-en">JBR</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="page-header">
+        <div class="container">
+          <h1 class="page-header__title">船舶结构力学可视化展示</h1>
+          <p class="page-header__lead">
+            骨架、带板、屈曲……课本上的式子一个个摆成能拖着看的东西。
+            一个专题一个页面，做完一个放一个，所以这一页会一直往上长。
+          </p>
+        </div>
+      </div>
+
+      <section class="section" aria-labelledby="demos-heading">
+        <div class="container">
+          <h2 class="section-title" id="demos-heading">小项目</h2>
+          <p class="section-lead">点开就能玩，参数都是可以拖的。</p>
+          <!-- 卡片由 scripts/render-sections.js 依据 site-data.js 里的
+               shipStructure.demos 生成。数据里的 url 统一从站点根目录写起，
+               这一页在子目录里，所以用 data-url-prefix 说明自己离根目录多远。 -->
+          <div class="card-grid" data-ship-demos data-url-prefix="../"></div>
+          <p class="section-more"><a class="link-arrow" href="../works.html">全部作品</a></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <span>&copy; 2026 Andy SGZ</span>
+        <a href="#top">回到顶部</a>
+      </div>
+    </footer>
+  </body>
+</html>

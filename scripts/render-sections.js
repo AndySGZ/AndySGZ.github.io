@@ -56,10 +56,13 @@
     return item;
   }
 
-  /* —— 作品卡片 —— */
-  function workNode(entry) {
+  /* —— 作品卡片 ——
+     prefix 是给子目录页面用的：数据里的 url 一律从站点根目录写起，
+     页面离根目录有多远由调用方用 data-url-prefix 说明（例如 ../）。 */
+  function workNode(entry, prefix) {
     var card;
     var href = (entry.url || '').trim();
+    if (href && prefix) href = prefix + href;
 
     if (href) {
       card = el('a', 'card');
@@ -104,6 +107,20 @@
       node.setAttribute('data-tag', String(entry.tag || '').trim());
       workNodes.push(node);
       worksHost.appendChild(node);
+    });
+  }
+
+  /* —— 「船舶结构力学可视化展示」页上的专题小项目 ——
+     卡片样式与作品卡片同一套，所以直接复用 workNode。
+     数据里的 url 从站点根目录写起，这一页住在子目录里，
+     由容器上的 data-url-prefix 提供那一段前缀（例如 ../）。 */
+  var demosHost = document.querySelector('[data-ship-demos]');
+  var shipDemos = data.shipStructure && data.shipStructure.demos;
+
+  if (demosHost && Array.isArray(shipDemos)) {
+    var demoPrefix = demosHost.getAttribute('data-url-prefix') || '';
+    shipDemos.forEach(function (entry) {
+      demosHost.appendChild(workNode(entry, demoPrefix));
     });
   }
 

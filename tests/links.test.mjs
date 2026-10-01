@@ -3,10 +3,12 @@ import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
-/* 带主导航的主站页面：杂谈正文和「小橘豆的主页」住在子目录里，链接一并纳入检查 */
+/* 带主导航的主站页面：杂谈正文、「小橘豆的主页」和船舶结构力学专题页
+   住在子目录里，链接一并纳入检查 */
 const PAGES = [
   'index.html', 'about.html', 'essays.html', 'works.html', 'practice.html',
   'essays/rhythm.html', 'xiaojudou/index.html',
+  'ship-structure/index.html', 'ship-structure/plate-demo.html',
 ];
 
 /* 期刊子页同样纳入检查：导航里的「游戏 / 动态 / 往期」与页内锚点都指向真实文件 */

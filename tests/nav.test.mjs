@@ -13,11 +13,11 @@ function loadSiteData(source) {
   return context.window.SITE_DATA;
 }
 
-/* 带主导航的全部页面。essays/ 与 xiaojudou/ 是子目录，导航里的链接写成 ../xxx，
-   比对时统一去掉前缀，所以和根目录页面用的是同一份期望值。 */
+/* 带主导航的全部页面。essays/、xiaojudou/、ship-structure/ 是子目录，
+   导航里的链接写成 ../xxx，比对时统一去掉前缀，所以和根目录页面用的是同一份期望值。 */
 const PAGES = [
   'index.html', 'about.html', 'essays.html', 'works.html', 'practice.html',
-  'essays/rhythm.html', 'xiaojudou/index.html',
+  'essays/rhythm.html', 'xiaojudou/index.html', 'ship-structure/index.html',
 ];
 
 /* 六个导航项，且每一项都带同字号的中英对照 */

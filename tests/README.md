@@ -24,6 +24,7 @@ node --test
 | `quote-rotator.test.mjs` | 首屏题记栏：上一条 / 下一条手动翻页，以及它跟自动轮播、悬停暂停、减少动态效果的交界 |
 | `theme.test.mjs` | 明暗主题：首屏不闪、按钮文案说的是下一步、两套 token 对得上、对比度过 WCAG AA |
 | `jary.test.mjs` | 期刊子站的双语、语言切换与画布占位 |
+| `ship-structure.test.mjs` | 作品「船舶结构力学可视化展示」：作品列表里的那条、专题页的卡片清单、带板演示是不是单文件 |
 
 ## 注意
 

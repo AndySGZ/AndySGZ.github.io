@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>船舶结构力学 · 带板（附连翼板）受力与变形交互 Demo</title>
+<!--
+================================================================================
+  船舶结构力学 · “带板（附连翼板）” 受力与变形分析 —— 交互式教学 Demo
+  单文件 HTML5 + Canvas + 原生 JavaScript，无任何外部依赖，双击即可运行。
+================================================================================
+
+  【力学模型与基本假设】（代码中所有公式均基于以下假设）
+  1. 局部强度简化为平面问题：把三维船体板架中的一根骨架（肋骨/纵骨）连同其
+     带板，截取为二维平面梁模型处理，忽略板的面内受力与骨材的扭转/侧向失稳。
+  2. 骨架与板分开考虑，但骨架不能单独受力：受压时板会失稳、不能全部参与抗弯，
+     因此计算骨架截面时只取板的一部分作为“附连翼板”（带板），
+     有效宽度记作 b_e，与腹板组合成 T 型截面。
+  3. 两端简支梁（跨距 L），承受沿跨长均布的横向载荷 q（如海水压力/货物压力）。
+  4. 小变形假设：挠度远小于跨距，故可用材料力学的线性梁理论叠加求解。
+  5. 平截面假设（Bernoulli-Euler 梁）：弯曲正应力沿截面高度线性分布，
+     σ = M·y / I，中性轴通过组合截面形心。
+  6. 材料为线弹性各向同性：弹性模量 E，许用应力 [σ]（此处按普通船用低碳钢 235 MPa）。
+  7. 组合截面（带板 + 腹板）视为整体共同工作，不考虑板与骨材之间的滑移。
+
+  【使用的公式】
+    带板面积    A_plate = b_e · t_p
+    腹板面积    A_web   = h_w · t_w
+    形心高度    y_c = (A_plate·y_p + A_web·y_w) / (A_plate + A_web)
+    惯性矩（平行轴定理） I = Σ [ (1/12)·b·h³ + A·d² ]   (d 为各子块形心到组合形心的距离)
+    最大弯矩（简支梁均布载荷） M_max = q·L² / 8
+    最大挠度（简支梁均布载荷） f_max = 5·q·L⁴ / (384·E·I)
+    挠曲线（跨中为原点更方便）  f(x) = q·x·(L³ − 2Lx² + x³) / (24·E·I)
+    最大弯曲应力 σ_max = M_max · y_max / I ，
+                   y_max = max(组合形心到带板底缘的距离, 到腹板顶端的距离)
+    上翼缘（腹板顶端）压应力 σ_top = M_max · (h_w + t_p − y_c) / I
+    下翼缘（带板底缘）拉应力 σ_bot = M_max · y_c / I
+
+  【操作说明】
+    · 拖动“载荷 q”滑块：改变均布载荷，挠度与应力按线性比例变化。
+    · 拖动“带板有效宽度 b_e”滑块：改变附连翼板宽度，观察组合截面惯性矩 I 的变化，
+      体会“板参与抗弯”对结构刚度（挠度）和强度（应力）的影响。
+    · “▶ 加载演示”按钮：播放 加载→保持→卸载 全过程动画，动画中载荷数值会变化。
+    · 可勾选显示“弯矩图 M(x)”与“截面应力分布图”。
+================================================================================
+-->
+<style>
+  :root{
+    --bg:#061520; --bg-2:#0a2334; --panel:rgba(10,40,58,.78); --panel-2:#0b2a3d;
+    --line:rgba(94,214,255,.18); --line-2:rgba(94,214,255,.35);
+    --text:#e9f6ff; --muted:#93bace; --accent:#4fd1ff; --accent-2:#23b0e0;
+    --good:#48d597; --bad:#ff7676; --warn:#ffc65c;
+    --plate:#4aa8ff; --web:#ff6b6b;
+    --mono:ui-monospace,SFMono-Regular,Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--text);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(1200px 700px at 12% -10%, #12405b 0%, transparent 60%),
+      radial-gradient(900px 600px at 110% 10%, #0d3548 0%, transparent 55%),
+      linear-gradient(160deg,#061520 0%,#071a26 45%,#04101a 100%);
+    background-attachment:fixed;
+    min-height:100vh; line-height:1.5;
+  }
+  .app{max-width:1500px;margin:0 auto;padding:20px 20px 44px;
+    display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:18px;align-items:start}
+  /* 显式指定每个块占哪一列，不依赖 Grid 自动排布，避免在窄窗口下错位成上下堆叠 */
+  .topbar{grid-column:1 / -1}
+  .sidebar{grid-column:1}
+  .viz{grid-column:2}
+  .foot{grid-column:1 / -1}
+  /* 窗口更窄时才退化为上下单列（此时控制面板在上、可视化在下） */
+  @media (max-width:980px){
+    .app{grid-template-columns:minmax(0,1fr)}
+    .sidebar,.viz{grid-column:1}
+  }
+
+  /* ---------- 顶部标题 ---------- */
+  .topbar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+    gap:10px;padding:6px 4px 0;border-bottom:1px solid var(--line);padding-bottom:14px}
+  .topbar h1{margin:0;font-size:clamp(17px,2.1vw,23px);letter-spacing:.3px;font-weight:700}
+  .topbar h1 .accent{color:var(--accent)}
+  .topbar .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  /* 返回专题页的入口：这个演示自己带着一套深色主题，不并进主站导航，
+     只留一枚按钮把访客送回 ship-structure/index.html */
+  .topbar__aside{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--accent);
+    text-decoration:none;border:1px solid var(--line-2);border-radius:999px;padding:6px 12px;
+    background:rgba(11,42,61,.6);transition:background .2s,border-color .2s}
+  .back:hover,.back:focus-visible{background:rgba(79,209,255,.16);border-color:var(--accent)}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);
+    border:1px solid var(--line);background:rgba(11,42,61,.6);border-radius:999px;padding:6px 12px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 9px var(--good)}
+
+  /* ---------- 卡片 ---------- */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 16px 15px;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    box-shadow:0 16px 38px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04)}
+  .card + .card{margin-top:14px}
+  .sidebar .card{margin-top:0}
+  .sidebar .card + .card{margin-top:14px}
+
+  .card-title{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;
+    letter-spacing:.6px;color:#bfe7ff;margin:0 0 13px;text-transform:none}
+  .card-title::before{content:"";width:3px;height:15px;border-radius:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 0 10px rgba(79,209,255,.7)}
+  .card-title .hint{margin-left:auto;font-weight:400;font-size:11.5px;color:var(--muted);letter-spacing:0}
+
+  /* ---------- 滑块 ---------- */
+  .field{margin-top:4px}
+  .field + .field{margin-top:15px}
+  .field .row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .field .name{font-size:13px;color:#cfe9f7}
+  .field .name em{color:var(--muted);font-style:normal;font-size:11.5px}
+  .field .val{font-family:var(--mono);font-size:13.5px;color:#fff;background:rgba(79,209,255,.10);
+    border:1px solid var(--line-2);border-radius:8px;padding:2px 9px;white-space:nowrap}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;
+    background:linear-gradient(90deg,var(--accent-2),var(--accent));
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.5), 0 0 12px rgba(79,209,255,.15)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;margin-top:-6.5px;
+    border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff,#8fe3ff 45%,#1c9fce);
+    border:2px solid #eafaff;box-shadow:0 0 0 4px rgba(79,209,255,.16),0 2px 7px rgba(0,0,0,.5)}
+  input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:linear-gradient(90deg,var(--accent-2),var(--accent))}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border:2px solid #eafaff;border-radius:50%;
+    background:#5fd3ff;box-shadow:0 0 0 4px rgba(79,209,255,.16)}
+
+  /* ---------- 按钮 ---------- */
+  .btn{appearance:none;border:0;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;
+    color:#04222f;border-radius:12px;padding:12px 16px;width:100%;letter-spacing:.4px;
+    background:linear-gradient(135deg,#7ee0ff,#25a7d6);
+    box-shadow:0 8px 22px rgba(37,167,214,.30), inset 0 1px 0 rgba(255,255,255,.5);
+    transition:transform .12s ease, filter .12s ease}
+  .btn:hover{filter:brightness(1.07)}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:#cfe9f7;border:1px solid var(--line-2);box-shadow:none;font-weight:600}
+  .btn.ghost:hover{background:rgba(79,209,255,.10)}
+  .btn-row{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:4px}
+  .btn-row .btn{width:auto}
+  .btn-row .btn:first-child{width:100%}
+
+  /* ---------- 结果读数 ---------- */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:12px;
+    padding:11px 12px;background:linear-gradient(180deg,rgba(79,209,255,.09),rgba(79,209,255,.02))}
+  .stat .k{font-size:11.5px;color:var(--muted);letter-spacing:.3px}
+  .stat .v{font-family:var(--mono);font-size:19px;font-weight:700;color:#fff;margin-top:3px;letter-spacing:-.3px}
+  .stat .v .u{font-size:11.5px;color:var(--muted);font-weight:400;margin-left:3px;letter-spacing:0}
+  .stat.hl{background:linear-gradient(180deg,rgba(255,118,118,.16),rgba(255,118,118,.03));border-color:rgba(255,118,118,.35)}
+  .stat.hl .v{color:#ffd9d9}
+  .stat.wide{grid-column:1/-1}
+  .stat .bar{height:5px;border-radius:4px;background:rgba(255,255,255,.10);margin-top:9px;overflow:hidden}
+  .stat .bar i{display:block;height:100%;width:0;border-radius:4px;
+    background:linear-gradient(90deg,#48d597,#ffc65c 62%,#ff7676);transition:width .18s ease}
+  .verdict{grid-column:1/-1;border-radius:12px;padding:10px 12px;font-size:12.8px;font-weight:700;
+    display:flex;align-items:center;gap:9px;border:1px solid transparent}
+  .verdict.ok{color:#062a1d;background:linear-gradient(135deg,#8ff0c4,#48d597);border-color:#8ff0c4}
+  .verdict.no{color:#3a0808;background:linear-gradient(135deg,#ffc0c0,#ff7676);border-color:#ffb3b3}
+
+  /* ---------- 知识讲解 ---------- */
+  .knowledge{font-size:13px;color:#d5ecf8}
+  .knowledge p{margin:0 0 9px}
+  .knowledge p:last-child{margin-bottom:0}
+  .knowledge .hl{color:#fff;font-weight:700}
+  .knowledge .up{color:var(--good);font-weight:700}
+  .knowledge .down{color:var(--bad);font-weight:700}
+  .knowledge .eq{display:block;font-family:var(--mono);font-size:12.2px;color:#a9d9ee;
+    background:rgba(0,0,0,.28);border-left:2px solid var(--accent-2);border-radius:0 8px 8px 0;
+    padding:7px 10px;margin:8px 0}
+  .knowledge ul{margin:7px 0 0;padding-left:18px}
+  .knowledge li{margin-bottom:4px}
+
+  /* ---------- 答疑与知识延伸（新增模块） ---------- */
+  .faq + .faq{margin-top:9px}
+  .faq{border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(79,209,255,.05),rgba(79,209,255,.015));
+    transition:border-color .25s ease, box-shadow .25s ease, background .25s ease}
+  /* 展开状态：边框变亮，让当前正在读的条目更醒目 */
+  .faq.open{border-color:var(--line-2);box-shadow:0 6px 18px rgba(0,0,0,.22)}
+  /* 高亮状态：用户刚拖动过相关滑块 —— 呼吸式描边，吸引注意力 */
+  .faq.flash{border-color:var(--accent);
+    box-shadow:0 0 0 2px rgba(79,209,255,.35), 0 0 22px rgba(79,209,255,.28);
+    animation:faqPulse 1.5s ease-out 2}
+  @keyframes faqPulse{
+    0%{box-shadow:0 0 0 0 rgba(79,209,255,.55), 0 0 0 rgba(79,209,255,0)}
+    70%{box-shadow:0 0 0 8px rgba(79,209,255,0), 0 0 26px rgba(79,209,255,.35)}
+    100%{box-shadow:0 0 0 0 rgba(79,209,255,0), 0 0 0 rgba(79,209,255,0)}
+  }
+
+  .faq-q{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;
+    background:transparent;border:0;cursor:pointer;color:var(--text);
+    font-family:inherit;font-size:13px;font-weight:700;line-height:1.45;
+    padding:11px 12px}
+  .faq-q:hover{background:rgba(79,209,255,.08)}
+  .faq-q .faq-no{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:700;
+    color:#04222f;background:linear-gradient(135deg,#7ee0ff,#25a7d6);
+    border-radius:6px;padding:2px 6px;margin-top:1px}
+  .faq-q .faq-t{flex:1 1 auto}
+  .faq-q .faq-caret{flex:0 0 auto;color:var(--muted);font-size:12px;
+    transition:transform .25s ease}
+  .faq.open .faq-caret{transform:rotate(180deg);color:var(--accent)}
+
+  /* 折叠动画用 grid-template-rows 0fr→1fr 实现，无需 JS 计算高度 */
+  .faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+  .faq.open .faq-a{grid-template-rows:1fr}
+  .faq-body{overflow:hidden;font-size:12.6px;color:#d5ecf8;line-height:1.62}
+  .faq-body > *{margin-left:12px;margin-right:12px}
+  .faq-body > *:first-child{margin-top:0}
+  .faq-body > *:last-child{margin-bottom:12px}
+  .faq-body p{margin:0 0 8px}
+  .faq-body b{color:#fff}
+  .faq-body .hl2{color:var(--accent);font-weight:700}
+  .faq-body .tag{display:inline-block;font-family:var(--mono);font-size:11.5px;color:#bfe7ff;
+    background:rgba(79,209,255,.12);border:1px solid var(--line-2);border-radius:7px;
+    padding:1px 7px;margin:2px 4px 2px 0;white-space:nowrap}
+  .faq-body .faq-note{font-size:12px;color:#a9c8d8;background:rgba(0,0,0,.24);
+    border-left:2px solid var(--accent-2);border-radius:0 8px 8px 0;padding:7px 10px}
+  /* 动态算例（问答 2 里，随 b_e 实时更新） */
+  .faq-body .calc{font-family:var(--mono);font-size:11.8px;color:#cfe9f7;
+    background:rgba(0,0,0,.3);border:1px dashed var(--line-2);border-radius:9px;
+    padding:8px 10px;line-height:1.75}
+  .faq-body .calc b{color:var(--accent)}
+  .faq-body .calc .pick{color:var(--good);font-weight:700}
+  .faq-body .calc .dim{color:var(--muted)}
+  /* 用户正在拖动 b_e 时，算例框同步高亮 */
+  .faq-body .calc.live{border-color:var(--accent);background:rgba(79,209,255,.10);
+    box-shadow:0 0 14px rgba(79,209,255,.22)}
+
+  /* ---------- 气泡提示（交互增强） ---------- */
+  #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
+    max-width:min(440px,calc(100vw - 32px));z-index:99;
+    background:linear-gradient(135deg,rgba(12,52,74,.97),rgba(8,36,54,.97));
+    border:1px solid var(--accent);border-radius:13px;padding:11px 15px;
+    color:#e9f6ff;font-size:13px;line-height:1.55;
+    box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 24px rgba(79,209,255,.25);
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease, visibility .25s}
+  #toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
+  #toast .t-h{display:flex;align-items:center;gap:8px;font-weight:700;color:#fff;margin-bottom:3px}
+  #toast .t-h .dot2{width:7px;height:7px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 10px var(--accent);flex:0 0 auto}
+  #toast .t-b{color:#cfe9f7}
+  #toast .t-b b{color:#fff}
+  #toast .t-link{color:var(--accent);font-weight:700;cursor:pointer;text-decoration:underline;
+    text-underline-offset:2px}
+
+  /* 尊重系统“减少动态效果”设置 */
+  @media (prefers-reduced-motion: reduce){
+    .faq,.faq-caret,.faq-a,#toast{transition:none}
+    .faq.flash{animation:none}
+  }
+
+  /* ---------- 可视化区 ---------- */
+  /* min-width:0 很关键：Grid 子项默认不会被压缩到内容宽度以下，
+     否则 canvas 会把所在列撑宽、在窄窗口里被裁掉 */
+  .viz{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .sidebar{min-width:0}
+  .viz .card{padding:13px 15px 15px;min-width:0}
+  .canvas-wrap{position:relative;width:100%;max-width:100%;border-radius:12px;overflow:hidden;
+    border:1px solid var(--line);background:#f7fbfe}
+  /* 高度：截面图需要给“顶部标注带 + 截面本体 + 底部尺寸带”留够空间，
+     因此比梁图略高，不再压到最小；上限避免在大屏上过高 */
+  #cvSection{display:block;width:100%;max-width:100%;height:clamp(250px,30vh,320px)}
+  #cvBeam{display:block;width:100%;max-width:100%;height:clamp(270px,32vh,340px)}
+  svg{display:block;width:100%;height:100%}
+  .legend{display:flex;flex-wrap:wrap;gap:7px 18px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:15px;height:11px;border-radius:2.5px;border:1px solid rgba(0,0,0,.28)}
+  .sw-plate{background:var(--plate)}
+  .sw-web{background:var(--web)}
+  .sw-na{background:repeating-linear-gradient(90deg,#e02f2f 0 5px,transparent 5px 9px);height:3px;border:0;border-radius:0}
+  .sw-moment{background:linear-gradient(90deg,rgba(24,150,90,.35),rgba(24,150,90,.9));height:9px}
+  .sw-comp{background:repeating-linear-gradient(45deg,#2f7fd8 0 3px,#9fc9f5 3px 6px)}
+  .sw-tens{background:repeating-linear-gradient(45deg,#e04a4a 0 3px,#ffc0c0 3px 6px)}
+  .toggles{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:11px;font-size:12.5px;color:#cfe9f7}
+  .toggles label{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+  .toggles input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+  .foot{grid-column:1/-1;text-align:center;color:#5f8698;font-size:11.5px;padding-top:6px}
+  .foot code{font-family:var(--mono);color:#7fb8cf}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ======================= 顶部标题 ======================= -->
+  <header class="topbar">
+    <div>
+      <h1>船舶结构力学 · <span class="accent">带板（附连翼板）</span>受力与变形分析</h1>
+      <div class="sub">骨架与板分开考虑 → 组合 T 型截面 → 简化为平面简支梁 · 局部强度交互演示</div>
+    </div>
+    <div class="topbar__aside">
+      <a class="back" href="index.html">← 返回「船舶结构力学可视化展示」</a>
+      <span class="chip"><i class="dot"></i>两端简支 · 小变形 · 线弹性</span>
+    </div>
+  </header>
+
+  <!-- ======================= 左侧：交互与控制面板 ======================= -->
+  <aside class="sidebar">
+
+    <section class="card">
+      <h2 class="card-title">交互控制面板<span class="hint">拖动滑块实时计算</span></h2>
+
+      <div class="field">
+        <div class="row">
+          <span class="name">均布载荷 q <em>（水压力 / 货物压力）</em></span>
+          <span class="val" id="vQ">0.0 kN/m</span>
+        </div>
+        <input type="range" id="sQ" min="0" max="100" step="0.5" value="0" aria-label="均布载荷 q">
+      </div>
+
+      <div class="field">
+        <div class="row">
+          <span class="name">带板有效宽度 b<sub>e</sub></span>
+          <span class="val" id="vB">0.50 m</span>
+        </div>
+        <input type="range" id="sB" min="0.10" max="1.00" step="0.01" value="0.50" aria-label="带板有效宽度 b_e">
+      </div>
+
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn" id="btnRun">▶ 加载演示（加载→保持→卸载）</button>
+        <button class="btn ghost" id="btnReset" title="恢复默认参数">↺</button>
+      </div>
+
+      <div class="toggles">
+        <label><input type="checkbox" id="ckMoment" checked> 显示弯矩图 M(x)</label>
+        <label><input type="checkbox" id="ckStress" checked> 显示截面应力分布</label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">实时计算结果<span class="hint">按当前 q 与 b<sub>e</sub> 计算</span></h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="k">最大挠度 f<sub>max</sub></div>
+          <div class="v" data-fmax>0.00<span class="u">mm</span></div>
+        </div>
+        <div class="stat hl">
+          <div class="k">最大弯曲应力 σ<sub>max</sub></div>
+          <div class="v" data-smax>0.00<span class="u">MPa</span></div>
+          <div class="bar"><i data-bar></i></div>
+        </div>
+        <div class="stat">
+          <div class="k">最大弯矩 M<sub>max</sub></div>
+          <div class="v" data-mmax>0.00<span class="u">kN·m</span></div>
+        </div>
+        <div class="stat">
+          <div class="k">组合截面惯性矩 I</div>
+          <div class="v" data-inertia>—<span class="u">cm⁴</span></div>
+        </div>
+        <div class="verdict ok" data-verdict>✓ 强度满足要求（待加载）</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">知识讲解<span class="hint">随参数变化</span></h2>
+      <div class="knowledge" id="knowledge"></div>
+    </section>
+
+    <!-- ================= 答疑与知识延伸（新增模块） =================
+         把规范条文翻成大白话，解释“骨架尺寸从哪来 / 带板宽度怎么定 / 为什么叫附连翼板”。
+         每个条目都是可点击展开的折叠面板；当用户拖动某条相关的滑块时，
+         对应条目会自动高亮，并弹出气泡提示（见脚本第八部分）。 -->
+    <section class="card" id="faqCard">
+      <h2 class="card-title">答疑与知识延伸
+        <span class="hint">拖动左侧 b<sub>e</sub> 滑块试试 · <b data-be-verdict style="color:#93bace;font-weight:700">b_e = 0.50 m</b></span>
+      </h2>
+
+      <!-- 提问 1：骨架尺寸的来源 -->
+      <div class="faq" id="faq1">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span class="faq-no">Q1</span>
+          <span class="faq-t">T 型截面的“腿”（腹板／骨架）尺寸是怎么来的？</span>
+          <span class="faq-caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-body">
+            <p><b>一句话：不是算出来的，是“选”出来的。</b></p>
+            <p>设计师不会去解方程求骨架该多高多厚，而是翻两样东西：
+              <b>船级社规范</b>（规定“这种位置至少得多大”）和
+              <b>钢材目录</b>（造船厂仓库里现成有什么规格）。</p>
+            <p>比如规范要求某处骨材剖面模数不小于某一个值，设计师就在目录里挑一根够用的——
+              挑了“200×12 的扁钢”，那么这一段的
+              <span class="tag">h<sub>w</sub> = 200 mm</span>
+              <span class="tag">t<sub>w</sub> = 12 mm</span>
+              就定下来了，<b>不需要计算</b>。</p>
+            <p class="faq-note">本 Demo 的截面用的是 <b>h<sub>w</sub> = 300 mm、t<sub>w</sub> = 12 mm</b>
+              （相当于船厂目录里的 300×12 扁钢），同样是直接从型材表里选的。</p>
+            <p>所以 T 型截面的<b>“腿”是既有的标准材料</b>，属于<b>输入条件</b>；
+              真正需要算的，是下面要说的“胳膊”。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 提问 2：带板尺寸的来源（与 b_e 滑块联动高亮） -->
+      <div class="faq" id="faq2">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span class="faq-no">Q2</span>
+          <span class="faq-t">“胳膊”（带板／附连翼板）的尺寸又是怎么来的？</span>
+          <span class="faq-caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-body">
+            <p><b>厚度 t<sub>p</sub>：没得选，就是船体钢板的实际厚度。</b>
+              板多厚就是多厚，直接拿来用。</p>
+            <p><b>宽度 b<sub>e</sub>：这才是真正的难点。</b></p>
+            <p><span class="hl2">为什么不能把整块钢板都算进去？</span>
+              因为存在<b>剪力滞效应</b>（shear lag）：板是靠骨架“拽着”一起弯的，
+              紧挨着骨架的那条板被拽得最狠、变形最大；
+              离骨架越远，板就越“跟不上趟”，受力越来越小，
+              到两根骨架中间几乎不出力。</p>
+            <p>既然远处的板帮不上忙，工程上就干脆<b>只截一段</b>算：
+              在骨架左右各取一定宽度的板，当作有效带板，宽度记作
+              <b>b<sub>e</sub></b>。</p>
+            <p class="faq-note">工程上这个宽度通常取下面三者的<b>最小值</b>：
+              ① 骨材间距；② 跨距的 1/6；③ 板厚的 20 倍。
+              这就是 <b>b<sub>e</sub> 的来历</b>——它不是一个精确的物理量，
+              而是一个<b>为了算得动、又足够安全而约定的等效宽度</b>。</p>
+            <p class="faq-note">⚠ 下面这个算式是<b>把规则简化后的教学版</b>（骨材间距按 0.6 m 的典型肋距取值）。
+              实际规范里还要考虑边界条件、集中载荷、开口削弱、板厚组合等一大堆修正系数，
+              不是一个 min() 就能定死的。本 Demo 为了让滑块的视觉效果更明显，
+              故意把 b<sub>e</sub> 的调节范围做得比这个教学上限更宽——
+              所以“当前值大于上限”在这里是正常的演示现象，不代表算例有错。</p>
+            <div class="calc" data-be-calc></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 提问 3：命名的由来 -->
+      <div class="faq" id="faq3">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span class="faq-no">Q3</span>
+          <span class="faq-t">为什么管这块板叫“附连翼板”？</span>
+          <span class="faq-caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-body">
+            <p>船体骨架受力弯曲的时候，焊在它上面的钢板会<b>跟着一起弯</b>，
+              它是实实在在参与受力的。</p>
+            <p>于是算骨架强度时，我们干脆<b>从钢板上“借”一条有效宽度的板</b>，
+              贴到骨架顶上去，两块拼在一起，就成了一个
+              <b>T 字型截面</b>——可以到右侧“区域一”看这个形状。</p>
+            <p>这块被借来的板，就像长在骨架上的一对<b>翅膀</b>，
+              把截面撑宽、让材料离中性轴更远，抗弯能力立刻上了一个台阶，
+              所以叫它<b>附连翼板</b>（attached plate / effective breadth）。</p>
+            <p class="faq-note">换个角度理解：正应力 σ = M·y/I，材料离中性轴越远越出力。
+              光一根扁钢，材料都堆在中性轴附近，几乎不抗弯；
+              接上带板后，翼板在远端各扛一份力，惯性矩 I 大幅提高，
+              挠度 f<sub>max</sub> 和应力 σ<sub>max</sub> 同时下降——
+              这就是“板参与抗弯”的收益。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </aside>
+
+  <!-- ======================= 右侧：可视化展示区 ======================= -->
+  <main class="viz">
+
+    <section class="card">
+      <h2 class="card-title">区域一 · T 型截面视图
+        <span class="hint"><b data-sigverdict style="font-weight:700">尚未加载</b> · σ 图满量程 <b data-sigref style="color:#7fd4ff;font-weight:700">550 MPa</b></span>
+      </h2>
+      <div class="canvas-wrap"><canvas id="cvSection"></canvas></div>
+      <div class="legend">
+        <span><i class="swatch sw-plate"></i>带板 / 附连翼板（有效宽度 b<sub>e</sub>）</span>
+        <span><i class="swatch sw-web"></i>骨架腹板</span>
+        <span><i class="swatch sw-na"></i>中性轴（过组合形心）</span>
+        <span><i class="swatch sw-comp"></i>压力（受压区，腹板侧）</span>
+        <span><i class="swatch sw-tens"></i>拉应力（受拉区，带板侧）</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">区域二 · 二维梁变形视图
+        <span class="hint">虚线＝变形前，实线＝变形后 · 跨中 <b data-fmax-hdr style="color:#ffd9d9;font-weight:700">f_max = 0.00 mm</b></span>
+      </h2>
+      <div class="canvas-wrap"><canvas id="cvBeam"></canvas></div>
+      <div class="legend">
+        <span><i class="swatch" style="background:repeating-linear-gradient(90deg,#7b8794 0 6px,transparent 6px 11px);height:3px;border:0"></i>变形前梁轴线</span>
+        <span><i class="swatch" style="background:#0b72d0;height:3px;border:0"></i>变形后挠曲线</span>
+        <span><i class="swatch" style="background:#ff3b3b;height:3px;border:0"></i>最大挠度位置</span>
+        <span><i class="swatch sw-moment"></i>弯矩图 M(x)</span>
+        <span>↓ 均布载荷 q</span>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="foot">
+    单文件 Demo（HTML5 Canvas + 原生 JavaScript，无外部依赖）· 弧形箭头指示挠曲线比例已放大 ·
+    参数取自教学算例：L = 5.0 m、t<sub>p</sub> = 15 mm、h<sub>w</sub> = 300 mm、t<sub>w</sub> = 12 mm、E = 210 GPa、[σ] = 235 MPa
+  </div>
+</div>
+
+<!-- 气泡提示容器（交互增强用，内容由脚本动态填充） -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ================================================================================
+   第一部分：结构参数与力学计算
+   —— 力学公式 → JS 的转换集中在这里，每一步都保留对应的理论式子
+   ================================================================================ */
+
+/* 固定结构参数（教学算例，单位统一换算为 N、m、Pa） */
+var PARAM = {
+  L:        5.0,        // 跨距（肋骨/纵骨间距），m
+  tp:       0.015,      // 带板厚度，m         （15 mm）
+  hw:       0.300,      // 腹板高度，m         （300 mm）
+  tw:       0.012,      // 腹板厚度，m         （12 mm）
+  E:        2.1e11,     // 弹性模量，Pa        （210 GPa，钢）
+  sigmaAll: 235e6       // 许用应力，Pa        （235 MPa，船用低碳钢）
+};
+
+/* 当前可变参数（由滑块控制） */
+var state = {
+  q:   0.0,   // 均布载荷，kN/m（界面单位）
+  be:  0.5,   // 带板有效宽度，m
+  showMoment: true,   // 是否绘制弯矩图
+  showStress: true    // 是否绘制截面应力分布
+};
+
+/* 动画状态：0 = 已停止；1 = 正在播放 */
+var anim = { running:false, t0:0, q0:0, q1:0 };
+var animQ = 0;                 // 用于绘制的“瞬时载荷”，动画中会平滑变化
+var easedQ = 0;                // 滑块与读数用的平滑载荷（避免跳动）
+var easeBe = 0.5;              // 带板宽度的平滑值
+
+/* --------------------------------------------------------------------------
+   核心力学计算：由 (q, be) 求组合截面特性、内力与应力
+   -------------------------------------------------------------------------- */
+function computeAll(qKnm, be){
+  var P = PARAM;
+  var tp = P.tp, hw = P.hw, tw = P.tw, L = P.L, E = P.E;
+
+  /* 1) 面积：带板 + 腹板 */
+  var A_plate = be * tp;          // A_plate = b_e · t_p
+  var A_web   = hw * tw;          // A_web   = h_w · t_w
+  var A_total = A_plate + A_web;
+
+  /* 2) 形心位置：以带板底缘为 y = 0 基准
+        y_p = t_p / 2          带板自身形心
+        y_w = t_p + h_w / 2    腹板自身形心
+        y_c = (A_plate·y_p + A_web·y_w) / A_total      （力矩面积法） */
+  var y_p = tp / 2;
+  var y_w = tp + hw / 2;
+  var y_c = (A_plate * y_p + A_web * y_w) / A_total;
+
+  /* 3) 惯性矩：平行轴定理 I = Σ[ (1/12)·b·h³ + A·d² ]
+        d 为各子块自身形心到组合形心的距离 */
+  var I_plate = (1/12) * be * tp * tp * tp + A_plate * Math.pow(y_c - y_p, 2);
+  var I_web   = (1/12) * tw * hw * hw * hw + A_web   * Math.pow(y_w - y_c, 2);
+  var I_total = I_plate + I_web;
+
+  /* 4) 最远纤维到中性轴的距离：
+        下方到带板底缘 = y_c；上方到腹板顶端 = (t_p + h_w) − y_c */
+  var y_bot = y_c;                        // 带板底缘（受拉侧）
+  var y_top = tp + hw - y_c;              // 腹板顶端（受压侧）
+  var y_max = Math.max(y_bot, y_top);
+
+  /* 5) 简支梁均布载荷内力：
+        M_max = q·L² / 8       （跨中）
+        V_max = q·L / 2        （支座剪力，本 Demo 不绘制） */
+  var qSI  = qKnm * 1000;                 // kN/m → N/m
+  var Mmax = qSI * L * L / 8;             // N·m
+
+  /* 6) 最大挠度：f_max = 5·q·L⁴ / (384·E·I)   （跨中，简支梁均布载荷标准解） */
+  var fmax = (5 * qSI * Math.pow(L, 4)) / (384 * E * I_total);   // m
+
+  /* 7) 弯曲正应力 σ = M·y / I
+        上翼缘受压：σ_top = M_max · y_top / I
+        下翼缘受拉：σ_bot = M_max · y_bot / I
+        σ_max 取两者较大值（本算例通常出现在带板底缘） */
+  var sigTop = Mmax * y_top / I_total;
+  var sigBot = Mmax * y_bot / I_total;
+  var sigMax = Math.max(sigTop, sigBot);
+
+  return {
+    A_plate:A_plate, A_web:A_web, A_total:A_total,
+    y_p:y_p, y_w:y_w, y_c:y_c,
+    I_plate:I_plate, I_web:I_web, I_total:I_total,
+    y_bot:y_bot, y_top:y_top, y_max:y_max,
+    Mmax:Mmax, fmax:fmax, sigTop:sigTop, sigBot:sigBot, sigMax:sigMax
+  };
+}
+
+/* --------------------------------------------------------------------------
+   挠曲线形状函数（用于绘制“变形后”的曲线）
+   两端简支梁均布载荷的精确挠曲线（以左支座为原点）：
+        f(x) = q·x·(L³ − 2Lx² + x³) / (24·E·I)
+   跨中最大挠度：
+        f_max = 5·q·L⁴ / (384·E·I)
+   令 φ = x/L ∈ [0, 1]，把上面两式相除即可消去 q、L、E、I，得到无量纲挠度：
+        w(φ) = f(x)/f_max = (16/5)·φ·(1 − φ)·(1 + φ − φ²)
+   这是严格恒等式（不是近似）：分子分母同除公因子后 φ−2φ³+φ⁴ = φ(1−φ)(1+φ−φ²)。
+   校验：φ = 0（左支座）→ w = 0；φ = 1（右支座）→ w = 0；
+        φ = 0.5（跨中）→ w = (16/5)(0.5)(0.5)(1.25) = 1，即取到最大挠度。
+   绘图时用 x 从 0 到 1 循环即可得到真实挠曲线形状，再乘以放大系数。
+   -------------------------------------------------------------------------- */
+function beamShape(phi){
+  /* φ = x/L ∈ [0, 1]，返回 f(x)/f_max ∈ [0, 1] */
+  return (16 / 5) * phi * (1 - phi) * (1 + phi - phi * phi);
+}
+
+/* 弯矩分布（用于弯矩图）：M(x) = q·x·(L − x)/2，同样以 ξ 归一化
+        M(ξ) = M_max · (1 − ξ²)   （抛物线，跨中最大） */
+function momentShape(xi){
+  return 1 - xi * xi;
+}
+
+/* ================================================================================
+   第二部分：界面元素与状态同步
+   ================================================================================ */
+var el = {
+  sQ:        document.getElementById('sQ'),
+  sB:        document.getElementById('sB'),
+  vQ:        document.getElementById('vQ'),
+  vB:        document.getElementById('vB'),
+  btnRun:    document.getElementById('btnRun'),
+  btnReset:  document.getElementById('btnReset'),
+  ckMoment:  document.getElementById('ckMoment'),
+  ckStress:  document.getElementById('ckStress'),
+  knowledge: document.getElementById('knowledge'),
+  cvSection: document.getElementById('cvSection'),
+  cvBeam:    document.getElementById('cvBeam')
+};
+
+/* 动画分段时间轴（秒）：加载 1.6s → 保持 0.8s → 卸载 1.6s → 结束 */
+function phaseLoad(f){
+  if (f < 0.40) return f / 0.40;          // 0 → 1：线性加载
+  if (f < 0.60) return 1;                 // 1   ：满载保持
+  return 1 - (f - 0.60) / 0.40;           // 1 → 0：线性卸载
+}
+
+/* 滑块 → 状态 */
+el.sQ.addEventListener('input', function(){
+  animQ = state.q = parseFloat(el.sQ.value);   // 手动拖动时立即生效
+  stopAnim();
+});
+el.sB.addEventListener('input', function(){
+  state.be = parseFloat(el.sB.value);
+});
+el.ckMoment.addEventListener('change', function(){ state.showMoment = el.ckMoment.checked; });
+el.ckStress.addEventListener('change', function(){ state.showStress = el.ckStress.checked; });
+
+/* 加载 / 卸载 动画按钮（再按一次可中断） */
+el.btnRun.addEventListener('click', function(){ anim.running ? stopAnim() : startAnim(); });
+function startAnim(){
+  anim.running = true;
+  anim.t0 = performance.now();
+  anim.q0 = state.q;                                  // 从当前载荷开始
+  anim.q1 = anim.q0 > 40 ? 0 : 50;                    // 当前较大则演示卸载，否则加载到 50 kN/m
+  el.btnRun.textContent = '■ 停止演示';
+}
+function stopAnim(){
+  anim.running = false;
+  el.btnRun.textContent = '▶ 加载演示（加载→保持→卸载）';
+}
+/* 恢复默认参数 */
+el.btnReset.addEventListener('click', function(){
+  stopAnim();
+  el.sQ.value = 0;    el.sB.value = 0.50;
+  state.q = 0; state.be = 0.50; animQ = 0; easedQ = 0; easeBe = 0.50;
+});
+
+/* ================================================================================
+   第三部分：Canvas 绘制工具
+   ================================================================================ */
+function ctx2d(cv){
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = Math.max(1, cv.clientWidth), h = Math.max(1, cv.clientHeight);
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)){
+    cv.width  = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+  }
+  var g = cv.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  return { g:g, w:w, h:h };
+}
+function rr(g, x, y, w, h, r){
+  r = Math.min(r, w / 2, h / 2);
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y,     x + w, y + h, r);
+  g.arcTo(x + w, y + h, x,     y + h, r);
+  g.arcTo(x,     y + h, x,     y,     r);
+  g.arcTo(x,     y,     x + w, y,     r);
+  g.closePath();
+}
+function label(g, txt, x, y, opt){
+  opt = opt || {};
+  g.save();
+  g.font = opt.font || '12px "Microsoft YaHei",system-ui,sans-serif';
+  var pad = opt.pad == null ? 4 : opt.pad;
+  var tw = g.measureText(txt).width;
+  var bw = tw + pad * 2, bh = (opt.fs || 12) + pad * 1.6;
+  var bx = x, by = y - bh / 2;
+  if (opt.align === 'center') bx = x - bw / 2;
+  else if (opt.align === 'right') bx = x - bw;
+  rr(g, bx, by, bw, bh, 5);
+  g.fillStyle = opt.bg || 'rgba(255,255,255,.90)';
+  g.fill();
+  if (opt.border){ g.strokeStyle = opt.border; g.lineWidth = 1; g.stroke(); }
+  g.fillStyle = opt.color || '#12333f';
+  g.textAlign = 'left'; g.textBaseline = 'middle';
+  g.fillText(txt, bx + pad, y + .5);
+  g.restore();
+}
+function arrowHead(g, x, y, ang, size){
+  g.beginPath();
+  g.moveTo(x, y);
+  g.lineTo(x - size * Math.cos(ang - 0.42), y - size * Math.sin(ang - 0.42));
+  g.lineTo(x - size * Math.cos(ang + 0.42), y - size * Math.sin(ang + 0.42));
+  g.closePath();
+  g.fill();
+}
+/* 尺寸标注线：两端带箭头 + 中间留白写文字 */
+function dimLine(g, x1, y1, x2, y2, text, color, vertical){
+  var ang = Math.atan2(y2 - y1, x2 - x1);
+  g.save();
+  g.strokeStyle = color; g.fillStyle = color; g.lineWidth = 1.3;
+  g.setLineDash([]);
+  g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+  arrowHead(g, x1, y1, ang, 6.5);                 // 起点箭头
+  arrowHead(g, x2, y2, ang + Math.PI, 6.5);       // 终点箭头
+  g.restore();
+
+  var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  label(g, text, vertical ? mx + 6 : mx, vertical ? my : my - 10,
+        { align: vertical ? 'left' : 'center', fs: 11.5, color: color, bg: '#f7fbfe', pad: 3 });
+}
+/* 支座（三角形 + 斜线阴影） */
+function drawSupport(g, x, y, w, h, flipped){
+  g.save();
+  g.beginPath();
+  if (flipped){ g.moveTo(x, y); g.lineTo(x - w / 2, y - h); g.lineTo(x + w / 2, y - h); }
+  else        { g.moveTo(x, y); g.lineTo(x - w / 2, y + h); g.lineTo(x + w / 2, y + h); }
+  g.closePath();
+  g.fillStyle = '#c8dbe6'; g.fill();
+  g.strokeStyle = '#4a6b7c'; g.lineWidth = 1.3; g.stroke();
+  /* 阴影线 */
+  g.strokeStyle = '#4a6b7c'; g.lineWidth = 1;
+  var n = 5, y0 = flipped ? y - h : y + h, dir = flipped ? -1 : 1;
+  for (var i = 0; i <= n; i++){
+    var xx = x - w / 2 + (w / n) * i;
+    g.beginPath(); g.moveTo(xx, y0); g.lineTo(xx + dir * 7, y0 + dir * 7); g.stroke();
+  }
+  g.restore();
+}
+
+/* ================================================================================
+   第四部分：绘制「区域一 · T 型截面视图」
+   ================================================================================ */
+function drawSection(R){
+  var g = ctx2d(el.cvSection).g;
+  var cv = el.cvSection, W = cv.clientWidth, H = cv.clientHeight;
+  var P = PARAM, tp = P.tp, hw = P.hw, tw = P.tw, be = easeBe;
+
+  /* 背景与网格 */
+  g.fillStyle = '#f7fbfe'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(20,80,110,.07)'; g.lineWidth = 1;
+  for (var gx = 0; gx < W; gx += 28){ g.beginPath(); g.moveTo(gx + .5, 0); g.lineTo(gx + .5, H); g.stroke(); }
+  for (var gy = 0; gy < H; gy += 28){ g.beginPath(); g.moveTo(0, gy + .5); g.lineTo(W, gy + .5); g.stroke(); }
+
+  var showStress = state.showStress;
+  var secW = showStress ? W * 0.66 : W;      // 左：截面；右：应力分布图
+
+  /* ---------- 纵向空间分配（关键） ----------
+     不能按画布高度的比例来定截面大小 —— 图一变矮，截面仍占同样比例，
+     标注区（标题/中性轴/尺寸线/结论）就会被挤到重叠。
+     因此先给标注留出固定像素空间，剩下的才给截面本体：
+         顶部 78px：截面标题(y≈18) + 中性轴说明(y≈42) + h_w 尺寸文字（截面顶上方 16px）
+         底部 30px：b_e 尺寸线与文字（在带板底缘下方 28px 处）
+         中间剩余：T 型截面本体
+     这样无论画布多高，上下都能容得下标注；画布高度下限另由 CSS 的 clamp 保证。 */
+  var secBotReserve = 30;                      // 带板底缘以下的尺寸带
+  var baseY = H - secBotReserve;               // y=0（带板底缘）画在该高度
+  var secTopWant = 90;                         // 顶部标注带的高度（标题两行 + h_w 文字）
+  var bodyPx = Math.max(72, Math.min(H - secTopWant - 16, H * 0.42));
+  /* 缩放：同时受“截面总高”和“截面最大宽度”约束 */
+  var maxSecW = secW * 0.46;
+  var k = Math.min(bodyPx / (tp + hw), maxSecW / Math.max(0.20, be));
+  var nx = secW / 2;                           // 截面水平中心
+  function X(x){ return nx + x * k; }
+  function Y(y){ return baseY - y * k; }
+
+  /* ---------- 截面轮廓（T 型：下翼缘为带板，上部竖板为腹板） ---------- */
+  var path = [
+    [-be / 2, 0], [be / 2, 0], [be / 2, tp], [tw / 2, tp],
+    [tw / 2, tp + hw], [-tw / 2, tp + hw], [-tw / 2, tp], [-be / 2, tp]
+  ];
+  g.beginPath();
+  path.forEach(function(p, i){ i ? g.lineTo(X(p[0]), Y(p[1])) : g.moveTo(X(p[0]), Y(p[1])); });
+  g.closePath();
+  g.save();
+  g.shadowColor = 'rgba(10,60,90,.25)'; g.shadowBlur = 14; g.shadowOffsetY = 6;
+  g.fillStyle = '#ffffff'; g.fill();
+  g.restore();
+  g.strokeStyle = '#1d4256'; g.lineWidth = 2; g.stroke();
+
+  /* 带板（蓝色）与腹板（红色）分开填色，颜色与图例一致 */
+  g.fillStyle = 'rgba(74,168,255,.92)';
+  g.fillRect(X(-be / 2), Y(tp), be * k, tp * k);
+  g.fillStyle = 'rgba(255,107,107,.94)';
+  g.fillRect(X(-tw / 2), Y(tp + hw), tw * k, hw * k);
+  /* 重新描一次内部分界线，保持清晰 */
+  g.strokeStyle = '#1d4256'; g.lineWidth = 1.2;
+  g.beginPath(); g.moveTo(X(-be / 2), Y(tp)); g.lineTo(X(be / 2), Y(tp)); g.stroke();
+
+  /* ---------- 中性轴（过组合形心） ---------- */
+  var yNA = Y(R.y_c);
+  g.save();
+  g.strokeStyle = '#e02f2f'; g.lineWidth = 1.8; g.setLineDash([9, 6]);
+  g.beginPath(); g.moveTo(14, yNA); g.lineTo(secW - 14, yNA); g.stroke();
+  g.restore();
+  /* 中性轴文字放在截面【上方】的预留带里，不压在截面上；
+     并从文字引一条细线指向中性轴，保持对应关系清晰 */
+  var naTop = 42;
+  g.save();
+  g.strokeStyle = 'rgba(224,47,47,.6)'; g.lineWidth = 1; g.setLineDash([3, 3]);
+  g.beginPath(); g.moveTo(70, naTop + 8); g.lineTo(70, yNA); g.stroke();
+  g.restore();
+  label(g, '中性轴  y_c = ' + (R.y_c * 1000).toFixed(1) + ' mm', 16, naTop,
+        { align:'left', fs:12, color:'#b81f1f', bg:'rgba(255,255,255,.95)', border:'rgba(224,47,47,.45)' });
+  /* 形心记号 */
+  g.fillStyle = '#e02f2f';
+  g.beginPath(); g.arc(X(0), yNA, 4.2, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#fff'; g.lineWidth = 1.6; g.stroke();
+
+  /* ---------- 尺寸标注 ---------- */
+  /* 腹板高度 h_w：尺寸竖线画在截面左侧；文字放在画面【左上角】并用引线指向尺寸线。
+     不放在截面右上角 —— 那里紧邻应力分布图的受压区，文字会被应力数值盖住。 */
+  var dX = X(-be / 2) - 34;
+  g.save(); g.strokeStyle = 'rgba(200,60,60,.75)'; g.lineWidth = 1; g.setLineDash([3, 3]);
+  g.beginPath(); g.moveTo(X(-be / 2), Y(0)); g.lineTo(dX, Y(0)); g.stroke();
+  g.beginPath(); g.moveTo(X(-be / 2), Y(tp + hw)); g.lineTo(dX, Y(tp + hw)); g.stroke();
+  g.restore();
+  /* 尺寸线只画带箭头的竖线，不复用 dimLine 的自动文字（文字单独放） */
+  g.save();
+  g.strokeStyle = '#c0392b'; g.fillStyle = '#c0392b'; g.lineWidth = 1.3;
+  g.beginPath(); g.moveTo(dX, Y(0)); g.lineTo(dX, Y(tp + hw)); g.stroke();
+  arrowHead(g, dX, Y(0), Math.PI / 2, 6.5);
+  arrowHead(g, dX, Y(tp + hw), -Math.PI / 2, 6.5);
+  g.restore();
+  /* 引线：从 h_w 文字右侧指向尺寸线中点 */
+  g.save();
+  g.strokeStyle = 'rgba(192,57,43,.7)'; g.lineWidth = 1; g.setLineDash([3, 3]);
+  g.beginPath(); g.moveTo(130, 64); g.lineTo(dX, 64); g.stroke();
+  g.restore();
+  label(g, 'h_w = ' + (hw * 1000).toFixed(0) + ' mm', 14, 64,
+        { align:'left', fs:11.5, color:'#c0392b', bg:'#f7fbfe', pad:3 });
+
+  /* 带板有效宽度 b_e：画在截面下方（底缘下 28px，正好落在 30px 的尺寸带里） */
+  var dY = Y(0) + 28;
+  g.save(); g.strokeStyle = 'rgba(40,110,180,.75)'; g.lineWidth = 1; g.setLineDash([3, 3]);
+  g.beginPath(); g.moveTo(X(-be / 2), Y(0)); g.lineTo(X(-be / 2), dY); g.stroke();
+  g.beginPath(); g.moveTo(X(be / 2), Y(0)); g.lineTo(X(be / 2), dY); g.stroke();
+  g.restore();
+  dimLine(g, X(-be / 2), dY, X(be / 2), dY, 'b_e = ' + be.toFixed(2) + ' m', '#1f6fb2', false);
+  /* 板厚与腹板厚文字 */
+  label(g, 't_p = ' + (tp * 1000).toFixed(0) + ' mm', X(be / 2) + 12, Y(tp / 2),
+        { align:'left', fs:11.5, color:'#1f6fb2' });
+  label(g, 't_w = ' + (tw * 1000).toFixed(0) + ' mm', X(tw / 2) + 10, Y(tp + hw * 0.22),
+        { align:'left', fs:11.5, color:'#c0392b' });
+
+  /* 图名 */
+  label(g, '组合 T 型截面（带板 + 腹板共同工作）', 14, 18,
+        { align:'left', fs:12.5, color:'#0d3a4e', bg:'rgba(255,255,255,.86)', border:'rgba(30,90,120,.25)' });
+
+  /* ---------- 右侧：截面弯曲正应力分布（σ = M·y / I，线性分布） ---------- */
+  if (showStress){
+    var bx0 = W * 0.70;                 // 应力图零线（中性轴）横坐标
+    var ptW = 64;                       // 满量程对应的绘图宽度（px）
+
+    /* 量程必须绑定到一个【固定参考载荷】，图形才会随载荷变化。
+       若按当前应力峰值来定标（k = ptW / sigNow），图形永远画满整幅，
+       载荷再大也看不出变化 —— 这里用 q_ref 时的应力作为满量程。 */
+    var qRef = 60;                                      // 参考载荷 kN/m（滑块上限 100 的 60%）
+    var Rref = computeAll(qRef, easeBe);                // 同一带板宽度下的参考应力（b_e 仍跟随滑块）
+    var sigRef = Math.max(Rref.sigTop, Rref.sigBot, 1e5);
+    var k2 = ptW / sigRef;                              // 应力 → 像素（固定比例）
+    function PX(s){ return bx0 + s * k2; }
+
+    /* 标题与坐标说明（左侧截面标题占了左半边，所以这里从 bx0-92 开始，
+       且必须位于截面右上区域内以避免与截面标题重叠） */
+    label(g, '弯曲正应力分布 σ = M·y / I', bx0 - 76, 18,
+          { align:'left', fs:12, color:'#0d3a4e', bg:'rgba(255,255,255,.86)', border:'rgba(30,90,120,.25)' });
+    /* 竖直轴线（中性轴位置） */
+    g.save();
+    g.strokeStyle = '#e02f2f'; g.lineWidth = 1.6; g.setLineDash([8, 5]);
+    g.beginPath(); g.moveTo(bx0, Y(-0.045)); g.lineTo(bx0, Y(tp + hw + 0.045)); g.stroke();
+    g.restore();
+    label(g, 'σ = 0', bx0, Y(-0.055), { align:'center', fs:11, color:'#b81f1f' });
+
+    var yTop = Y(tp + hw), yBot = Y(0);
+
+    /* 先画满量程包络（浅色虚线外框），直观表示“当前应力占满量程的比例” */
+    g.save();
+    g.strokeStyle = 'rgba(90,130,155,.55)'; g.lineWidth = 1.2; g.setLineDash([5, 4]);
+    g.beginPath(); g.moveTo(bx0, yNA); g.lineTo(PX(-sigRef), yTop); g.lineTo(bx0, yTop); g.closePath(); g.stroke();
+    g.beginPath(); g.moveTo(bx0, yNA); g.lineTo(PX(sigRef), yBot); g.lineTo(bx0, yBot); g.closePath(); g.stroke();
+    g.restore();
+
+    /* 受压区（腹板侧，σ 为负）：向左填充三角形，高度随载荷变化 */
+    g.beginPath();
+    g.moveTo(bx0, yNA); g.lineTo(PX(-R.sigTop), yTop); g.lineTo(bx0, yTop); g.closePath();
+    g.fillStyle = 'rgba(47,127,216,.30)'; g.fill();
+    g.strokeStyle = '#2f7fd8'; g.lineWidth = 1.6; g.stroke();
+    /* 受拉区（带板侧，σ 为正）：向右填充三角形，高度随载荷变化 */
+    g.beginPath();
+    g.moveTo(bx0, yNA); g.lineTo(PX(R.sigBot), yBot); g.lineTo(bx0, yBot); g.closePath();
+    g.fillStyle = 'rgba(224,74,74,.30)'; g.fill();
+    g.strokeStyle = '#e04a4a'; g.lineWidth = 1.6; g.stroke();
+
+    /* 应力水平尺寸线（虚线） + 数值 */
+    g.save(); g.setLineDash([4, 4]); g.lineWidth = 1;
+    g.strokeStyle = 'rgba(47,127,216,.8)';
+    g.beginPath(); g.moveTo(bx0, yTop); g.lineTo(PX(-R.sigTop), yTop); g.stroke();
+    g.strokeStyle = 'rgba(224,74,74,.8)';
+    g.beginPath(); g.moveTo(bx0, yBot); g.lineTo(PX(R.sigBot), yBot); g.stroke();
+    g.restore();
+
+    label(g, (R.sigTop / 1e6).toFixed(1) + ' MPa（压）', PX(-R.sigTop) - 6, yTop - 13,
+          { align:'right', fs:11.5, color:'#1b5fa8', bg:'#f7fbfe', pad:3 });
+    label(g, (R.sigBot / 1e6).toFixed(1) + ' MPa（拉）', PX(R.sigBot) + 6, yBot + 14,
+          { align:'left', fs:11.5, color:'#b32b2b', bg:'#f7fbfe', pad:3 });
+    /* 说明：画布较矮时，“受压区/受拉区”“满量程”这类说明性文字若画在画布内，
+       必然与应力数值、尺寸线互相重叠；它们已由卡片标题与下方图例承担，
+       故画布内只保留数值标注与几何标注。 */
+
+    /* 说明：画布内只保留图形与几何标注（尺寸线、中性轴、应力数值）。
+       强度结论、满量程等说明性文字统一放在卡片标题行 ——
+       画布较矮时它们无论放哪里都会与尺寸线或应力数值重叠。 */
+  }
+}
+
+/* ================================================================================
+   第五部分：绘制「区域二 · 二维梁变形视图」
+   —— 结构简图 + 载荷箭头 + 变形前虚线 + 变形后挠曲线 + 弯矩图
+   ================================================================================ */
+function drawBeam(R){
+  var g = ctx2d(el.cvBeam).g;
+  var cv = el.cvBeam, W = cv.clientWidth, H = cv.clientHeight;
+  var P = PARAM, L = P.L;
+
+  g.fillStyle = '#f7fbfe'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(20,80,110,.07)'; g.lineWidth = 1;
+  for (var gx = 0; gx < W; gx += 28){ g.beginPath(); g.moveTo(gx + .5, 0); g.lineTo(gx + .5, H); g.stroke(); }
+  for (var gy = 0; gy < H; gy += 28){ g.beginPath(); g.moveTo(0, gy + .5); g.lineTo(W, gy + .5); g.stroke(); }
+
+  var showM = state.showMoment;
+  var marginL = 74, marginR = 74;
+  var x0 = marginL, x1 = W - marginR;             // 梁的左右支座
+  var yB = H * 0.15;                              // 梁轴线竖向位置
+  var span = x1 - x0;
+
+  /* ---------- 纵向布局 ----------
+     图幅压矮后各元素的纵向区间很容易互相挤压，故这里统一排定，
+     并经脚本核验各区间互不重叠、且都在画布范围内：
+        梁轴线（变形前虚线）+ 挠曲线（向下变形，最多约 55px）
+        均布载荷箭头（梁下方，指向下）+ 载荷数值标注
+        跨距尺寸线（文字靠左放，避开弯矩曲线）
+        弯矩图（零线 + 抛物线）
+     注意：画布上不再绘制 f_max / M_max 的数值标签 —— 图幅矮时它们会与
+     尺寸线、弯矩曲线重叠；这两个数值分别显示在卡片标题与左侧结果面板。 */
+  var capPx   = 55;                               // 挠曲线最大下沉量（px）
+  var arrowBase = yB + 68;                        // 载荷箭头起点（梁下方）
+  var dimY      = yB + 118;                       // 跨距尺寸线
+  var mBaseY    = H - 22;                         // 弯矩图零线
+  var mHeight   = H * 0.10;                       // 弯矩图满量程高度
+
+  /* ---------- 支座 ---------- */
+  drawSupport(g, x0, yB, 26, 15, false);
+  drawSupport(g, x1, yB, 26, 15, false);
+  /* 支座文字放在支座内侧，并用实测文字宽度把右端文字的右边缘贴到画布内 8px 处，
+     避免它超出画布被卡片边缘裁掉 */
+  label(g, '简支支座', x0 + 34, yB - 12, { align:'left', fs:11, color:'#3c6373', bg:'#f7fbfe', pad:3 });
+  g.save();
+  g.font = '11px "Microsoft YaHei",system-ui,sans-serif';
+  var supW = g.measureText('简支支座').width + 6;   // 文字宽 + label 内边距
+  g.restore();
+  label(g, '简支支座', W - 8 - supW, yB - 12, { align:'left', fs:11, color:'#3c6373', bg:'#f7fbfe', pad:3 });
+
+  /* ---------- 均布载荷箭头（长度随 q 变化，用当前绘制载荷 instantQ） ---------- */
+  var qNow = instantQ;                             // kN/m
+  var arrowLen = 8 + Math.min(1, qNow / 100) * 14; // 箭头长度 8~22 px
+  var n = 11;
+  for (var i = 0; i < n; i++){
+    var xx = x0 + span * (i / (n - 1));
+    var len = arrowLen * (0.55 + 0.45 * Math.sin(Math.PI * (i / (n - 1)))); // 中部略长，视觉更自然
+    g.strokeStyle = 'rgba(35,176,224,' + (0.35 + 0.5 * Math.min(1, qNow / 60)) + ')';
+    g.fillStyle   = 'rgba(35,176,224,' + (0.45 + 0.5 * Math.min(1, qNow / 60)) + ')';
+    g.lineWidth = 1.8;
+    g.beginPath(); g.moveTo(xx, arrowBase); g.lineTo(xx, arrowBase + len); g.stroke();
+    arrowHead(g, xx, arrowBase + len, Math.PI / 2, 6.5);
+  }
+  label(g, '均布载荷 q = ' + qNow.toFixed(1) + ' kN/m', (x0 + x1) / 2, H - 12,
+        { align:'center', fs:12.5, color:'#0d5c78', bg:'rgba(255,255,255,.9)', border:'rgba(35,176,224,.4)' });
+
+  /* ---------- 跨距标注 L ---------- */
+  dimLine(g, x0, dimY, x1, dimY, '跨距 L = ' + L.toFixed(1) + ' m', '#4a6b7c', false);
+
+  /* ---------- 变形前梁轴线（虚线） ---------- */
+  g.save();
+  g.strokeStyle = '#7b8794'; g.lineWidth = 2; g.setLineDash([9, 6]);
+  g.beginPath(); g.moveTo(x0, yB); g.lineTo(x1, yB); g.stroke();
+  g.restore();
+  /* 标注放在梁线上方，避免与下方“变形后”标注重叠 */
+  label(g, '变形前梁轴线', x1, yB - 14, { align:'right', fs:11.5, color:'#5b6875' });
+
+  /* ---------- 变形后挠曲线（实线） ----------
+     放大比例：以滑块上限 q = 100 kN/m（b_e = 0.5 m 时 f_max ≈ 44.3 mm）
+     对应满量程 capPx 像素，即纵横向放大倍数≈ span/(L·1000) 的固定倍率。
+     这样全程保持线性 —— 载荷加倍则绘制的挠度也加倍，不会被截断。 */
+  var fRef = computeAll(100, easeBe).fmax;            // 满量程对应的 f_max（m）
+  var pxPerM = capPx / fRef;
+  var fNow = R.fmax;                                 // 当前最大挠度（m）
+  var drawAmp = Math.min(capPx, fNow * pxPerM);       // 实际绘制幅值（px）
+
+  g.save();
+  g.strokeStyle = '#0b72d0'; g.lineWidth = 3; g.setLineDash([]);
+  g.shadowColor = 'rgba(11,114,208,.35)'; g.shadowBlur = 10;
+  g.beginPath();
+  var N = 120;
+  for (var j = 0; j <= N; j++){
+    var phi = j / N;                                  // φ = x/L ∈ [0, 1]
+    var px = x0 + phi * span;
+    /* 挠曲线以“向上为正”的坐标绘制，向下变形故取正号加到 yB 上 */
+    var py = yB + drawAmp * beamShape(phi);
+    j ? g.lineTo(px, py) : g.moveTo(px, py);
+  }
+  g.stroke();
+  g.restore();
+
+  /* ---------- 跨中最大挠度标注 ----------
+     画布上只保留红点标记（数值改在卡片标题上显示）。
+     原因：本图幅较矮，挠度数值框若画在红点旁，会与跨距标注线、
+     弯矩图峰值标注以及弯矩曲线互相重叠，放在标题上既清晰又不遮挡图形。 */
+  var xm = (x0 + x1) / 2, ym = yB + drawAmp;
+  g.fillStyle = '#ff3b3b';
+  g.beginPath(); g.arc(xm, ym, 5.5, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#fff'; g.lineWidth = 2; g.stroke();
+
+  /* ---------- 弯矩图 M(ξ) = M_max·(1 − ξ²) ---------- */
+  if (showM){
+    var yBase = mBaseY;                                // 弯矩图零线（与跨距线错开）
+    var mMax = R.Mmax;                                 // N·m
+    var mPx  = mHeight;                                // 弯矩图满量程高度
+    /* 用 q = 60 kN/m 时的弯矩做参考满量程（固定值，保证图形随载荷变化） */
+    var mRef = Math.max(computeAll(60, 0.5).Mmax, mMax, 1);
+    var kM = mPx / mRef;
+
+    /* 零线 */
+    g.save();
+    g.strokeStyle = 'rgba(80,110,125,.6)'; g.lineWidth = 1.2; g.setLineDash([]);
+    g.beginPath(); g.moveTo(x0, yBase); g.lineTo(x1, yBase); g.stroke();
+    g.restore();
+
+    /* 弯矩图形（抛物线，画在零线上方，受压纤维侧约定从简） */
+    g.save();
+    g.beginPath();
+    g.moveTo(x0, yBase);
+    var M2 = 160;
+    for (var j2 = 0; j2 <= M2; j2++){
+      var xj = -1 + 2 * j2 / M2;
+      var pxx = (x0 + x1) / 2 + xj * span / 2;
+      var pyy = yBase - momentShape(xj) * mMax * kM;
+      g.lineTo(pxx, pyy);
+    }
+    g.lineTo(x1, yBase);
+    g.closePath();
+    var grad = g.createLinearGradient(0, yBase - mPx, 0, yBase);
+    grad.addColorStop(0, 'rgba(24,150,90,.55)');
+    grad.addColorStop(1, 'rgba(24,150,90,.10)');
+    g.fillStyle = grad; g.fill();
+    g.strokeStyle = 'rgba(16,120,70,.95)'; g.lineWidth = 2; g.stroke();
+    g.restore();
+
+    /* 跨中最大弯矩：只画绿点标记。数值不再在画布上另画标签 ——
+       图幅较矮时该标签会与跨距尺寸线重叠，M_max 数值已在左侧结果面板显示 */
+    var yMmax = yBase - mMax * kM;
+    g.fillStyle = '#0e7a48';
+    g.beginPath(); g.arc((x0 + x1) / 2, yMmax, 4, 0, Math.PI * 2); g.fill();
+    label(g, '弯矩图 M(x) = q·x·(L−x)/2', x0 + 4, yBase + 12, { align:'left', fs:11.5, color:'#2b6b52' });
+  }
+}
+
+/* ================================================================================
+   第六部分：结果面板与知识讲解（随参数动态更新）
+   ================================================================================ */
+function fmt(x, n){ return (Math.round(x * Math.pow(10, n)) / Math.pow(10, n)).toFixed(n); }
+
+function updateStats(R){
+  var qmax = document.querySelector('[data-fmax]');
+  qmax.innerHTML = fmt(R.fmax * 1000, 2) + '<span class="u">mm</span>';
+  /* 梁视图卡片标题上的跨中挠度（图内不再画数值框，避免标注互相重叠） */
+  var hdr = document.querySelector('[data-fmax-hdr]');
+  if (hdr) hdr.textContent = 'f_max = ' + fmt(R.fmax * 1000, 2) + ' mm';
+  /* 截面视图卡片标题上的应力图满量程／超出提示（画布内不画说明文字，避免重叠） */
+  var Rref = computeAll(60, easeBe);
+  var sigRef = Math.max(Rref.sigTop, Rref.sigBot, 1e5);
+  var sr = document.querySelector('[data-sigref]');
+  if (sr){
+    var overN = Math.max(R.sigTop, R.sigBot) / sigRef;
+    sr.textContent = (sigRef / 1e6).toFixed(0) + ' MPa'
+                   + (overN > 1.02 ? '（超出 ' + ((overN - 1) * 100).toFixed(0) + '%）' : '');
+  }
+  /* 截面视图卡片标题上的强度状态（与左侧结论一致，配色区分） */
+  var sv = document.querySelector('[data-sigverdict]');
+  if (sv){
+    if (R.sigMax < 1){
+      sv.textContent = '尚未加载';
+      sv.style.color = '#93bace';
+    } else if (R.sigMax <= PARAM.sigmaAll){
+      sv.textContent = '✓ 强度满足（σ_max = ' + fmt(R.sigMax / 1e6, 1) + ' MPa）';
+      sv.style.color = '#48d597';
+    } else {
+      sv.textContent = '⚠ 强度不足（σ_max = ' + fmt(R.sigMax / 1e6, 1) + ' MPa）';
+      sv.style.color = '#ff7676';
+    }
+  }
+  document.querySelector('[data-smax]').innerHTML = fmt(R.sigMax / 1e6, 1) + '<span class="u">MPa</span>';
+  document.querySelector('[data-mmax]').innerHTML = fmt(R.Mmax / 1000, 2) + '<span class="u">kN·m</span>';
+  document.querySelector('[data-inertia]').innerHTML = fmt(R.I_total * 1e8, 1) + '<span class="u">cm⁴</span>';
+
+  /* 强度利用率进度条 */
+  var ratio = Math.min(1, R.sigMax / PARAM.sigmaAll);
+  document.querySelector('[data-bar]').style.width = (ratio * 100).toFixed(1) + '%';
+
+  /* 强度校核结论 */
+  var v = document.querySelector('[data-verdict]');
+  if (state.q <= 0.01){
+    v.className = 'verdict ok';
+    v.innerHTML = '✓ 尚未加载：拖动“载荷 q”滑块或点击“加载演示”开始';
+  } else if (R.sigMax <= PARAM.sigmaAll){
+    v.className = 'verdict ok';
+    v.innerHTML = '✓ 满足局部强度要求（σ_max = ' + fmt(R.sigMax / 1e6, 1) + ' MPa ≤ ' +
+                  (PARAM.sigmaAll / 1e6).toFixed(0) + ' MPa，利用率 ' + (ratio * 100).toFixed(0) + '%）';
+  } else {
+    v.className = 'verdict no';
+    v.innerHTML = '✗ 不满足局部强度要求（σ_max = ' + fmt(R.sigMax / 1e6, 1) + ' MPa &gt; ' +
+                  (PARAM.sigmaAll / 1e6).toFixed(0) + ' MPa，超 ' + ((ratio - 1) * 100).toFixed(0) +
+                  '%）→ 建议增大带板宽度或腹板尺寸';
+  }
+}
+
+/* 记录上一次的参数，用于判断“哪一个参数变了”，从而给出针对性的讲解 */
+var last = { q:null, be:null, I:null, fmax:null, sig:null };
+
+function updateKnowledge(R){
+  /* 与上一次比较，判断变化趋势 */
+  var qUp   = last.q  != null && state.q  > last.q  + 1e-9;
+  var qDown = last.q  != null && state.q  < last.q  - 1e-9;
+  var bUp   = last.be != null && state.be > last.be + 1e-9;
+  var bDown = last.be != null && state.be < last.be - 1e-9;
+  var iUp   = last.I  != null && R.I_total > last.I + 1e-12;
+
+  var html = '';
+
+  /* 当前状态概述 */
+  html += '<p>当前：<span class="hl">q = ' + state.q.toFixed(1) + ' kN/m</span>，' +
+          '<span class="hl">b_e = ' + state.be.toFixed(2) + ' m</span>；' +
+          '组合截面惯性矩 I = <span class="hl">' + fmt(R.I_total * 1e8, 1) + ' cm⁴</span>，' +
+          '最大挠度 f_max = <span class="hl">' + fmt(R.fmax * 1000, 2) + ' mm</span>，' +
+          '最大弯曲应力 σ_max = <span class="hl">' + fmt(R.sigMax / 1e6, 1) + ' MPa</span>。</p>';
+
+  /* —— 针对“带板宽度变化”的讲解 —— */
+  if (bUp || bDown){
+    html += '<p><span class="hl">为什么带板宽度会影响挠度和应力？</span></p>';
+    if (bUp){
+      html += '<p>你增大了带板有效宽度 b_e：附连翼板面积 A_plate = b_e·t_p 变大 → ' +
+              '组合截面形心 y_c 下移、带板离中性轴更远 → 由平行轴定理 ' +
+              '<span class="eq">I = Σ[ (1/12)·b·h³ + A·d² ]</span> 可知 I 变大，' +
+              '于是 <span class="up">f_max 减小</span>（f_max = 5qL⁴/384EI，与 I 成反比）、' +
+              '<span class="up">σ_max 也减小</span>（σ = M·y/I）。' +
+              '这就是“板参与抗弯”带来的刚度与强度收益。</p>';
+    } else {
+      html += '<p>你减小了带板有效宽度 b_e：附连翼板面积变小，' +
+              '<span class="down">I 减小</span>，' +
+              '因此 <span class="down">f_max 增大、σ_max 增大</span>，结构更柔、更危险。' +
+              '极端情况下 b_e → 0，就只剩腹板单独抗弯，惯性矩会急剧下降。</p>';
+    }
+    html += '<p style="color:#93bace">工程含义：带板宽度不能任意取。规范中通常按跨距、板厚等' +
+            '取一个“有效宽度”，因为远离骨材的板在受压时会先失稳，不能全部参与抗弯。</p>';
+  }
+
+  /* —— 针对“载荷变化”的讲解 —— */
+  if (qUp || qDown){
+    html += '<p><span class="hl">为什么载荷与挠度、应力是线性关系？</span></p>';
+    if (qUp){
+      html += '<p>你增大了载荷 q：<span class="down">f_max 与 σ_max 都随之增大</span>。' +
+              '在<span class="hl">小变形、线弹性</span>假设下，' +
+              'f_max = 5qL⁴/(384EI)、σ_max = M_max·y_max/I 且 M_max = qL²/8，' +
+              '两者都与 q 成正比，所以滑块一动，数值按比例变化，挠曲线形状不变、只是整体变深。</p>';
+    } else {
+      html += '<p>你减小了载荷 q：<span class="up">f_max 与 σ_max 按同一比例减小</span>，' +
+              '梁的挠曲线形状保持不变（因为公式里 q 只作为线性系数）。</p>';
+    }
+  }
+
+  if (!qUp && !qDown && !bUp && !bDown){ /* 首次进入或参数未变 */ }
+
+  /* —— 截面自身的物理意义（每次都显示，帮助理解构造） —— */
+  html += '<p><span class="hl">这个截面为什么做成 T 型？</span></p>' +
+          '<p>带板底缘距中性轴 ' + (R.y_c * 1000).toFixed(1) + ' mm、腹板顶端距中性轴 ' +
+          ((PARAM.hw + PARAM.tp) * 1e3 - R.y_c * 1e3).toFixed(1) + ' mm。' +
+          '弯曲正应力 σ = M·y/I 沿高度线性分布，材料离中性轴越远贡献越大。' +
+          '把板作为“附连翼板”放在一端、把腹板做高，就能用最少的钢材获得最大的 I —— ' +
+          '这正是船体骨架普遍做成 T 型（球扁钢/扁钢加带板）的原因。</p>';
+
+  html += '<ul>' +
+          '<li>带板面积 A_plate = ' + fmt(R.A_plate * 1e4, 2) + ' cm²，' +
+          '腹板面积 A_web = ' + fmt(R.A_web * 1e4, 2) + ' cm²；</li>' +
+          '<li>惯性矩 I = I_plate + I_web = ' + fmt(R.I_plate * 1e8, 1) + ' + ' +
+          fmt(R.I_web * 1e8, 1) + ' = ' + fmt(R.I_total * 1e8, 1) + ' cm⁴；</li>' +
+          '<li>最大弯矩 M_max = qL²/8 = ' + fmt(R.Mmax / 1000, 2) + ' kN·m；</li>' +
+          '<li>σ_top（腹板顶受压）= ' + fmt(R.sigTop / 1e6, 1) + ' MPa，' +
+          'σ_bot（带板底受拉）= ' + fmt(R.sigBot / 1e6, 1) + ' MPa。</li>' +
+          '</ul>';
+
+  /* 记录本次参数，供下一次比较 */
+  last.q = state.q; last.be = state.be; last.I = R.I_total;
+  last.fmax = R.fmax; last.sig = R.sigMax;
+
+  el.knowledge.innerHTML = html;
+}
+
+/* ================================================================================
+   第七部分：主循环与启动
+   ================================================================================ */
+var instantQ = 0;          // 本帧“用于绘制”的瞬时载荷（动画中渐变）
+
+function frame(now){
+  var R = computeAll(easedQ, easeBe);          // 读数与数值按平滑载荷计算
+
+  /* 动画：按时间轴推进载荷，直接写入滑块与显示，便于对照公式 */
+  if (anim.running){
+    var dur = 4000;                                    // 总时长 4 s
+    var f = (now - anim.t0) / dur;
+    if (f >= 1){
+      f = 1; anim.running = false;
+      el.btnRun.textContent = '▶ 加载演示（加载→保持→卸载）';
+    }
+    var q = anim.q0 + (anim.q1 - anim.q0) * phaseLoad(f);
+    el.sQ.value = q; state.q = q;
+    instantQ = q;
+  } else {
+    instantQ = (animQ != null ? animQ : state.q);
+  }
+
+  /* 平滑过渡：让读数与图形不会因拖动而跳动 */
+  easedQ += (state.q - easedQ) * 0.18;
+  easeBe += (state.be - easeBe) * 0.18;
+  if (Math.abs(easedQ - state.q) < 5e-4) easedQ = state.q;
+  if (Math.abs(easeBe - state.be) < 5e-5) easeBe = state.be;
+
+  /* 用平滑后的参数重算，保证“读数 / 图形 / 讲解”三者完全一致 */
+  R = computeAll(easedQ, easeBe);
+
+  /* 同步滑块旁的数值显示 */
+  el.vQ.textContent = state.q.toFixed(1) + ' kN/m';
+  el.vB.textContent = state.be.toFixed(2) + ' m';
+
+  drawSection(R);
+  drawBeam(R);
+  updateStats(R);
+  updateKnowledge(R);
+  updateFaqLive(R);            // 答疑区里“有效宽度算例”随参数实时更新
+
+  requestAnimationFrame(frame);
+}
+
+/* ================================================================================
+   第八部分：答疑与知识延伸 —— 交互逻辑（新增）
+   —— 三块内容由第一部分交互面板的滑块联动：
+        · 点击问句可展开/收起，互不干扰（各自独立折叠）；
+        · 拖动 b_e 滑块时，自动高亮“Q2 带板尺寸怎么来”，并弹出气泡提示；
+        · 同时把规范里“三者取最小”的算式按当前 b_e 实时算给用户看。
+   ================================================================================ */
+
+/* ---------- 8.1 折叠面板：点击问句展开 / 收起 ---------- */
+var faqItems = Array.prototype.slice.call(document.querySelectorAll('.faq'));
+faqItems.forEach(function(item){
+  var btn = item.querySelector('.faq-q');
+  if (!btn) return;
+  btn.addEventListener('click', function(){
+    var willOpen = !item.classList.contains('open');
+    item.classList.toggle('open', willOpen);
+    btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
+});
+
+/* 打开指定条目（用于气泡里的“看这一条”链接） */
+function openFaq(id){
+  var item = document.getElementById(id);
+  if (!item) return;
+  item.classList.add('open');
+  var b = item.querySelector('.faq-q');
+  if (b) b.setAttribute('aria-expanded', 'true');
+  /* 滚动到可见位置（left 面板可能很长） */
+  if (item.scrollIntoView) item.scrollIntoView({ block:'nearest', behavior:'smooth' });
+}
+
+/* ---------- 8.2 高亮：呼吸描边 + 自动展开 ---------- */
+var flashTimer = null;
+function flashFaq(id, autoOpen){
+  var item = document.getElementById(id);
+  if (!item) return;
+  if (autoOpen) openFaq(id);
+  /* 先移除再加，保证连续触发时动画能重新播放 */
+  item.classList.remove('flash');
+  void item.offsetWidth;                  // 强制回流，重启动画
+  item.classList.add('flash');
+  if (flashTimer) clearTimeout(flashTimer);
+  flashTimer = setTimeout(function(){ item.classList.remove('flash'); }, 3200);
+}
+
+/* ---------- 8.3 气泡提示 ---------- */
+var toastEl = document.getElementById('toast');
+var toastTimer = null;
+function showToast(title, body, linkText, linkFaqId){
+  if (!toastEl) return;
+  var html = '<div class="t-h"><i class="dot2"></i>' + title + '</div>'
+           + '<div class="t-b">' + body;
+  if (linkText && linkFaqId){
+    html += ' <span class="t-link" data-goto="' + linkFaqId + '">' + linkText + '</span>';
+  }
+  html += '</div>';
+  toastEl.innerHTML = html;
+  toastEl.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 4200);
+}
+/* 气泡里的链接：点击后跳到对应问答并保持展开 */
+if (toastEl){
+  toastEl.addEventListener('click', function(ev){
+    var t = ev.target;
+    if (t && t.getAttribute && t.getAttribute('data-goto')){
+      openFaq(t.getAttribute('data-goto'));
+      toastEl.classList.remove('show');
+    }
+  });
+}
+
+/* ---------- 8.4 拖动 b_e 时的联动（核心交互） ---------- */
+var beCalcBox  = document.querySelector('[data-be-calc]');   // Q2 里的动态算例框
+var beVerdict  = document.querySelector('[data-be-verdict]'); // 卡片标题上的状态
+var beFlashT   = null;
+
+/* 节流：拖动滑块会高频触发 input，这里限制高亮/气泡的重启频率 */
+function onBeChanged(){
+  var be = state.be;
+
+  /* (1) 高亮 Q2 并展开，同时弹气泡 */
+  flashFaq('faq2', true);
+  showToast(
+    '看，你刚刚改变了 b<sub>e</sub>',
+    '当前 <b>b<sub>e</sub> = ' + be.toFixed(2) + ' m</b>，也就是附连翼板的宽度。'
+      + '它变宽 → 翼板面积变大 → 惯性矩 I 增大 → 挠度 f<sub>max</sub> 与应力 σ<sub>max</sub> 都下降。',
+    '看详细解释 →', 'faq2'
+  );
+
+  /* (2) 算例框短暂高亮，强调“正在跟着你变” */
+  if (beCalcBox){
+    beCalcBox.classList.add('live');
+    if (beFlashT) clearTimeout(beFlashT);
+    beFlashT = setTimeout(function(){ beCalcBox.classList.remove('live'); }, 900);
+  }
+}
+el.sB.addEventListener('input', onBeChanged);
+
+/* ---------- 8.5 有效宽度算例（规范“三者取最小”的实时演算） ----------
+   规范常用的有效宽度取法：b_e ≤ min( 骨材间距s , 跨距L/6 , 20·板厚t_p )
+   本 Demo 里把“骨材间距”按 0.6 m 作为教学示例（典型肋距量级），
+   于是可以直接算出三个候选值，并指出当前滑块值是由哪一个控制。 */
+function updateFaqLive(R){
+  if (!beCalcBox) return;
+  var s   = 0.60;                       // 教学示例：骨材间距 s（m）
+  var L6  = PARAM.L / 6;                // 跨距的 1/6
+  var t20 = 20 * PARAM.tp;              // 板厚的 20 倍
+  var cap = Math.min(s, L6, t20);       // 规范取三者最小
+  /* 注意：这里必须用 state.be（滑块真实值），而不是平滑值 easeBe ——
+     否则刚拖动时算例框里会显示一个介于起点与终点之间的中间值，
+     与滑块旁显示的 b_e 对不上。 */
+  var be  = state.be;
+
+  /* 找出当前 b_e 由哪一项控制（用于文案） */
+  var driver = '骨材间距 s';
+  if (cap === L6)  driver = '跨距的 1/6';
+  if (cap === t20) driver = '板厚的 20 倍';
+
+  /* 当前 b_e 相对教学上限的比例。注意：Demo 的滑块范围故意比这个教学上限宽，
+     所以“大于上限”是刻意的演示设定，措辞上要说明清楚，别让人以为算例错了。 */
+  var ratio = be / cap;
+  var pick;
+  if (ratio > 1.001){
+    pick = '<span style="color:#ffc65c">当前 ' + be.toFixed(2) + ' m 大于教学上限 '
+         + cap.toFixed(2) + ' m</span> <span class="dim">（Demo 滑块范围刻意放宽，属正常演示）</span>';
+  } else if (ratio > 0.85){
+    pick = '<span class="pick">当前 ' + be.toFixed(2) + ' m ≈ 教学上限</span>';
+  } else {
+    pick = '<span class="dim">当前 ' + be.toFixed(2) + ' m（偏保守，还可加宽到上限）</span>';
+  }
+
+  beCalcBox.innerHTML =
+      '<div>教学版上限：min( s , L/6 , 20·t<sub>p</sub> )</div>'
+    + '<div>&nbsp;&nbsp;= min( ' + s.toFixed(2) + ' , ' + L6.toFixed(2) + ' , ' + t20.toFixed(2) + ' )'
+    + ' = <b>' + cap.toFixed(2) + ' m</b> <span class="dim">← 由「' + driver + '」控制</span></div>'
+    + '<div>' + pick + '</div>';
+
+  /* 卡片标题上的状态文字：拖动后给出直观反馈 */
+  if (beVerdict){
+    if (ratio > 1.001){
+      beVerdict.textContent = 'b_e = ' + be.toFixed(2) + ' m（教学上限 ' + cap.toFixed(2) + ' m）';
+      beVerdict.style.color = '#ffc65c';
+    } else {
+      beVerdict.textContent = 'b_e = ' + be.toFixed(2) + ' m / 上限 ' + cap.toFixed(2) + ' m';
+      beVerdict.style.color = '#7fd4ff';
+    }
+  }
+}
+
+/* 初始化 */
+(function init(){
+  el.sQ.value = 0;  state.q  = 0;  animQ = 0; easedQ = 0;
+  el.sB.value = 0.5; state.be = 0.5; easeBe = 0.5;
+  state.showMoment = el.ckMoment.checked;
+  state.showStress = el.ckStress.checked;
+  var R0 = computeAll(0, 0.5);
+  updateStats(R0);
+  updateKnowledge(R0);
+  updateFaqLive(R0);
+  /* 首次进入时把 Q2（核心难点）默认展开，方便直接看到重点 */
+  var f2 = document.getElementById('faq2');
+  if (f2){ f2.classList.add('open'); var q2 = f2.querySelector('.faq-q'); if (q2) q2.setAttribute('aria-expanded','true'); }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
