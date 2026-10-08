@@ -846,6 +846,10 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
 .profile__portrait:nth-child(even) { rotate: -1deg; }
 /* 正文里插的照片（目前只有小橘豆那页的「日常」用）：同一套卡片，自己定宽 */
 .prose-photo { max-width: 20rem; margin-bottom: 1.5rem; rotate: -1deg; }
+/* 整页只有一张图的那些作品（目前只有「奶士德」）：同一张卡片放宽一点，
+   竖幅照片在这个宽度下正好放得下，不必左右拉着看。
+   必须写在上面的规则后面——两者选择器权重一样，靠先后分胜负。 */
+.prose-photo--wide { max-width: 28rem; }
 .profile__portrait img,
 .prose-photo img { display: block; width: 100%; height: auto; }
 .profile__label,

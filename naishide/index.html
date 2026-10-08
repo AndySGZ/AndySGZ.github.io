@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="奶士德：一件图片作品，整页只有那一张照片。">
+    <title>奶士德 | 作品 | Andy SGZ</title>
+    <!-- 子目录页面复用主站那套样式表，配色、边框、字号跟着主站一起走 -->
+    <link rel="stylesheet" href="../assets/style.css">
+    <!-- 明暗主题：必须同步执行（不加 defer），否则首屏会先闪一下浅色 -->
+    <script src="../scripts/theme.js"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <header class="site-nav" id="top">
+      <div class="site-nav__inner">
+        <div class="site-nav__brand">
+          <!-- 小橘豆的主页：只放图不放字，省下导航栏的横向空间。 -->
+          <a class="nav-bird" href="../xiaojudou/index.html" aria-label="小橘豆的主页" title="小橘豆的主页">
+            <img src="../assets/xiaojudou-icon.png" alt="" width="192" height="192" decoding="async">
+          </a>
+          <a class="wordmark" href="../index.html">Andy SGZ</a>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+            <span class="nav-zh" data-theme-label-zh>暗色</span>
+            <span class="nav-en" data-theme-label-en>Dark</span>
+          </button>
+        </div>
+        <nav class="site-nav__links" aria-label="主导航">
+          <a href="../index.html"><span class="nav-zh">首页</span><span class="nav-en">Home</span></a>
+          <a href="../about.html"><span class="nav-zh">关于</span><span class="nav-en">About</span></a>
+          <a href="../essays.html"><span class="nav-zh">杂谈</span><span class="nav-en">Essays</span></a>
+          <!-- 这一页本身就是作品「奶士德」，所以导航停在「作品」上 -->
+          <a href="../works.html" aria-current="page"><span class="nav-zh">作品</span><span class="nav-en">Works</span></a>
+          <a href="../practice.html"><span class="nav-zh">练琴</span><span class="nav-en">Practice</span></a>
+          <a href="../Jary/index.html"><span class="nav-zh">《Jary行为研究》</span><span class="nav-en">JBR</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="page-header">
+        <div class="container">
+          <!-- 作品页上这张卡片点进来就是这里，除了题目不再写别的 -->
+          <h1 class="page-header__title">奶士德</h1>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="container">
+          <!-- 整页只有这一张图。换图：把 asset-originals/naishide.png 换掉，
+               跑一遍那个目录里的 make-naishide-assets.py，再替换这里的
+               assets/naishide.webp（仓库里只放压过的 WebP，原图留在仓库外）。
+               宽高写死在标签上，图还没加载完的时候版式也不会跳。 -->
+          <figure class="prose-photo prose-photo--wide">
+            <img src="assets/naishide.webp" width="685" height="1024"
+                 alt="奶士德：黄色的软胶小摆件端坐在一摞书顶上，最上面一本是《浮士德》">
+          </figure>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <span>&copy; 2026 Andy SGZ</span>
+        <a href="#top">回到顶部</a>
+        <a href="../works.html">返回作品</a>
+      </div>
+    </footer>
+  </body>
+</html>

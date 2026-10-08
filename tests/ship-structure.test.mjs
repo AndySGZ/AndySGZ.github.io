@@ -37,11 +37,12 @@ test('作品列表里有「船舶结构力学可视化展示」，标签「学�
   await assert.doesNotReject(exists(work.url), `作品链接指向不存在的文件：${work.url}`);
 });
 
-test('新作品排在列表最前，首页「精选内容」就看得见它', async () => {
+test('「船舶结构力学可视化展示」仍在首页「精选内容」看得见的范围内', async () => {
   const [data, index] = [loadSiteData(await read('scripts/site-data.js')), await read('index.html')];
+  const titles = Array.from(data.works, (item) => item.title);
 
-  assert.equal(Array.from(data.works)[0].title, WORK_TITLE,
-    '首页只取前 3 件作品，新的要放在最前面才露得出来');
+  assert.ok(titles.indexOf(WORK_TITLE) > -1 && titles.indexOf(WORK_TITLE) < 3,
+    '首页只取前 3 件作品，这一件要留在前 3 里才露得出来');
   assert.match(index, /data-works-grid[^>]*data-limit="3"/,
     '首页作品区少了 data-limit，这条守卫就名不副实了');
 });
