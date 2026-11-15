@@ -142,6 +142,23 @@ window.SITE_DATA = {
       {
         stage: '在练',
         items: [
+          { title: 'BWV1001·Adagio 柔板', composer: 'J.S.巴赫',
+            note: '对我而言问题首先在于节奏，然后是和弦，最后才是音乐性',
+            image: 'assets/practice/bwv1001adagio.webp',
+            alt: 'BWV1001 柔板开头的谱例：Adagio 速度标记与开头的和弦' },
+        ]
+      },
+      {
+        stage: '想练',
+        items: [
+          { title: 'Op.18 No.2·随想曲', composer: '维尼亚夫斯基', image: '' },
+          { title: 'Op.18 No.4·随想曲', composer: '维尼亚夫斯基', image: '' },
+          { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '或许等adagio练完了可以严肃的尝试下？', image: '' },
+        ]
+      },
+      {
+        stage: '已练',
+        items: [
           { title: 'Op.47·D小调小提琴协奏曲·第二乐章', composer: '西贝柳斯',
             note: '如何演绎其冷峻的悲痛和深沉的内省？',
             listening: [
@@ -170,23 +187,6 @@ window.SITE_DATA = {
             ],
             image: 'assets/practice/beethoven_op12.webp',
             alt: '贝多芬 D 大调小提琴奏鸣曲 Op.12 No.1 开头：Allegro con brio 速度标记与独奏声部的进入' },
-          { title: 'BWV1001·Adagio 柔板', composer: 'J.S.巴赫',
-            note: '对我而言问题首先在于节奏，然后是和弦，最后才是音乐性',
-            image: 'assets/practice/bwv1001adagio.webp',
-            alt: 'BWV1001 柔板开头的谱例：Adagio 速度标记与开头的和弦' },
-        ]
-      },
-      {
-        stage: '想练',
-        items: [
-          { title: 'Op.18 No.2·随想曲', composer: '维尼亚夫斯基', image: '' },
-          { title: 'Op.18 No.4·随想曲', composer: '维尼亚夫斯基', image: '' },
-          { title: '恰空舞曲', composer: 'J. S. 巴赫', note: '或许等adagio练完了可以严肃的尝试下？', image: '' },
-        ]
-      },
-      {
-        stage: '已练',
-        items: [
           { title: 'E小调小提琴协奏曲·第一乐章', composer: '门德尔松',
             note: '虽说已经练完，但是想要完整演奏可能并非短期可行',
             image: 'assets/practice/mendelssohn_op64.webp',
