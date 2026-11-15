@@ -4,17 +4,22 @@
    ========================================================================== */
 window.SITE_DATA = {
 
-  /* —— 首屏感触句：文字出现 / 消失，中间留出阅读时间 —— */
+  /* —— 首屏感触句：文字出现 / 消失，中间留出阅读时间 ——
+     暂时只留《蝇王》那一句，其余三句注释在 items 里；
+     恢复时把那层块注释去掉、并补回前一条后面的逗号，就回到原来的轮播。 */
   quotes: {
     reading: { perChar: 260, min: 4500, max: 14000 },  /* 每字毫秒 / 下限 / 上限 */
     fade: 700,      /* 与 CSS --slow 一致 */
     gap: 600,       /* 完全消失后到下一句出现的留白 */
     items: [
+      /* 这句的正文里有撇号，所以整串用双引号写，免得在单引号里到处转义 */
+      { text: "Maybe there is a beast... maybe it's only us.", source: 'William Golding 《Lord of the Flies》' },
+
+      /* —— 暂时撤下来的三句，恢复时去掉这层注释即可 ——
       { text: '只要你不停地向上走，一级级楼梯就没有尽头，在你向上走的脚下，它们也在向上长。', source: '卡夫卡《律师》' },
       { text: 'The obstacles in your path define the path.\n道有坎坷方知路正，人无历练原力难成。 ', source: 'Star Wars Jedi：Fallen Order' },
       { text: '亲爱的朋友，灰色的理论到处都有，\n而生活的金树长青。', source: 'Mephistopheles in 《Faust》' },
-      /* 这句的正文里有撇号，所以整串用双引号写，免得在单引号里到处转义 */
-      { text: "Maybe there is a beast... maybe it's only us.", source: 'William Golding 《Lord of the Flies》' }
+      */
     ]
   },
 

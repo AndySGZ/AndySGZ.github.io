@@ -78,16 +78,33 @@
     if (navHost) navHost.hidden = !!hidden || !canStep;
   }
 
+  /* 「悬停可暂停轮播」这句提示只在真会轮播时成立：只剩一句、或者用户要求
+     减少动态效果，都没有「轮播」这回事，提示跟着收起来。 */
+  var hint = document.querySelector('[data-quote-hint]');
+
+  function setHintHidden(hidden) {
+    if (hint) hint.hidden = !!hidden;
+  }
+
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function showAllStatic() {
     nodes.forEach(function (node) { node.classList.add('is-visible'); });
   }
 
+  /* 只有一句话：静态显示，不进计时循环 —— 否则同一句会一个劲儿地淡出再淡入，
+     看着像页面在闪。这时也没有可翻的页。 */
+  if (!canStep) {
+    showAllStatic();
+    setHintHidden(true);
+    return;
+  }
+
   if (reduced.matches) {
     showAllStatic();
     /* 全部句子都摊在页面上，「上一条 / 下一条」就没有「下一条」可说了 */
     setNavHidden(true);
+    setHintHidden(true);
     return;
   }
 
@@ -197,9 +214,11 @@
       clearTimeout(stepping);
       showAllStatic();
       setNavHidden(true);
+      setHintHidden(true);
     } else {
       nodes.forEach(function (node) { node.classList.remove('is-visible'); });
       setNavHidden(false);
+      setHintHidden(false);
       index = -1;
       paused = false;
       resume = null;
