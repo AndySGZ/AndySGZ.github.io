@@ -147,6 +147,7 @@ window.SITE_DATA = {
       {
         stage: '在练',
         items: [
+          { title: 'Op.1 No.13·随想曲', composer: '帕格尼尼', image: '' },
           { title: 'BWV1001·Adagio 柔板', composer: 'J.S.巴赫',
             note: '对我而言问题首先在于节奏，然后是和弦，最后才是音乐性',
             image: 'assets/practice/bwv1001adagio.webp',
