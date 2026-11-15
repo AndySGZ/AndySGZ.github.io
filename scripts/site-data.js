@@ -169,6 +169,7 @@ window.SITE_DATA = {
       {
         stage: '已练',
         items: [
+          { title: 'Op.1 No.20·随想曲', composer: '帕格尼尼', image: '' },
           { title: 'Op.47·D小调小提琴协奏曲·第二乐章', composer: '西贝柳斯',
             note: '如何演绎其冷峻的悲痛和深沉的内省？',
             listening: [
