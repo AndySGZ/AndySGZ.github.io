@@ -27,6 +27,13 @@ window.SITE_DATA = {
      url 留空表示还没发布，页面会显示「尚未发布」而不是给一个死链接。 */
   essays: [
     {
+      date: '2026-11-16',
+      title: '谈肖松音诗',
+      tag: '练琴',
+      excerpt: '读完屠格涅夫的《胜利之爱之歌》，终于听懂这首曲子。',
+      url: 'essays/chausson-poeme.html'
+    },
+    {
       date: '2026-09-24',
       title: '到底如何练好节奏啊？',
       tag: '练琴',

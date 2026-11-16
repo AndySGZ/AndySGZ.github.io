@@ -17,7 +17,7 @@ function loadSiteData(source) {
    导航里的链接写成 ../xxx，比对时统一去掉前缀，所以和根目录页面用的是同一份期望值。 */
 const PAGES = [
   'index.html', 'about.html', 'essays.html', 'works.html', 'practice.html',
-  'essays/rhythm.html', 'xiaojudou/index.html', 'ship-structure/index.html',
+  'essays/rhythm.html', 'essays/chausson-poeme.html', 'xiaojudou/index.html', 'ship-structure/index.html',
   'naishide/index.html',
 ];
 

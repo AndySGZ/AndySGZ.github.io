@@ -746,6 +746,17 @@ textarea.field__input { min-height: 6.5rem; resize: vertical; }
    比原来那样「什么也不显示」显眼得多——所以空的直接不显示。 */
 .prose h2:empty { display: none; }
 
+/* 正文里的行内链接：跟「最近在听」那串外链同一套语言 ——
+   粗下划线，悬停时垫一块色纸。默认的蓝色下划线在这套配色里太出戏。 */
+.prose a {
+  color: var(--charcoal);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.22em;
+  transition: background-color var(--quick) var(--ease);
+}
+.prose a:hover { background: var(--clay); }
+
 /* ==========================================================================
    减少动态效果
    --------------------------------------------------------------------------

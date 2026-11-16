@@ -7,7 +7,7 @@ const root = new URL('../', import.meta.url);
    和只有一张图的「奶士德」住在子目录里，链接一并纳入检查 */
 const PAGES = [
   'index.html', 'about.html', 'essays.html', 'works.html', 'practice.html',
-  'essays/rhythm.html', 'xiaojudou/index.html',
+  'essays/rhythm.html', 'essays/chausson-poeme.html', 'xiaojudou/index.html',
   'ship-structure/index.html', 'ship-structure/plate-demo.html',
   'naishide/index.html',
 ];
