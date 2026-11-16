@@ -26,6 +26,23 @@
    ========================================================================== */
 export const UPDATES = [
   {
+    date: '2026-11-16',
+    kind: { zh: '观测记录', en: 'Field note' },
+    title: { zh: 'Jary 又蹦起来了', en: 'Jary is bouncing again' },
+    text: {
+      zh: '走廊里没有音乐，他自己蹦出了节奏。',
+      en: 'No music in the corridor — he found the rhythm anyway.'
+    },
+    images: [
+      {
+        src: 'assets/updates/2026-11-16-jary-bounce.gif',
+        alt: '室内走廊：JARY 穿米白短袖、深色长裤，笑着半蹲又起身，手臂来回摆；身后是木门、'
+          + '白色桌椅，椅子上搭着一个黑色背包',
+        caption: { zh: '笑着蹦，蹦着笑', en: 'Bouncing while laughing, laughing while bouncing' }
+      }
+    ]
+  },
+  {
     date: '2026-09-27',
     kind: { zh: '往日回忆', en: 'Remember when' },
     title: { zh: '往日回忆：Jary 在清华', en: 'Remember when: Jary at Tsinghua' },
